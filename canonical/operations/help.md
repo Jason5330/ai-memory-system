@@ -1,0 +1,112 @@
+---
+name: help
+description: List every memory-system command with a detailed explanation of what it does, WHEN to use it, and HOW to confirm it actually worked. Use when the user says "help", "/help", "有哪些指令", "怎麼用", "說明", "這個指令幹嘛", or seems unsure which command to run.
+---
+
+# help — All Commands, When to Use Them, How to Confirm Success
+
+Print this guide in the user's language. For each command give three things: **功能（what）**,
+**使用時機（when）**, **怎麼確認通關（how to verify it worked）**. Roots:
+`PERSONAL = ~/.ai-memory`, `PROJECT = ./.claude/memory` (if you're inside an initialized project).
+
+## 一眼看懂（quick map）
+
+| 指令 | 一句話 | 何時用 |
+|------|--------|--------|
+| `/capture` | 把這次對話的重點存進記憶 | 聊到值得記的東西、或某工具壞了 |
+| `/dream` | 大整理 + 反思 + 提煉準則候選 | 累積幾天對話後（或每晚自動） |
+| `/harvest` | 把重複的工作流封裝成 skill | 同一流程做過 ≥2 次 |
+| `/review-doctrine` | 逐條批准 Claude 提的行為準則 | `/dream` 說有候選時 |
+| `/status` | 唯讀健檢看現況 | 想知道記了多少、進度如何 |
+| `/schedule-dream` | 建立/列出/刪除每晚自動整理 | 設一次；或要列/刪排程時 |
+| `/reset` | 互動式清空記憶、重新開始 | 存了一堆不想要的記憶 |
+| `/help` | 你正在看的這份 | 忘記哪個指令、想確認怎麼驗證 |
+
+---
+
+## 逐指令詳解
+
+### `/capture`
+- **功能**：掃描目前對話，把 7 類訊號（決策/知識/偏好/進行中/問題解法/技能失敗/工具失效）存到**對的層**
+  （關於你/行為→個人層；關於這個專案→專案層）。會過「知識篩選閘門」（本次產物不當知識存）。
+- **聰明記決策**：就算你只回一句「**好 / OK / 就用這個**」，它會**回溯前 3-5 輪**還原你到底拍板了什麼，
+  存下決策的**實質**（選了哪個、為什麼、否決了什麼），而不是只存「好」——短但關鍵的決策不會漏。
+- **使用時機**：剛聊完一段重要的東西、做了決定、解了問題、講了偏好，想確保不忘 → 打它。發現某個內建
+  工具在你環境壞掉（如搜尋一直失敗）也要打它（它會把工具登記起來硬擋）。
+- **✅ 怎麼確認通關**：
+  - 看它回的報告（寫了哪一層、幾個訊號、建/更新幾個知識頁）。
+  - `PROJECT 或 PERSONAL/conversations/今天.md` 應該有今天的紀錄；`MEMORY.md` 索引有更新。
+  - 若是**工具失效**：`~/.ai-memory/blocked-actions.json` 應出現該工具一條，且 `~/.ai-memory/MEMORY.md`
+    頂部「Environment Limits」段有對應指令。**重啟後**該工具再被呼叫會被擋下。
+
+### `/dream`
+- **功能**：多階段深度整合——實體掃描→修雙向連結→去重/矛盾→**反思寫 reflection.md**→把跨 ≥2 次反思的
+  模式提煉成 **doctrine 候選**→技能失敗回寫→同步索引→跑 lint。
+- **使用時機**：累積幾天對話後（例如一週一次或睡前），或交給 `/schedule-dream` 每晚自動。
+- **✅ 怎麼確認通關**：
+  - 報告會列各階段數字；`~/.ai-memory/reflection.md` 多了一則今天的反思。
+  - 若有模式，`doctrine_candidates.md` 出現「⏳ pending review」候選，並提示你跑 `/review-doctrine`。
+  - 報告末附 `RESULT: X pass, Y warn, Z fail`（memory-lint）——**Z=0（無 fail）才算乾淨通關**。
+
+### `/harvest`
+- **功能**：掃歷史找**重複的手動工作流**，產「候選清單」（證據/日期/次數/信心/建議形式），逐條人審後
+  **只建高信心、現有沒覆蓋的**。建立技能**一律透過官方 skill-creator** 調用 author，再同時物化到 Claude
+  與 Codex。
+- **使用時機**：某個流程你重複做過 **≥2 次**（同一天也算）。注意：**一直失敗的內建工具不是工作流**，
+  那要走 `/capture` 的硬擋，不是 harvest。
+- **輕量 vs 嚴謹**：預設走 skill-creator 的**輕量 author**（直接寫好 SKILL.md，最快）。想要嚴謹可請它
+  再跑 **eval/benchmark 迴圈**（測試用例 + 評分 + 比對），但那需要 Python，且 Codex 端建議只用輕量。
+  跟它說「嚴謹一點 / 跑評測」就會啟用。
+- **✅ 怎麼確認通關**：
+  - 先看到候選清單（不會直接建）；你點頭的項目，最後報告列在「Created/extended」。
+  - 升格的 skill 應**同時**出現在 `.claude/skills/<名>/SKILL.md` 與 `.agents/skills/<名>/SKILL.md`
+    （兩邊內容一致）；下次對話該 skill 可自動觸發。
+
+### `/review-doctrine`
+- **功能**：把 `/dream` 提的準則候選**逐條**給你 ✅批准 / ✏️改 / ❌拒 / ⏭️略過；批准的寫進 `doctrine.md`。
+- **使用時機**：`/dream` 跑完看到「有 X 條候選等審核」時。
+- **✅ 怎麼確認通關**：批准的條目在 `~/.ai-memory/doctrine.md` 以 `### D-XXX` 出現；
+  `doctrine_candidates.md` 該條狀態變 `✅ approved`。下次對話啟動就會遵守（兩平台共用同一份 doctrine）。
+
+### `/status`
+- **功能**：唯讀儀表板——兩層各自的對話數/知識數/技能數、已批准 doctrine、待審候選、反思則數、
+  壞工具數、重複工作流候選、平台技能是否同步。
+- **使用時機**：想知道現況、或當作「整體健康確認」工具，隨時可打（不會改任何東西）。
+- **✅ 怎麼確認通關**：它**本身就是驗證工具**——能印出完整儀表板即正常；若顯示「平台技能不同步」或
+  連結壞掉，照它的建議跑對應指令修。
+
+### `/schedule-dream`
+- **功能**：用 **OS 排程器**（Windows 工作排程 / cron）建立/列出/刪除每晚自動 `/dream`+`/harvest-scan`。
+  只維護**單一具名排程**（建立=取代，不會越堆越多）。對它說「排程／列出排程／刪除排程」即可，agent 代跑。
+- **使用時機**：想讓它每晚自己整理（設一次）；或懷疑排程重複/想停用時（列出、刪除）。
+- **✅ 怎麼確認通關**：
+  - 建立後對它說「列出排程」→ 應只看到一個 `ai-memory-nightly`。
+  - 第一次跑過後，`~/.ai-memory/nightly-last-run.md` 會有當次摘要。
+  - （v1 用 Claude 內建 cron 者注意：`CronList` 在 Claude Code CLI 可能不顯示，要去 **VS Code 擴充**看。）
+
+### `/reset`
+- **功能**：互動式清空記憶。執行時讓你選**層級**（個人/專案/兩者）+ **種類**（對話/反思/知識/準則/偏好）；
+  **一律先備份到 archive、要打 `yes reset` 才動手**，絕不刪唯一副本。`blocked-actions.json` 預設保留。
+- **使用時機**：多次 `/capture` 後存了一堆不想要的記憶、想重新開始時。
+- **✅ 怎麼確認通關**：報告會給**備份路徑** `archive/reset-時間戳/`（去確認檔案都在裡面）；被清的項目
+  變回空/範本狀態。要復原＝把備份檔複製回去。清完**重啟** Claude Code/Codex 讓新索引載入。
+
+### `/help`
+- **功能**：你正在看的這份——列出所有指令的功能、使用時機、怎麼確認通關。
+- **使用時機**：忘記有哪些指令、不確定該用哪個、想知道怎麼驗證時。
+
+---
+
+## 整體確認「裝好了 / 在運作」（通關總檢）
+
+1. **裝好了嗎**：個人層 `~/.ai-memory/`、入口 `~/.claude/CLAUDE.md` + `~/.codex/AGENTS.md`、
+   操作（`~/.claude/commands/` + `~/.agents/skills/`）、hook（`settings.json` / `config.toml`）都在。
+2. **健康嗎**：跑 `/status` 看儀表板；跑 `memory-lint`（`~/.ai-memory/memory-lint.ps1` 或 `.sh`，可帶
+   專案路徑同時檢兩層）→ 看 `RESULT: X pass, Y warn, Z fail`，**Z=0** 為通關。
+3. **在進化嗎**：`reflection.md` 有累積、`doctrine.md` 有你批准的準則、`.claude/skills`＋`.agents/skills`
+   有升格技能、壞工具被擋——這四個有動，就代表「外腦」真的在迭代。
+
+## Rules
+- 用使用者的語言輸出；簡潔、條列。
+- 路徑依層級解析（個人 `~/.ai-memory`、專案 `./.claude/memory`）。
+- 只是說明，不修改任何檔案。

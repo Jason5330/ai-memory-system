@@ -1,0 +1,4 @@
+{
+  "_comment": "Hard-block registry read by the PreToolUse hook on BOTH Claude Code and Codex. Machine-specific: ships empty so sharing never blocks a friend's tools. /capture adds entries. Each entry: tool (canonical tool name as the platform reports it), reason, use_instead, platform ('claude' | 'codex' | 'both', default 'both'), added (YYYY-MM-DD). After adding, also add the tool to the PreToolUse matcher (Claude ~/.claude/settings.json, Codex ~/.codex/config.toml).",
+  "blocked_tools": []
+}

@@ -1,0 +1,10 @@
+# Personal memories never live in this repo — they live at ~/.ai-memory (private).
+# This repo only ships the framework (canonical/, installers, skill-creator) + docs.
+
+# Stray PowerShell test artifacts (object-stringified filenames)
+@{*}
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
