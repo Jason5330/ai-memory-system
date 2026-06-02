@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>安裝行為說明</title><style>
+:root{--bg:#0f1226;--card:#1a1f3a;--ink:#eef1ff;--muted:#aab2d5;--accent:#7c9cff;--accent2:#5fd0c5;--line:#2c3358;--code:#11152b}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;background:linear-gradient(160deg,#0f1226,#161a35 60%,#101430);color:var(--ink);line-height:1.75}
+.wrap{max-width:900px;margin:0 auto;padding:36px 22px 80px}
+h1,h2,h3,h4{line-height:1.3;margin:1.6em 0 .6em}
+h1{font-size:28px;border-bottom:2px solid var(--line);padding-bottom:.3em}
+h2{font-size:22px;color:#fff;border-left:4px solid var(--accent);padding-left:.5em}
+h3{font-size:18px;color:var(--accent2)}
+h4{font-size:16px;color:var(--muted)}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+p{margin:.7em 0}
+code{background:var(--code);color:#9fe0d8;padding:.12em .4em;border-radius:6px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}
+pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow:auto}
+pre code{background:none;color:#cfe3ff;padding:0;font-size:.88em;line-height:1.6}
+blockquote{margin:.8em 0;padding:.6em 1em;background:#1c2342;border-left:4px solid var(--accent2);border-radius:0 10px 10px 0;color:#d7ddff}
+ul,ol{margin:.5em 0 .9em;padding-left:1.5em}li{margin:.28em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;display:block;overflow:auto}
+th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:#222845;color:#fff}tr:nth-child(even) td{background:#171c38}
+hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+strong{color:#fff}
+.doc-nav{font-size:13px;color:var(--muted);margin-bottom:8px}
+footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
+</style></head>
+<body><div class="wrap"><div class="doc-nav">AI Memory System — github.com/Jason5330/ai-memory-system</div>
+<h1>安裝行為說明（兩個安裝器動到哪些檔案）</h1>
+<blockquote>逐項列出 <code>install-personal.{ps1,sh}</code> 與 <code>init-project.{ps1,sh}</code> 安裝後<strong>到底發生什麼</strong>。<br>安裝是<strong>冪等</strong>的：重跑只更新框架自己的檔案，<strong>不覆蓋你的記憶資料</strong>。個人層在平台中立的<br><code>~/.ai-memory</code>；操作物化到 Claude（<code>~/.claude</code>）與 Codex（<code>~/.codex</code> + <code>~/.agents/skills</code>）。</blockquote>
+<hr>
+<h2>A) <code>install-personal.{ps1,sh}</code>（每台機器一次；建立個人層 + 接上兩平台）</h2>
+<h3>🆕 建立的資料夾/檔案（個人腦，平台中立）</h3>
+<table><thead><tr><th>路徑</th><th>內容</th><th>規則</th></tr></thead><tbody><tr><td><code>~/.ai-memory/</code></td><td>個人腦總目錄</td><td>建立</td></tr><tr><td><code>~/.ai-memory/{MEMORY.md, doctrine.md, doctrine_candidates.md, feedback_user_style.md, persona.md, reflection.md, blocked-actions.json}</code></td><td>你的個人記憶資料</td><td><strong>copy-if-missing</strong>（已存在不覆蓋）</td></tr><tr><td><code>~/.ai-memory/guides/{PATHS.md,_routing.md,_materialize-skill.md}</code></td><td>操作引用的指南</td><td>框架擁有，覆蓋更新</td></tr><tr><td><code>~/.ai-memory/hooks/block-failed-actions.{ps1,sh}</code></td><td>硬擋腳本</td><td>覆蓋更新</td></tr><tr><td><code>~/.ai-memory/cron/nightly.{ps1,sh}</code></td><td>每晚整理腳本</td><td>覆蓋更新</td></tr><tr><td><code>~/.ai-memory/memory-lint.{ps1,sh}</code></td><td>健檢器</td><td>覆蓋更新</td></tr><tr><td><code>~/.ai-memory/project-templates/</code></td><td>給 <code>init-project</code> 用的範本</td><td>覆蓋更新</td></tr><tr><td><code>~/.ai-memory/{knowledge,conversations}/</code>（含 archive）</td><td>個人層知識/對話</td><td>建立</td></tr></tbody></table>
+<h3>🔁 物化到兩平台（框架擁有，會更新）</h3>
+<table><thead><tr><th>路徑</th><th>內容</th></tr></thead><tbody><tr><td><code>~/.claude/CLAUDE.md</code></td><td>Claude 入口（marker 防重複；已有就跳過）</td></tr><tr><td><code>~/.codex/AGENTS.md</code></td><td>Codex 入口（內容對等）</td></tr><tr><td><code>~/.claude/commands/*.md</code></td><td>9 個操作的 Claude slash 指令（capture/ingest-sessions/dream/harvest/review-doctrine/status/schedule-dream/reset/help）</td></tr><tr><td><code>~/.agents/skills/&lt;op&gt;/SKILL.md</code></td><td>同 9 個操作的 Codex 技能</td></tr><tr><td><code>~/.claude/skills/skill-creator/</code> 與 <code>~/.agents/skills/skill-creator/</code></td><td><strong>官方 skill-creator</strong>（copy-if-missing；創建技能一律走它）</td></tr></tbody></table>
+<h3>✏️ 就地修改（一次性、防重複）</h3>
+<table><thead><tr><th>路徑</th><th>動作</th></tr></thead><tbody><tr><td><code>~/.claude/settings.json</code></td><td>合併一條 <code>hooks.PreToolUse</code>（catch-all matcher，指向硬擋腳本，帶 <code>claude</code>）</td></tr><tr><td><code>~/.codex/config.toml</code></td><td>附加一段 <code>[[hooks.PreToolUse]]</code>（matcher <code>.*</code>，指向同一腳本，帶 <code>codex</code>）</td></tr></tbody></table>
+<blockquote><strong>遷移</strong>：若你有舊版 <code>~/.claude/memory/*</code>，會被 <strong>copy-if-missing 搬進 <code>~/.ai-memory/</code></strong>（不刪原檔）。</blockquote>
+<hr>
+<h2>B) <code>init-project.{ps1,sh}</code>（每個專案一次；在專案資料夾裡跑）</h2>
+<p>在<strong>當前專案資料夾</strong>建立專案層（讀 <code>~/.ai-memory/project-templates/</code>，所以要先跑過 install-personal）：</p>
+<table><thead><tr><th>路徑</th><th>內容</th></tr></thead><tbody><tr><td><code>&lt;專案&gt;/CLAUDE.md</code>、<code>&lt;專案&gt;/AGENTS.md</code></td><td>專案入口（copy-if-missing，含專案名）</td></tr><tr><td><code>&lt;專案&gt;/.claude/memory/{MEMORY.md,knowledge/,conversations/}</code>（含 archive）</td><td>專案層記憶</td></tr><tr><td><code>&lt;專案&gt;/.claude/skills/</code>、<code>&lt;專案&gt;/.agents/skills/</code></td><td>專案技能（兩平台）</td></tr><tr><td><code>&lt;專案&gt;/.codex/config.toml</code></td><td>Codex 專案設定占位</td></tr><tr><td><code>&lt;專案&gt;/.gitignore</code></td><td>追加防外洩守則（個人層不入專案 git）</td></tr></tbody></table>
+<hr>
+<h2>🚫 完全不碰</h2>
+<ul><li>你的個人記憶資料（<code>~/.ai-memory</code> 那幾個 copy-if-missing 檔，已存在一律跳過）。</li><li><code>settings.json</code> / <code>config.toml</code> 裡你原有的其他設定（只合併/附加，不覆蓋）。</li><li>任何專案裡你自己的程式碼。</li></ul>
+<h2>🔁 升級</h2>
+<p>重跑 <code>install-personal</code>：框架程式（操作/hook/cron/lint/guides）更新成最新版，<strong>你的記憶資料保留</strong>。</p>
+<p>完整路徑規則見 <a href="DUAL-PLATFORM-GUIDE.md"><code>DUAL-PLATFORM-GUIDE.md</code></a> 與 <code>canonical/PATHS.md</code>。</p>
+<footer>由 安裝行為說明.md 自動轉出 · AI Memory System</footer></div></body></html>

@@ -19,7 +19,8 @@
 ```
 ~/.ai-memory/
 ├── MEMORY.md                ← 個人索引（每次對話載入；頂部「環境限制」指令區）
-├── feedback_user_style.md   ← 你的偏好
+├── feedback_user_style.md   ← 你的偏好（任務怎麼做）
+├── persona.md               ← AI 的人設/語氣/定位（AI 怎麼當）
 ├── reflection.md            ← 反思日誌（自動累積）
 ├── doctrine.md              ← 已批准的永久行為準則
 ├── doctrine_candidates.md   ← 待審核準則候選
@@ -54,11 +55,12 @@ first_seen / last_updated: YYYY-MM-DD
 ```
 **先讀 Current State（現在的真相），需要歷史才翻 Timeline。** 記憶分 4 type：user / feedback / project / reference。
 
-## 八個指令（速覽，詳細打 `/help`）
+## 九個指令（速覽，詳細打 `/help`）
 
 | 指令 | 做什麼 |
 |------|--------|
-| `/capture` | 存這次對話的訊號（自動分層；工具失效登記硬擋）|
+| `/capture` | 存這次對話的訊號（自動分層；含 🎭 人設；工具失效登記硬擋）|
+| `/ingest-sessions` | 回頭讀近期 Claude/Codex 會話記錄補抓漏記（浮水印+去重；每晚先跑）|
 | `/dream` | 整合 + 反思 + 提煉準則候選 + 失敗回寫 + lint |
 | `/harvest` | 重複 ≥2 次的工作流 → skill（透過官方 skill-creator）|
 | `/review-doctrine` | 逐條批准 doctrine 候選 |

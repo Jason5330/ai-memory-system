@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新手指南</title><style>
+:root{--bg:#0f1226;--card:#1a1f3a;--ink:#eef1ff;--muted:#aab2d5;--accent:#7c9cff;--accent2:#5fd0c5;--line:#2c3358;--code:#11152b}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;background:linear-gradient(160deg,#0f1226,#161a35 60%,#101430);color:var(--ink);line-height:1.75}
+.wrap{max-width:900px;margin:0 auto;padding:36px 22px 80px}
+h1,h2,h3,h4{line-height:1.3;margin:1.6em 0 .6em}
+h1{font-size:28px;border-bottom:2px solid var(--line);padding-bottom:.3em}
+h2{font-size:22px;color:#fff;border-left:4px solid var(--accent);padding-left:.5em}
+h3{font-size:18px;color:var(--accent2)}
+h4{font-size:16px;color:var(--muted)}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+p{margin:.7em 0}
+code{background:var(--code);color:#9fe0d8;padding:.12em .4em;border-radius:6px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}
+pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow:auto}
+pre code{background:none;color:#cfe3ff;padding:0;font-size:.88em;line-height:1.6}
+blockquote{margin:.8em 0;padding:.6em 1em;background:#1c2342;border-left:4px solid var(--accent2);border-radius:0 10px 10px 0;color:#d7ddff}
+ul,ol{margin:.5em 0 .9em;padding-left:1.5em}li{margin:.28em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;display:block;overflow:auto}
+th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:#222845;color:#fff}tr:nth-child(even) td{background:#171c38}
+hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+strong{color:#fff}
+.doc-nav{font-size:13px;color:var(--muted);margin-bottom:8px}
+footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
+</style></head>
+<body><div class="wrap"><div class="doc-nav">AI Memory System — github.com/Jason5330/ai-memory-system</div>
+<h1>新手指南（白話版）</h1>
+<blockquote>給完全沒用過的人。看完這份就會用。想看更深的：<code>DUAL-PLATFORM-GUIDE.md</code>（完整）、<code>TECHNICAL_GUIDE.md</code>（技術）。</blockquote>
+<hr>
+<h2>一句話：這是什麼？</h2>
+<p>平常每開一個新對話，AI 就<strong>失憶</strong>，你得重講一次你是誰、上次做到哪。</p>
+<p>裝了這套之後，<strong>Claude Code 或 Codex</strong> 會<strong>記住</strong>你的偏好、決策、知識，而且<strong>越用越懂你</strong>。</p>
+<pre><code>沒裝：你 →「幫我做 X」→ AI（完全不認識你）
+裝了：你 →「幫我做 X」→ AI 先讀記憶 → 知道你是誰、你的習慣 → 給更準的答案</code></pre>
+<h2>記憶分兩層（重要觀念）</h2>
+<ul><li><strong>個人腦</strong>（<code>~/.ai-memory</code>）：你的偏好、行為準則、反思——<strong>所有專案共用、越來越懂你</strong>，永不進專案 git。</li><li><strong>專案腦</strong>（<code>&lt;專案&gt;/.claude/memory</code>）：那個專案自己的知識、對話。</li></ul>
+<hr>
+<h2>安裝：兩個指令，別搞混</h2>
+<p>不是「裝兩次同一個東西」，是兩件不同的事：</p>
+<table><thead><tr><th></th><th>跑幾次</th><th>在哪跑</th><th>給你什麼</th></tr></thead><tbody><tr><td><code>install-personal.ps1</code></td><td><strong>每台電腦一次</strong></td><td>框架資料夾裡</td><td>你的<strong>個人腦</strong>（全域共用）</td></tr><tr><td><code>init-project.ps1</code></td><td><strong>每個新專案各一次</strong></td><td><strong>新專案資料夾裡</strong></td><td>那個專案自己的<strong>專案腦</strong></td></tr></tbody></table>
+<p><strong>順序：先 install-personal、後 init-project</strong>（init-project 會讀 install-personal 先放好的範本）。</p>
+<pre><code># 1) 每台電腦一次：在框架資料夾裡跑
+.\install-personal.ps1            # Windows
+./install-personal.sh             # Mac/Linux
+
+# 2) 每開一個新專案：進到「那個專案資料夾」再跑（不是框架資料夾！）
+cd C:\Users\你的帳號\Desktop\我的新專案
+C:\Users\你的帳號\Desktop\claude-memory-system-master\init-project.ps1</code></pre>
+<blockquote>⚠️ 出現「無法執行指令碼」紅字 → 先貼這行再重試：<br>```powershell<br>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned<br>```</blockquote>
+<p>裝完<strong>重啟 Claude Code / Codex</strong>。只是隨便聊、沒有專案 → 不用跑 init-project，個人腦已經能用。</p>
+<hr>
+<h2>實戰：框架夾放在專案裡，在 VSCode 怎麼下指令</h2>
+<pre><code>我的新專案\                          ← VSCode 開在這層（要初始化的是這層）
+└── claude-memory-system-master\     ← 框架夾放進來了</code></pre>
+<ol><li>按 <strong>Ctrl + 反引號鍵</strong>（鍵盤左上角、<code>Esc</code> 下面那顆 `<code> </code> ``）開內建終端機（或選單 Terminal → New Terminal），<br>確認提示字元是 <code>PS C:\Users\你的帳號\Desktop\我的新專案&gt;</code>。</li><li>第一次先裝個人層：<br>```powershell<br>powershell -ExecutionPolicy Bypass -File .\claude-memory-system-master\install-personal.ps1<br>```</li><li>初始化這個專案：<br>```powershell<br>powershell -ExecutionPolicy Bypass -File .\claude-memory-system-master\init-project.ps1<br>```</li></ol>
+<p>跑完專案根目錄會長出 <code>CLAUDE.md</code>、<code>AGENTS.md</code>、<code>.claude\</code>、<code>.codex\</code>、<code>.agents\</code>、<code>.gitignore</code> = 成功。</p>
+<blockquote>地雷：<strong>別先 <code>cd</code> 進框架子夾再跑</strong>（會把記憶建錯地方）；框架夾放專案裡會被 git 進去，介意就在<br><code>.gitignore</code> 加 <code>claude-memory-system-master/</code> 或把框架夾放專案外面。</blockquote>
+<hr>
+<h2>九個指令（打在對話框，像打字一樣）</h2>
+<table><thead><tr><th>指令</th><th>白話</th><th>何時用</th></tr></thead><tbody><tr><td><code>/capture</code></td><td>把這次對話的重點存起來</td><td>聊到值得記的、或某工具壞了</td></tr><tr><td><code>/ingest-sessions</code></td><td>回頭把最近會話沒記到的補抓進來</td><td>怕漏記；或交給每晚自動</td></tr><tr><td><code>/dream</code></td><td>大整理 + 反思 + 提煉準則候選</td><td>累積幾天後（或設每晚自動）</td></tr><tr><td><code>/harvest</code></td><td>把重複 ≥2 次的流程變成 skill</td><td>同個流程做過 ≥2 次（忘記也沒關係，capture 會主動問）</td></tr><tr><td><code>/review-doctrine</code></td><td>逐條批准 AI 提的行為準則</td><td><code>/dream</code> 說有候選時</td></tr><tr><td><code>/status</code></td><td>看現況（只看不改）</td><td>想知道記了多少</td></tr><tr><td><code>/schedule-dream</code></td><td>建立/列出/刪除每晚自動整理</td><td>設一次；或要列/刪排程時</td></tr><tr><td><code>/reset</code></td><td>互動式清空記憶、重新開始</td><td>存了一堆不想要的記憶</td></tr><tr><td><code>/help</code></td><td>列出所有指令 + <strong>怎麼確認通關</strong></td><td>忘記怎麼用</td></tr></tbody></table>
+<blockquote>Claude Code 打 <code>/指令</code>；Codex 用同名技能（講「capture 一下 / 跑 dream」即可）。<strong>最詳細的說明打 <code>/help</code>。</strong></blockquote>
+<p>幾個重點：</p>
+<ul><li><strong>多久變一個 skill</strong>：同一流程<strong>出現 ≥2 次（同一天也算，不用等三天）</strong>就會被提議。建技能一律透過<strong>官方 skill-creator</strong>。</li><li><strong>工具一直壞掉（例如搜尋失敗）不是做 skill</strong>：那是工具失效 → 自動<strong>硬擋</strong>、改用能用的替代。直接 <code>/capture</code> 跟它說「這個工具壞了」，<strong>第 2 次就該擋</strong>。</li><li><strong>排程不會越堆越多</strong>：只維護一個排程；說「列出排程／刪除排程」就能管理（<code>CronList</code> 在 Claude Code CLI 不顯示、要去 VS Code 看）。</li><li><strong>🎭 AI 人設</strong>：你說「以後叫我老闆／講話直接點」這種「AI 該怎麼當」的話，會存進<strong>人設</strong>（個人層、每次載入），跟「任務偏好」分開。</li><li><strong>怕漏記</strong>：就算忘了打 <code>/capture</code>，<code>/ingest-sessions</code>（每晚也會自動先跑）會回頭讀最近的會話記錄把漏掉的補上。</li></ul>
+<hr>
+<h2>每天怎麼用（最省事版）</h2>
+<pre><code>第一次：設一次 /schedule-dream（每天自動整理）
+每次重要對話結束前：打 /capture
+看到「有 X 條準則待審核」：打 /review-doctrine 批准你認同的
+覺得某流程重複做了：打 /harvest（或等 capture 主動問）</code></pre>
+<hr>
+<h2>常見問題（極簡）</h2>
+<p><strong>Q：怎麼確認裝好了 / 在運作？</strong> 打 <code>/status</code> 看儀表板；或打 <code>/help</code> 看每個指令「怎麼確認通關」。</p>
+<p><strong>Q：會不會把資料傳出去？</strong> 不會。全部存你自己電腦，純文字檔，不需網路、不需資料庫。</p>
+<p><strong>Q：記太多、存了不想要的怎麼辦？</strong> 打 <code>/reset</code>——它會問你清哪一層、哪些種類，<strong>先備份、要打 <code>yes reset</code> 才動手</strong>，救得回來。</p>
+<p><strong>Q：我只回一句「好 / OK」也會被記到嗎？</strong> 會。<code>/capture</code> 很聰明——它會<strong>回溯前 3-5 輪</strong>，把你拍板的決策<strong>實質</strong>存下來（選了哪個、為什麼、否決了什麼），而不是只存「好」。短但關鍵的決策不會漏，routine 閒聊還是會跳過。</p>
+<p><strong>Q：規矩是 AI 自己亂加的嗎？</strong> 不是。它只能「提議」，<strong>一定要你 <code>/review-doctrine</code> 批准</strong>才生效。</p>
+<p><strong>Q：某個技能一直犯同樣的錯？</strong> 它會自己學乖：<code>/capture</code> 記下失敗，<code>/dream</code> 寫進該技能的「失敗兜底」，下次自動避開。</p>
+<p><strong>Q：換電腦？</strong> 把 <code>~/.ai-memory</code>（個人腦）複製過去；專案腦跟著專案走。</p>
+<hr>
+<h2>只要記住這一件事</h2>
+<blockquote><strong>每次重要對話結束，打 <code>/capture</code>。</strong> 其他的系統會幫你搞定；忘記指令就打 <code>/help</code>。</blockquote>
+<footer>由 新手指南.md 自動轉出 · AI Memory System</footer></div></body></html>

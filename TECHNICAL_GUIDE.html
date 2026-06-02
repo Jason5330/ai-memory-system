@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TECHNICAL_GUIDE</title><style>
+:root{--bg:#0f1226;--card:#1a1f3a;--ink:#eef1ff;--muted:#aab2d5;--accent:#7c9cff;--accent2:#5fd0c5;--line:#2c3358;--code:#11152b}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;background:linear-gradient(160deg,#0f1226,#161a35 60%,#101430);color:var(--ink);line-height:1.75}
+.wrap{max-width:900px;margin:0 auto;padding:36px 22px 80px}
+h1,h2,h3,h4{line-height:1.3;margin:1.6em 0 .6em}
+h1{font-size:28px;border-bottom:2px solid var(--line);padding-bottom:.3em}
+h2{font-size:22px;color:#fff;border-left:4px solid var(--accent);padding-left:.5em}
+h3{font-size:18px;color:var(--accent2)}
+h4{font-size:16px;color:var(--muted)}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+p{margin:.7em 0}
+code{background:var(--code);color:#9fe0d8;padding:.12em .4em;border-radius:6px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}
+pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow:auto}
+pre code{background:none;color:#cfe3ff;padding:0;font-size:.88em;line-height:1.6}
+blockquote{margin:.8em 0;padding:.6em 1em;background:#1c2342;border-left:4px solid var(--accent2);border-radius:0 10px 10px 0;color:#d7ddff}
+ul,ol{margin:.5em 0 .9em;padding-left:1.5em}li{margin:.28em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;display:block;overflow:auto}
+th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:#222845;color:#fff}tr:nth-child(even) td{background:#171c38}
+hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+strong{color:#fff}
+.doc-nav{font-size:13px;color:var(--muted);margin-bottom:8px}
+footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
+</style></head>
+<body><div class="wrap"><div class="doc-nav">AI Memory System — github.com/Jason5330/ai-memory-system</div>
+<h1>機制技術詳解（v2：雙平台 × 雙層 × contract-first）</h1>
+<blockquote>適合對象：想深入了解系統如何運作的開發者。使用說明見 <code>新手指南.md</code> / <code>DUAL-PLATFORM-GUIDE.md</code>；<br>完整路徑規則見 <code>canonical/PATHS.md</code>。</blockquote>
+<h2>一、架構總覽（contract-first）</h2>
+<p>所有東西在框架 <code>canonical/</code> 裡<strong>寫一份來源</strong>，由安裝器<strong>物化</strong>到各平台/各層。修一處、兩邊同步。</p>
+<pre><code>canonical/
+  PATHS.md            路徑與分層的單一真相
+  entry/              CLAUDE.md / AGENTS.md（個人 + 專案入口範本）
+  operations/*.md     8 個操作（frontmatter 同時當 Codex SKILL.md；body 同時當 Claude 指令）
+    _routing.md       訊號 → 層級 路由（capture/dream 共用）
+    _materialize-skill.md  技能雙平台複製
+  hooks/              block-failed-actions.{ps1,sh}（PreToolUse 硬擋）
+  cron/ lint/ templates/
+skills/skill-creator/ 官方 Anthropic skill-creator（安裝器部署到兩平台）
+install-personal.*    每台機器一次
+init-project.*        每個專案一次</code></pre>
+<h2>二、兩層（個人 ⊥ 專案）</h2>
+<table><thead><tr><th>層</th><th>位置</th><th>內容</th><th>共用</th><th>進專案 git</th></tr></thead><tbody><tr><td>個人</td><td><code>~/.ai-memory</code></td><td>doctrine、偏好、反思、壞工具登記、個人知識/技能</td><td>✅ 跨所有專案</td><td>❌ 永不</td></tr><tr><td>專案</td><td><code>&lt;專案&gt;/.claude/memory</code></td><td>這個專案的知識/對話/索引</td><td>❌ 每專案</td><td>可（個人層不混入）</td></tr></tbody></table>
+<p>訊號分層由 <code>_routing.md</code> 決定：「關於我/行為/壞工具/反思」→ 個人；「關於這個專案」→ 專案；沒專案 → 全進個人。</p>
+<h2>三、兩平台（一份來源、雙物化）</h2>
+<p>Claude 與 Codex 用<strong>相同 <code>SKILL.md</code> 格式</strong>。物化目標：</p>
+<table><thead><tr><th>東西</th><th>Claude</th><th>Codex</th></tr></thead><tbody><tr><td>入口</td><td><code>~/.claude/CLAUDE.md</code>、<code>&lt;專案&gt;/CLAUDE.md</code></td><td><code>~/.codex/AGENTS.md</code>、<code>&lt;專案&gt;/AGENTS.md</code></td></tr><tr><td>操作</td><td><code>~/.claude/commands/&lt;op&gt;.md</code></td><td><code>~/.agents/skills/&lt;op&gt;/SKILL.md</code></td></tr><tr><td>技能</td><td><code>~/.claude/skills</code>、<code>&lt;專案&gt;/.claude/skills</code></td><td><code>~/.agents/skills</code>、<code>&lt;專案&gt;/.agents/skills</code></td></tr><tr><td>硬擋註冊</td><td><code>~/.claude/settings.json</code></td><td><code>~/.codex/config.toml</code></td></tr></tbody></table>
+<blockquote>Codex 技能在 <code>.agents/skills/</code>（非 <code>.codex/skills/</code>，已查證官方文件）。</blockquote>
+<h2>四、九個操作的機制</h2>
+<ul><li><strong>capture</strong>：掃對話訊號（決策/知識/偏好/🎭人設/進行中/問題解法/技能失敗/工具失效）→ 知識篩選閘門</li></ul>
+<p>  （本次產物不存）→ 依 <code>_routing.md</code> 分層寫入（人設→<code>persona.md</code>、偏好→<code>feedback_user_style.md</code>）→</p>
+<p>  工具失效走 Step 2.5 三層強制 → 重複 ≥2 次的工作流提議 /harvest。知識頁強制 Why + How to Apply。</p>
+<ul><li><strong>ingest-sessions</strong>：回頭讀近期 Claude(<code>~/.claude/projects/*.jsonl</code>)/Codex(<code>~/.codex/</code>) 會話 + 未整合</li></ul>
+<p>  log，抽訊號補沉澱；<strong>浮水印 + 去重</strong>故可重放；Chronicle 僅線索。nightly 會先跑它再 dream。</p>
+<ul><li><strong>dream</strong>：實體掃描 → 修雙向連結 → 去重/矛盾 → 反思寫 <code>reflection.md</code> → 跨 ≥2 次反思提煉 doctrine</li></ul>
+<p>  候選 → 技能失敗回寫 SKILL.md 的 <code>Known Limitations &amp; Fallbacks</code>（並 re-materialize 到 Codex twin）→</p>
+<p>  同步 MEMORY.md → 跑 memory-lint。</p>
+<ul><li><strong>harvest</strong>：蒐證（對照現有技能去重）→ 候選清單（證據/次數/信心/形式）→ 逐條人審 →</li></ul>
+<p>  <strong>透過官方 skill-creator</strong> author SKILL.md（完整 eval/benchmark 選用）→ <code>_materialize-skill.md</code> 雙物化。</p>
+<ul><li><strong>review-doctrine</strong>：逐條 ✅✏️❌⏭️ → 批准寫 <code>doctrine.md</code>（<code>### D-XXX</code>）；入口檔只指向 doctrine，永不膨脹。</li><li><strong>status</strong>：唯讀雙層儀表板；偵測平台技能是否同步。</li><li><strong>schedule-dream</strong>：OS 排程器（Task Scheduler / cron）建立/列出/刪除<strong>單一具名排程</strong>（建立=取代，</li></ul>
+<p>  不亂堆）；agent 代跑指令。</p>
+<ul><li><strong>reset</strong>：互動式選層級+種類 → <strong>先備份到 archive/reset-時間戳 → 要 <code>yes reset</code> 才清</strong>，絕不刪唯一副本。</li><li><strong>help</strong>：逐指令的功能/時機/怎麼確認通關 + 整體健康總檢。</li></ul>
+<h2>五、硬擋層（兩平台 100% 技術保證）</h2>
+<p><code>block-failed-actions.{ps1,sh}</code> 讀 <code>~/.ai-memory/blocked-actions.json</code>，命中即 <code>exit 2</code> + stderr（Claude</p>
+<p>與 Codex 都支援）。以 <strong>catch-all matcher</strong> 註冊（Claude <code>*</code> / Codex <code>.*</code>），由登記簿 gate——**加一條</p>
+<p>登記即可，不必改 matcher**；條目含 <code>platform</code> 欄位。重啟後生效。資料驅動：封鎖新工具不必改程式。</p>
+<h2>六、反思進化迴路（越來越懂你）</h2>
+<pre><code>capture → conversations/*.md
+  → dream 反思寫 reflection.md → 跨 ≥2 次模式 → doctrine 候選
+  → review-doctrine 批准 → doctrine.md
+  → 下次對話入口檔載入 doctrine → 行為自動調整、不再犯同樣錯</code></pre>
+<p><strong>變的是「外腦」（memory + skill + doctrine），不是模型權重。</strong></p>
+<h2>七、確定性健檢（doctor）</h2>
+<p><code>memory-lint.{ps1,sh}</code>（即 doctor）可帶多個 root，檢查：MEMORY 連結/<strong>死連結</strong>、knowledge frontmatter</p>
+<p>（name/type/kind/<strong>layer</strong>/first_seen/last_updated）、<strong>Why（Summary）+ How to Apply 是否齊全</strong>、</p>
+<p>Timeline 是否附 source、kebab 檔名、doctrine D-XXX 唯一、<strong>未整合的舊 log（&gt;7 天）</strong>、專案層<strong>隱私洩漏</strong></p>
+<p>啟發式；以及<strong>全域接線</strong>：blocked-actions schema、**hook 是否註冊（Claude settings.json / Codex</p>
+<p>config.toml）+ hook self-test<strong>、skill-creator 兩平台、</strong>升格 skill 雙平台是否同步**。輸出</p>
+<p><code>RESULT: X pass, Y warn, Z fail</code>，<strong>fail&gt;0 = 安全網可能掉了</strong>。dream 末會自動跑。</p>
+<h2>八、夜間排程加固（nightly）</h2>
+<p><code>nightly.{ps1,sh}</code> 不只把 prompt 丟給 <code>claude -p</code>/<code>codex exec</code>，還有：<strong>單一 <code>memory.lock</code></strong>（防並發 dream</p>
+<p>弄壞記憶；逾 6 小時自動清陳舊鎖）、<strong>run-id</strong>、每階段 <strong>JSON audit</strong>（<code>~/.ai-memory/cron/audit.jsonl</code>）、</p>
+<p><strong><code>--dry-run</code></strong>（只報告不寫）。流程是 <strong>ingest-sessions → dream → harvest 掃描</strong>，只產候選、不自動批准/建技能。</p>
+<p>（註：實際 .md 寫檔在 agent 端，逐檔 atomic 由操作負責，wrapper 只保證序列化 + 可審計。）</p>
+<h2>九、技術限制（誠實說明）</h2>
+<table><thead><tr><th>限制</th><th>說明</th></tr></thead><tbody><tr><td>無向量搜尋</td><td>關鍵字 + MEMORY.md 索引；規模大可選接 qmd（見 ROADMAP）</td></tr><tr><td>依賴 AI 判斷</td><td>記憶/準則約 95% 軟約束；<strong>例外</strong>：blocked-actions hook 為 100%（重啟後生效）</td></tr><tr><td>無背景程序</td><td>整合在對話中或 OS 排程的 headless 執行；不開 IDE 的自動跑需 <code>claude</code>/<code>codex</code> CLI</td></tr><tr><td>技能評測依賴</td><td>skill-creator 完整 eval/benchmark 需 Python + subagents（Codex 走輕量 author）</td></tr></tbody></table>
+<footer>由 TECHNICAL_GUIDE.md 自動轉出 · AI Memory System</footer></div></body></html>

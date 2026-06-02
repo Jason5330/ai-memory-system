@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-06-02 — 文件補最新功能 + 產生 HTML 版
+
+### 修改
+- `新手指南.md`：指令表 8→9（加 `/ingest-sessions`），補「🎭 AI 人設」「怕漏記用 ingest」兩條白話重點。
+- `MEMORY_GUIDE.md`：指令表加 ingest-sessions；個人腦檔案清單加 `persona.md`（AI 怎麼當 vs 偏好怎麼做）。
+- `安裝行為說明.md`：8→9 操作（含 ingest-sessions）；copy-if-missing 清單加 `persona.md`。
+- `TECHNICAL_GUIDE.md`：上一輪已補（9 ops、persona、doctor、nightly 加固）。
+- **產生 HTML 版**：用自寫的 `md2html.py`（無外部依賴）把上述 4 份轉成自帶 CSS、可離線開的
+  `*.html`（與 `記憶機制白話說明.html` 同放 repo 根目錄）。
+
+---
+
 ## 2026-06-02 — 輸出語言預設繁體中文（指令檔維持英文）
 
 ### 背景

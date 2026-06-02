@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEMORY_GUIDE</title><style>
+:root{--bg:#0f1226;--card:#1a1f3a;--ink:#eef1ff;--muted:#aab2d5;--accent:#7c9cff;--accent2:#5fd0c5;--line:#2c3358;--code:#11152b}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;background:linear-gradient(160deg,#0f1226,#161a35 60%,#101430);color:var(--ink);line-height:1.75}
+.wrap{max-width:900px;margin:0 auto;padding:36px 22px 80px}
+h1,h2,h3,h4{line-height:1.3;margin:1.6em 0 .6em}
+h1{font-size:28px;border-bottom:2px solid var(--line);padding-bottom:.3em}
+h2{font-size:22px;color:#fff;border-left:4px solid var(--accent);padding-left:.5em}
+h3{font-size:18px;color:var(--accent2)}
+h4{font-size:16px;color:var(--muted)}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+p{margin:.7em 0}
+code{background:var(--code);color:#9fe0d8;padding:.12em .4em;border-radius:6px;font-family:"Cascadia Code",Consolas,monospace;font-size:.92em}
+pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow:auto}
+pre code{background:none;color:#cfe3ff;padding:0;font-size:.88em;line-height:1.6}
+blockquote{margin:.8em 0;padding:.6em 1em;background:#1c2342;border-left:4px solid var(--accent2);border-radius:0 10px 10px 0;color:#d7ddff}
+ul,ol{margin:.5em 0 .9em;padding-left:1.5em}li{margin:.28em 0}
+table{border-collapse:collapse;width:100%;margin:1em 0;display:block;overflow:auto}
+th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:#222845;color:#fff}tr:nth-child(even) td{background:#171c38}
+hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+strong{color:#fff}
+.doc-nav{font-size:13px;color:var(--muted);margin-bottom:8px}
+footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
+</style></head>
+<body><div class="wrap"><div class="doc-nav">AI Memory System — github.com/Jason5330/ai-memory-system</div>
+<h1>完整使用說明（記憶庫結構與運作）</h1>
+<blockquote>適合對象：想知道「記憶到底存在哪、每個檔是什麼、怎麼運作」的人。<br>快速上手看 <code>新手指南.md</code>；完整架構看 <code>DUAL-PLATFORM-GUIDE.md</code>；機制看 <code>TECHNICAL_GUIDE.md</code>。</blockquote>
+<h2>這是什麼？</h2>
+<p>每次開新對話，AI 什麼都不記得。這套系統讓 <strong>Claude Code / Codex</strong> 跨對話記住你的偏好、決策、知識，</p>
+<p>並透過反思越來越懂你。記憶分<strong>兩層</strong>：個人腦（跨專案共用）＋專案腦（每專案）。</p>
+<pre><code>沒有記憶系統：你 →「幫我做 X」→ AI（不知道你是誰）
+有記憶系統：  你 →「幫我做 X」→ AI 讀記憶 → 知道你是誰、你的偏好、上次做到哪 → 更準</code></pre>
+<h2>記憶存在哪裡</h2>
+<h3>個人腦（<code>~/.ai-memory</code>，跨所有專案共用、永不進專案 git）</h3>
+<pre><code>~/.ai-memory/
+├── MEMORY.md                ← 個人索引（每次對話載入；頂部「環境限制」指令區）
+├── feedback_user_style.md   ← 你的偏好（任務怎麼做）
+├── persona.md               ← AI 的人設/語氣/定位（AI 怎麼當）
+├── reflection.md            ← 反思日誌（自動累積）
+├── doctrine.md              ← 已批准的永久行為準則
+├── doctrine_candidates.md   ← 待審核準則候選
+├── blocked-actions.json     ← 失效工具登記簿（hook 讀它硬擋）
+├── knowledge/               ← 個人（跨專案）知識頁
+├── conversations/           ← 個人/非專案對話（含 archive）
+├── guides/                  ← 操作引用的指南（PATHS / _routing / _materialize-skill）
+├── hooks/  cron/  memory-lint.*  project-templates/</code></pre>
+<h3>專案腦（<code>&lt;專案&gt;/.claude/memory</code>，每專案、可隨專案 git 分享）</h3>
+<pre><code>&lt;專案&gt;/.claude/memory/
+├── MEMORY.md      ← 這個專案的索引
+├── knowledge/     ← 這個專案的知識頁
+└── conversations/ ← 這個專案的對話（含 archive）</code></pre>
+<p>另外 <code>init-project</code> 還建 <code>&lt;專案&gt;/{CLAUDE.md,AGENTS.md}</code>、<code>.claude/skills</code>、<code>.codex/config.toml</code>、<code>.agents/skills</code>。</p>
+<h2>知識頁格式（compiled-truth + timeline）</h2>
+<pre><code>---
+name: &lt;實體名稱&gt;
+type: reference | project
+kind: tool | person | concept | project
+layer: personal | project
+first_seen / last_updated: YYYY-MM-DD
+---
+## Current State   ← 覆寫區：永遠是最新真相，先讀這裡
+## How to Apply / ## Known Issues / ## Relations（[[其他實體]]）
+## Timeline        ← 只追加；每行附 (source: 來源)</code></pre>
+<p><strong>先讀 Current State（現在的真相），需要歷史才翻 Timeline。</strong> 記憶分 4 type：user / feedback / project / reference。</p>
+<h2>九個指令（速覽，詳細打 <code>/help</code>）</h2>
+<table><thead><tr><th>指令</th><th>做什麼</th></tr></thead><tbody><tr><td><code>/capture</code></td><td>存這次對話的訊號（自動分層；含 🎭 人設；工具失效登記硬擋）</td></tr><tr><td><code>/ingest-sessions</code></td><td>回頭讀近期 Claude/Codex 會話記錄補抓漏記（浮水印+去重；每晚先跑）</td></tr><tr><td><code>/dream</code></td><td>整合 + 反思 + 提煉準則候選 + 失敗回寫 + lint</td></tr><tr><td><code>/harvest</code></td><td>重複 ≥2 次的工作流 → skill（透過官方 skill-creator）</td></tr><tr><td><code>/review-doctrine</code></td><td>逐條批准 doctrine 候選</td></tr><tr><td><code>/status</code></td><td>唯讀健檢（兩層）</td></tr><tr><td><code>/schedule-dream</code></td><td>建/列/刪每晚自動整理（OS 排程、單一）</td></tr><tr><td><code>/reset</code></td><td>互動式清空（先備份、要確認）</td></tr><tr><td><code>/help</code></td><td>所有指令 + 怎麼確認通關</td></tr></tbody></table>
+<h2>運作迴路</h2>
+<pre><code>對話 → /capture 存訊號（個人 vs 專案分層）
+     → /dream 反思 → doctrine 候選 → /review-doctrine 批准 → doctrine.md（永久遵守）
+     → /harvest 重複工作流 → skill（雙平台）
+     → 壞工具 → blocked-actions.json + hook 硬擋
+下次對話：入口檔自動載入個人 MEMORY+doctrine、再讀專案 MEMORY → 不丟魂</code></pre>
+<h2>溢出保護（不會無限長大）</h2>
+<p><code>/dream</code> 自動：對話 &gt; 30 個檔 → 封存最舊；知識頁 &gt; 200 行 → 封存最舊 Timeline（Current State 永不封存）；</p>
+<p>doctrine &gt; 80 條 → 合併語意重複。</p>
+<h2>常見問題</h2>
+<ul><li><strong>怎麼確認在運作？</strong> <code>/status</code> 或 <code>/help</code>（每指令有「怎麼確認通關」）。</li><li><strong>存了不想要的？</strong> <code>/reset</code>（選層級+種類、先備份、要 <code>yes reset</code>）。</li><li><strong>規矩誰決定？</strong> 一定要你 <code>/review-doctrine</code> 批准才生效。</li><li><strong>換電腦？</strong> 複製 <code>~/.ai-memory</code>（個人腦）；專案腦跟著專案走。</li><li><strong>資料外傳？</strong> 不會，全部本機純文字檔。</li></ul>
+<footer>由 MEMORY_GUIDE.md 自動轉出 · AI Memory System</footer></div></body></html>
