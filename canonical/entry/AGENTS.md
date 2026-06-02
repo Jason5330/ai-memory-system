@@ -98,6 +98,13 @@ Route layers per `~/.ai-memory/guides/_routing.md` ("about me / behavior / broke
 "about THIS project" → project). A short "OK/好" that settles a prior discussion **is** a decision:
 resolve it against the last 3-5 turns and capture the substance. The `capture` skill guarantees a save.
 
+**Repeated workflows — tag in real time, count regardless of when/where.** The moment you finish a
+repeatable workflow, immediately append `- 🔁 repeat:<slug> — <desc>` to today's log — **every time,
+including the 2nd/3rd time in THIS same session** (don't wait for `capture`). `lib/detect-repeats`
+counts these tags across everything (same session, same day, across sessions, both layers), so the
+instant a slug reaches **≥2× with no skill yet**, offer right then: *"我發現你做過 <X> N 次了，要不要
+我用 /harvest 幫你生成一個 skill？"* — you don't have to wait for the next session's start-up check.
+
 ## Before ending a session
 
 Did this conversation contain anything worth remembering? Yes → write to the right layer's log and

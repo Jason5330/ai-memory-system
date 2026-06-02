@@ -144,10 +144,13 @@ Append to `<layer>/conversations/YYYY-MM-DD.md` (PROJECT if in a project, else P
 ```
 Preferences (❤️) and behavior rules always also update PERSONAL files even when logged inside a project.
 
-## Step 4: Tag repeated workflows (so the detector can remind the user later)
-**Whenever the user did a repeatable workflow this session, tag it — every occurrence, not only the
-2nd.** Append a line under `## 🔁 Repeat candidates` in today's log, using a **stable kebab-case slug**
-you reuse for the SAME workflow across days:
+## Step 4: Tag repeated workflows (real-time, every occurrence — count regardless of when/where)
+**Tag the moment a repeatable workflow happens — every single time, including the 2nd/3rd time within
+THIS same session.** Don't batch it and don't wait for the user to run `/capture`; append the tag in
+real time. The count is **time- and place-agnostic**: `lib/detect-repeats` tallies these tags across
+*everything* — same session, same day, across sessions, both layers — so three times in one sitting
+counts as 3, exactly like once-a-day-for-three-days. Append a line under `## 🔁 Repeat candidates` in
+today's log, using a **stable kebab-case slug** you reuse for the SAME workflow everywhere:
 ```
 - 🔁 repeat:<slug> — <one-line description>  (source: conversation YYYY-MM-DD)
 ```
