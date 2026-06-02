@@ -25,6 +25,27 @@ Print this guide in the user's language. For each command give three things: **�
 
 ---
 
+## 記憶分類速查（這些英文是什麼）
+
+> 完整版＋例子看框架 repo 的 `記憶名詞對照表.md`。記憶分**兩層**（個人腦 `~/.ai-memory` ⊥ 專案腦
+> `<專案>/.claude/memory`）、**四型**（user/feedback/project/reference）。各分類白話：
+
+| 英文 | 中文 | 一句白話 |
+|------|------|----------|
+| conversations | 對話紀錄 | 每天聊了什麼的流水帳 |
+| knowledge | 知識頁 | 可重用的事實/工具用法/人事物（當前狀態＋時間軸） |
+| reflection | 反思日誌 | AI 檢討做對/做錯/下次怎麼改 |
+| doctrine | 行為準則 | 你批准過、以後一定遵守的規則 |
+| doctrine_candidates | 準則候選 | 還沒批准、等你審的提議 |
+| feedback_user_style | 偏好 | 你喜歡「任務怎麼做」 |
+| persona | 人設 | AI「該怎麼當」（語氣/稱呼/定位） |
+| blocked-actions | 壞工具登記 | 哪個工具壞了要硬擋、改用替代 |
+| skills | 技能 | 重複工作流封裝成一鍵手冊 |
+
+> 偏好 vs 人設：偏好＝任務怎麼做；人設＝AI 怎麼當。反思 → 準則候選 →（你批准）→ 準則。
+
+---
+
 ## 逐指令詳解
 
 ### `/capture`

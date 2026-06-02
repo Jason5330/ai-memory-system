@@ -5,20 +5,20 @@
 > is loaded globally and is NEVER stored here. You may commit this folder to share project knowledge;
 > your personal memory won't leak because it isn't here.
 
-## Current State
+## Current State 現況
 - Project:
 - Standard run / verify commands:
 - Highest-priority unfinished item:
 - Current blocker:
 
-## Projects  (type: project)
+## Projects 專案  (type: project — 這個專案在做的東西)
 _(things being built in this project)_
 
-## Reference  (type: reference — this project's tools / concepts / decisions)
+## Reference 參考  (type: reference — 這個專案的工具/概念/決策)
 _(project-scoped knowledge pages)_
 
-## Skills  (project-specific)
+## Skills 技能  (project-specific)
 _(promoted via /harvest; materialized to ./.claude/skills AND ./.agents/skills)_
 
-## Conversations  (this project's sessions)
+## Conversations 對話紀錄  (this project's sessions)
 _(newest first)_

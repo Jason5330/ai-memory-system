@@ -84,9 +84,11 @@ Then **re-materialize** the updated SKILL.md to its Codex twin (`.agents/skills/
 failure in the log for `/harvest` to handle.
 
 ## Phase 4: Sync Index (per layer)
-Rewrite each layer's `MEMORY.md`, grouped by type (User / Feedback / Projects / Reference / Skills /
-Conversations). Verify every link resolves; drop dead links; newest conversations first. PERSONAL
-MEMORY.md keeps the `## ⚠️ Environment Limits & Blocked Tools` section at the top.
+Rewrite each layer's `MEMORY.md`, grouped by type with **bilingual headers** (keep the form the
+template uses: `## User 用戶`, `## Feedback / Self-Evolution 反饋／自我進化`, `## Reference 參考`,
+`## Skills 技能`, `## Conversations 對話紀錄`). Verify every link resolves; drop dead links; newest
+conversations first. PERSONAL MEMORY.md keeps the `## ⚠️ Environment Limits & Blocked Tools 環境限制／壞工具`
+section at the top.
 
 ## Phase 5: Dream Report
 Show per-phase counts, memory health (both layers), and doctrine-candidate preview → prompt

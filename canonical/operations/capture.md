@@ -148,7 +148,9 @@ review gate; you're just offering to start it.)
 > skill. A "how to search" skill cannot fix a broken search tool.
 
 ## Step 5: Update the active layer's MEMORY.md index
-Group entries by type (User / Feedback / Projects / Reference / Skills / Conversations).
+Group entries by type, keeping the template's **bilingual headers** (`## User 用戶`,
+`## Feedback / Self-Evolution 反饋／自我進化`, `## Reference 參考`, `## Skills 技能`,
+`## Conversations 對話紀錄`).
 
 ## Step 6: Report
 ```
