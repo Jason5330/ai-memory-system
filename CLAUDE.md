@@ -18,12 +18,15 @@ canonical/
 ├── PATHS.md                      # path & layer resolution (single source of truth)
 ├── entry/                        # CLAUDE.md / AGENTS.md (personal + project entry templates)
 ├── operations/                   # capture, dream, harvest, review-doctrine, status,
-│   │                             #   schedule-dream, reset, help  (frontmatter = Codex SKILL.md too)
+│   │                             #   schedule-dream, reset, help, ingest-sessions (frontmatter = Codex SKILL.md too)
 │   ├── _routing.md               # signal → layer routing (shared by capture/dream)
-│   └── _materialize-skill.md     # dual-platform skill copy helper
+│   ├── _materialize-skill.md     # dual-platform skill copy helper
+│   └── _memory-gate.md           # Memory Decision Gate: confidence tiers + auto-write boundary
+├── lib/                          # memory-write.{ps1,sh}  (deterministic safe writer: append + block-tool)
 ├── hooks/                        # block-failed-actions.{ps1,sh}  (PreToolUse hard-block)
 ├── cron/                         # nightly.{ps1,sh}
 ├── lint/                         # memory-lint.{ps1,sh}
+├── reset/                        # reset.{ps1,sh}  (deterministic backup→verify→clear→rollback)
 └── templates/                    # personal/ + project/ seed files, blocked-actions.json
 
 install-personal.{ps1,sh}         # per-machine: builds ~/.ai-memory, materializes to both platforms

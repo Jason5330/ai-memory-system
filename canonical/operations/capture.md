@@ -7,7 +7,10 @@ description: Save the current conversation's valuable signals into the two-layer
 
 Scan the conversation and persist important content to the **right layer**. Roots
 (`~/.ai-memory/guides/PATHS.md`): `PERSONAL = ~/.ai-memory`, `PROJECT = ./.claude/memory` (if it exists).
-Routing table: `~/.ai-memory/guides/_routing.md`.
+Routing table: `~/.ai-memory/guides/_routing.md`. **Decision gate: `~/.ai-memory/guides/_memory-gate.md`**
+— for each signal it sets confidence (HIGH→auto-write a safe category · MEDIUM→candidate only ·
+LOW→skip) and the hard rule that **doctrine and skills are NEVER auto-written** (they go to candidates
+/ `## 🔁 Repeat candidates` for human review). Apply that gate throughout the steps below.
 
 ## Step 1: Scan for signals
 
@@ -111,8 +114,14 @@ A passive knowledge page will NOT change behavior. By failure kind:
 > is what makes it stop getting called.
 - **Layer 1 (always)** — append to the `## ⚠️ Environment Limits & Blocked Tools` section at the TOP
   of `PERSONAL/MEMORY.md`: `- ❌ <tool> broken here (<reason>) → use <alternative>; do not <broken action>.`
-- **Layer 2 (a named TOOL)** — add to `PERSONAL/blocked-actions.json` `blocked_tools`:
-  `{ "tool": "<Name>", "reason": "...", "use_instead": "<Alt>", "platform": "claude|codex|both", "added": "YYYY-MM-DD" }`
+- **Layer 2 (a named TOOL)** — add to `PERSONAL/blocked-actions.json` `blocked_tools`. Use the
+  **deterministic safe writer** (atomic + dedup + lock + drift backup) rather than hand-editing this
+  registry — it is the hard-block safety net, so a malformed edit is the worst case:
+  ```
+  & "$env:USERPROFILE\.ai-memory\lib\memory-write.ps1" -Mode block-tool -Tool <Name> -Reason "..." -UseInstead "<Alt>" -Platform both   # Windows
+  bash ~/.ai-memory/lib/memory-write.sh block-tool --tool <Name> --reason "..." --use-instead "<Alt>" --platform both                    # Mac/Linux
+  ```
+  (Resulting entry: `{ "tool", "reason", "use_instead", "platform": "claude|codex|both", "added" }`.)
   The PreToolUse hook is registered with a **catch-all matcher** on both platforms and gates by this
   registry, so you do NOT need to edit any matcher — adding the entry is enough. Use the canonical
   tool name as each platform reports it (`platform: both` if unsure; a name that doesn't exist on a
@@ -147,10 +156,13 @@ review gate; you're just offering to start it.)
 > 2+ times, that's an ⚙️ Environment/Tool Failure → it belongs in the **hard-block** (Step 2.5), not a
 > skill. A "how to search" skill cannot fix a broken search tool.
 
-## Step 5: Update the active layer's MEMORY.md index
-Group entries by type, keeping the template's **bilingual headers** (`## User 用戶`,
-`## Feedback / Self-Evolution 反饋／自我進化`, `## Reference 參考`, `## Skills 技能`,
-`## Conversations 對話紀錄`).
+## Step 5: Update the active layer's MEMORY.md index (two-step write — topic file FIRST)
+**Order matters (crash-safe):** finish writing the actual topic/knowledge/log file and confirm it
+exists, **then** add its one-line pointer here. Never index content you haven't persisted — a crash
+then leaves at worst an orphan file, never a corrupt index. Group entries by type, keeping the
+template's **bilingual headers** (`## User 用戶`, `## Feedback / Self-Evolution 反饋／自我進化`,
+`## Reference 參考`, `## Skills 技能`, `## Conversations 對話紀錄`). Keep it a bounded index (one line
+per item) — never paste body text into MEMORY.md.
 
 ## Step 6: Report (always show recent + totals)
 After saving, show what just got captured AND a recent recap, so the user can see their running

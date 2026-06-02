@@ -36,10 +36,13 @@ Decide **per source** (sources are independent — a late/reordered file never m
 - **content_hash changed for an already-processed range** (file rewritten/compacted) → re-scan the
   file and rely on Step 4 dedup to avoid re-storing; then reset that source's checkpoint.
 
-## Step 3: Extract signals (same gate as /capture)
+## Step 3: Extract signals (run the Memory Decision Gate)
 For each session in scope, pull: 💡 decisions (incl. short "OK/好" resolved against its 3-5 surrounding
 turns), ❤️ task preferences, 🎭 persona signals, 📚 reusable knowledge, 🐛 problem+fix, 🛠️ skill
-failures, ⚙️ tool failures. Apply the **knowledge filter gate** (this-session artifacts are output, not
+failures, ⚙️ tool failures. Run each through **`~/.ai-memory/guides/_memory-gate.md`**: HIGH
+confidence → auto-write a safe category; MEDIUM → candidate (`reflection.md` / `doctrine_candidates.md`);
+LOW → skip. **Doctrine and skills are never auto-written** — they become candidates / repeat-candidates
+for human review. Includes the **knowledge filter gate** (this-session artifacts are output, not
 knowledge) exactly as `/capture` Step 2.0.
 
 ## Step 4: Dedup before writing

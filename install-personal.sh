@@ -38,16 +38,18 @@ echo "[3] personal templates in place (existing data preserved)"
 cp "$SRC/PATHS.md" "$GUIDES/PATHS.md"
 cp "$SRC/operations/_routing.md" "$GUIDES/_routing.md"
 cp "$SRC/operations/_materialize-skill.md" "$GUIDES/_materialize-skill.md"
+cp "$SRC/operations/_memory-gate.md" "$GUIDES/_memory-gate.md"
 cp "$SRC/hooks/block-failed-actions.ps1" "$HOOKS/"; cp "$SRC/hooks/block-failed-actions.sh" "$HOOKS/"; chmod +x "$HOOKS/block-failed-actions.sh"
 cp "$SRC/cron/nightly.ps1" "$CRON/"; cp "$SRC/cron/nightly.sh" "$CRON/"; chmod +x "$CRON/nightly.sh"
 cp "$SRC/lint/memory-lint.ps1" "$PERSONAL/"; cp "$SRC/lint/memory-lint.sh" "$PERSONAL/"; chmod +x "$PERSONAL/memory-lint.sh"
 mkdir -p "$PERSONAL/reset"; cp "$SRC/reset/reset.ps1" "$PERSONAL/reset/"; cp "$SRC/reset/reset.sh" "$PERSONAL/reset/"; chmod +x "$PERSONAL/reset/reset.sh"
+mkdir -p "$PERSONAL/lib"; cp "$SRC/lib/memory-write.ps1" "$PERSONAL/lib/"; cp "$SRC/lib/memory-write.sh" "$PERSONAL/lib/"; chmod +x "$PERSONAL/lib/memory-write.sh"
 # stage project scaffolding so init-project works from any folder without the framework repo
 PT="$PERSONAL/project-templates"; mkdir -p "$PT"
 cp "$SRC/entry/project-CLAUDE.md" "$PT/project-CLAUDE.md"
 cp "$SRC/entry/project-AGENTS.md" "$PT/project-AGENTS.md"
 cp "$SRC/templates/project/MEMORY.md" "$PT/MEMORY.md"
-echo "[4] guides + hook + cron + lint + project-templates installed"
+echo "[4] guides + hook + cron + lint + reset + safe-writer (lib) + project-templates installed"
 
 # 5. Entry files — marker-delimited framework block REPLACED on every install (upgrades refresh the
 #    entry); any of YOUR own content outside the markers is preserved.

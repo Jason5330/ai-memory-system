@@ -52,6 +52,7 @@ Write-Host "[3] personal templates in place (existing data preserved)" -Foregrou
 Copy-Item (Join-Path $SRC 'PATHS.md') (Join-Path $GUIDES 'PATHS.md') -Force
 Copy-Item (Join-Path $SRC 'operations\_routing.md') (Join-Path $GUIDES '_routing.md') -Force
 Copy-Item (Join-Path $SRC 'operations\_materialize-skill.md') (Join-Path $GUIDES '_materialize-skill.md') -Force
+Copy-Item (Join-Path $SRC 'operations\_memory-gate.md') (Join-Path $GUIDES '_memory-gate.md') -Force
 Copy-Item (Join-Path $SRC 'hooks\block-failed-actions.ps1') (Join-Path $HOOKS 'block-failed-actions.ps1') -Force
 Copy-Item (Join-Path $SRC 'hooks\block-failed-actions.sh')  (Join-Path $HOOKS 'block-failed-actions.sh')  -Force
 Copy-Item (Join-Path $SRC 'cron\nightly.ps1') (Join-Path $CRON 'nightly.ps1') -Force
@@ -61,6 +62,9 @@ Copy-Item (Join-Path $SRC 'lint\memory-lint.sh')  (Join-Path $PERSONAL 'memory-l
 $RESET = Join-Path $PERSONAL 'reset'; New-Item -ItemType Directory -Force $RESET | Out-Null
 Copy-Item (Join-Path $SRC 'reset\reset.ps1') (Join-Path $RESET 'reset.ps1') -Force
 Copy-Item (Join-Path $SRC 'reset\reset.sh')  (Join-Path $RESET 'reset.sh')  -Force
+$LIB = Join-Path $PERSONAL 'lib'; New-Item -ItemType Directory -Force $LIB | Out-Null
+Copy-Item (Join-Path $SRC 'lib\memory-write.ps1') (Join-Path $LIB 'memory-write.ps1') -Force
+Copy-Item (Join-Path $SRC 'lib\memory-write.sh')  (Join-Path $LIB 'memory-write.sh')  -Force
 # stage project scaffolding so init-project works from any folder without the framework repo
 $PT = Join-Path $PERSONAL 'project-templates'
 New-Item -ItemType Directory -Force $PT | Out-Null
