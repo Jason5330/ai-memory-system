@@ -67,16 +67,27 @@ Copy-Item (Join-Path $SRC 'templates\project\MEMORY.md') (Join-Path $PT 'MEMORY.
 Write-Host "[4] guides + hook + cron + lint + project-templates installed" -ForegroundColor Green
 
 # 5. Entry files (render {{PERSONAL_MEMORY}}); marker-guarded append for existing files
+# Marker-delimited framework block: REPLACED on every install (so upgrades refresh the entry),
+# while any of YOUR own content outside the markers is preserved.
 function Install-Entry($srcFile, $destFile) {
     $content = (Get-Content $srcFile -Raw -Encoding UTF8) -replace '\{\{PERSONAL_MEMORY\}\}', ($PERSONAL -replace '\\','\')
-    $marker = '# AI Memory System'
+    $S = '<!-- AI-MEMORY-START (auto-managed by install-personal; do not edit between markers) -->'
+    $E = '<!-- AI-MEMORY-END -->'
+    $block = "$S`r`n$content`r`n$E"
+    New-Item -ItemType Directory -Force (Split-Path $destFile) | Out-Null
     if (Test-Path $destFile) {
         $existing = Get-Content $destFile -Raw -Encoding UTF8
-        if ($existing -match [regex]::Escape($marker)) { return }
-        "`n`n$content" | Out-File $destFile -Append -Encoding UTF8
+        $si = $existing.IndexOf('<!-- AI-MEMORY-START'); $ei = $existing.IndexOf($E)
+        if ($si -ge 0 -and $ei -ge $si) {                       # has markers → replace just the block
+            $new = $existing.Substring(0,$si) + $block + $existing.Substring($ei + $E.Length)
+        } elseif ($existing -match '# AI Memory System') {      # legacy framework entry (no markers) → replace whole
+            $new = $block
+        } else {                                                # user's own file → append our block
+            $new = $existing.TrimEnd() + "`r`n`r`n" + $block
+        }
+        [System.IO.File]::WriteAllText($destFile, $new, (New-Object System.Text.UTF8Encoding $false))
     } else {
-        New-Item -ItemType Directory -Force (Split-Path $destFile) | Out-Null
-        $content | Out-File $destFile -Encoding UTF8
+        [System.IO.File]::WriteAllText($destFile, $block, (New-Object System.Text.UTF8Encoding $false))
     }
 }
 Install-Entry (Join-Path $SRC 'entry\CLAUDE.md') (Join-Path $CLAUDE 'CLAUDE.md')

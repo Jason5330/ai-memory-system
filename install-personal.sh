@@ -48,14 +48,26 @@ cp "$SRC/entry/project-AGENTS.md" "$PT/project-AGENTS.md"
 cp "$SRC/templates/project/MEMORY.md" "$PT/MEMORY.md"
 echo "[4] guides + hook + cron + lint + project-templates installed"
 
-# 5. Entry files (render {{PERSONAL_MEMORY}}; marker-guarded)
+# 5. Entry files — marker-delimited framework block REPLACED on every install (upgrades refresh the
+#    entry); any of YOUR own content outside the markers is preserved.
 install_entry() { # $1 src  $2 dest
     local content; content="$(sed "s#{{PERSONAL_MEMORY}}#$PERSONAL#g" "$1")"
     mkdir -p "$(dirname "$2")"
-    if [ -f "$2" ]; then
-        grep -q '# AI Memory System' "$2" && return 0
-        printf '\n\n%s\n' "$content" >> "$2"
-    else printf '%s\n' "$content" > "$2"; fi
+    SRC_CONTENT="$content" DEST="$2" python3 - <<'PY'
+import os
+S='<!-- AI-MEMORY-START (auto-managed by install-personal; do not edit between markers) -->'
+E='<!-- AI-MEMORY-END -->'
+block=S+'\n'+os.environ['SRC_CONTENT']+'\n'+E
+dest=os.environ['DEST']
+if os.path.exists(dest):
+    cur=open(dest,encoding='utf-8').read()
+    si=cur.find('<!-- AI-MEMORY-START'); ei=cur.find(E)
+    if si>=0 and ei>=si: new=cur[:si]+block+cur[ei+len(E):]
+    elif '# AI Memory System' in cur: new=block
+    else: new=cur.rstrip()+'\n\n'+block
+else: new=block
+open(dest,'w',encoding='utf-8').write(new)
+PY
 }
 install_entry "$SRC/entry/CLAUDE.md" "$CLAUDE/CLAUDE.md"
 install_entry "$SRC/entry/AGENTS.md" "$CODEX/AGENTS.md"
