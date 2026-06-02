@@ -58,5 +58,5 @@ if ($Json) { ($cands | ConvertTo-Json -Depth 5 -Compress); exit 0 }
 if ($cands.Count -eq 0) { Write-Output "REPEATS: none (no workflow seen >= $Threshold without a skill)"; exit 0 }
 Write-Output "REPEATS: $($cands.Count) workflow(s) seen >= $Threshold with no skill yet -"
 foreach ($c in $cands) { Write-Output ("  - {0}  (seen {1}x)" -f $c.slug, $c.count) }
-Write-Output "-> offer /harvest to turn these into skills"
+Write-Output "-> offer to keep each: mechanical script-task => Saved Tool (lib/tool add); judgment workflow => /harvest skill"
 exit 0

@@ -67,5 +67,5 @@ echo "REPEATS: $n workflow(s) seen >= $THRESHOLD with no skill yet —"
 while read -r slug count; do
   [ -n "${slug:-}" ] && echo "  🔁 $slug — seen ${count}×"
 done <<< "$candidates"
-echo "→ 主動提醒用戶：我發現你做過上述動作多次，要不要我用 /harvest 幫你生成 skill？"
+echo "→ 主動提醒：機械程式 → 存成 Saved Tool（lib/tool add）；判斷型工作流 → /harvest 生成 skill"
 exit 0
