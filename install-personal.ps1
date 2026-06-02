@@ -67,6 +67,10 @@ Copy-Item (Join-Path $SRC 'lib\memory-write.ps1') (Join-Path $LIB 'memory-write.
 Copy-Item (Join-Path $SRC 'lib\memory-write.sh')  (Join-Path $LIB 'memory-write.sh')  -Force
 Copy-Item (Join-Path $SRC 'lib\detect-repeats.ps1') (Join-Path $LIB 'detect-repeats.ps1') -Force
 Copy-Item (Join-Path $SRC 'lib\detect-repeats.sh')  (Join-Path $LIB 'detect-repeats.sh')  -Force
+Copy-Item (Join-Path $SRC 'lib\tool.ps1') (Join-Path $LIB 'tool.ps1') -Force
+Copy-Item (Join-Path $SRC 'lib\tool.sh')  (Join-Path $LIB 'tool.sh')  -Force
+$TOOLS = Join-Path $PERSONAL 'tools'; New-Item -ItemType Directory -Force $TOOLS | Out-Null
+if (-not (Test-Path (Join-Path $TOOLS 'tools.json'))) { Copy-Item (Join-Path $SRC 'templates\tools.json') (Join-Path $TOOLS 'tools.json') -Force }
 # stage project scaffolding so init-project works from any folder without the framework repo
 $PT = Join-Path $PERSONAL 'project-templates'
 New-Item -ItemType Directory -Force $PT | Out-Null

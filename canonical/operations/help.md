@@ -36,6 +36,23 @@ Print this guide in the user's language. For each command give three things: **�
 
 ---
 
+## Saved tools（存起來的程式）vs Skill（技能）
+
+有些請求**每次都是同一個機械動作**（截圖到桌面、轉檔、整理某資料夾）——這種**不該變 skill**，
+而是「**寫好的程式存起來、下次直接跑**」：
+
+| | Skill 技能 | Saved Tool 存起來的程式 |
+|---|---|---|
+| 是什麼 | 一份 playbook，AI 跟著步驟做 | 一支寫好的程式，直接執行 |
+| 下次同樣請求 | AI 讀步驟、可能重寫 | **直接 `tool run <slug>`，不重寫** |
+| 適合 | 有判斷、會變化的工作流 | 固定、機械、輸入輸出穩定 |
+
+運作（AI 自動做，你不必記指令）：**寫程式前先查** `~/.ai-memory/lib/tool.ps1 list`，命中就直接跑；
+**第一次寫好且看起來會重複**，AI 會問「要不要存起來下次直接跑？」，存進 `~/.ai-memory/tools/`。
+打 `/status` 可看目前存了幾支。
+
+---
+
 ## 記憶分類速查（這些英文是什麼）
 
 > 完整版＋例子看框架 repo 的 `記憶名詞對照表.md`。記憶分**兩層**（個人腦 `~/.ai-memory` ⊥ 專案腦

@@ -80,6 +80,22 @@ error (a corrupt registry never bricks all tools), and `doctor`/`status` report 
 Before acting on any skill, read its `## Known Limitations & Fallbacks` section (if present) and
 avoid the listed failure modes. `dream` maintains that section from observed failures.
 
+## Saved tools (run a kept script — don't re-write code)
+
+Some requests are the SAME mechanical job every time ("screenshot to desktop", "convert this", "tidy
+that folder"). Those are NOT skills (playbooks you follow) and NOT automations (scheduled) — they're a
+**script you wrote once and keep, then just RUN** next time. Two rules:
+
+- **Before writing a script for a request, check saved tools first:** run
+  `~/.ai-memory/lib/tool.sh list` (`.ps1` on Windows). If a tool's triggers match the request,
+  **run it instead of re-authoring**: `tool.sh run <slug> [args]`. Don't make the user wait while you
+  rewrite code that already exists.
+- **After you write a script that works** for a task that looks repeatable (mechanical, stable
+  inputs/outputs), **offer to keep it**: *"要不要我把這支程式存起來，下次直接執行、不用重寫？"* On yes:
+  `tool.sh add <slug> --desc "..." --triggers "中文觸發語;english trigger" --script <the working script>`
+  (it copies the script into `~/.ai-memory/tools/` and registers its triggers). Saved tools are
+  PERSONAL (cross-project).
+
 ## Capturing signals (auto — decide it yourself)
 
 During conversation, judge each signal with the **Memory Decision Gate**

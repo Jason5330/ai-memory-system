@@ -36,6 +36,7 @@ Project (<name>):
   2. ...
 
 🔁 Repeat-workflow candidates (seen ≥2×, no skill yet): <slug> ×N, ...  → 要不要 /harvest 生成 skill？
+🧰 Saved tools: N  (run `~/.ai-memory/lib/tool.ps1 list` — kept scripts you re-run on demand)
 💡 Suggested: <run /dream | /review-doctrine | /harvest | nothing — healthy>
 Platform skills in sync: ✅ / ⚠️ (list divergent skills)
 Status: Healthy / Approaching limit / ⚠️ Needs cleanup

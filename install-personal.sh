@@ -45,6 +45,8 @@ cp "$SRC/lint/memory-lint.ps1" "$PERSONAL/"; cp "$SRC/lint/memory-lint.sh" "$PER
 mkdir -p "$PERSONAL/reset"; cp "$SRC/reset/reset.ps1" "$PERSONAL/reset/"; cp "$SRC/reset/reset.sh" "$PERSONAL/reset/"; chmod +x "$PERSONAL/reset/reset.sh"
 mkdir -p "$PERSONAL/lib"; cp "$SRC/lib/memory-write.ps1" "$PERSONAL/lib/"; cp "$SRC/lib/memory-write.sh" "$PERSONAL/lib/"; chmod +x "$PERSONAL/lib/memory-write.sh"
 cp "$SRC/lib/detect-repeats.ps1" "$PERSONAL/lib/"; cp "$SRC/lib/detect-repeats.sh" "$PERSONAL/lib/"; chmod +x "$PERSONAL/lib/detect-repeats.sh"
+cp "$SRC/lib/tool.ps1" "$PERSONAL/lib/"; cp "$SRC/lib/tool.sh" "$PERSONAL/lib/"; chmod +x "$PERSONAL/lib/tool.sh"
+mkdir -p "$PERSONAL/tools"; [ -f "$PERSONAL/tools/tools.json" ] || cp "$SRC/templates/tools.json" "$PERSONAL/tools/tools.json"
 # stage project scaffolding so init-project works from any folder without the framework repo
 PT="$PERSONAL/project-templates"; mkdir -p "$PT"
 cp "$SRC/entry/project-CLAUDE.md" "$PT/project-CLAUDE.md"

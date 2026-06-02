@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-06-02 — 新增「Saved Tools」：存起來的程式，下次直接跑（不重寫、也不變 skill）
+
+解決一種情境：請 AI「截屏到桌面」這類**固定機械動作**，AI 每次都重寫程式很煩。這不適合 skill
+（playbook）也不適合 automation（排程）——該是「**第一次寫好就存、下次同樣請求直接執行**」。
+
+- **新增 `canonical/lib/tool.{ps1,sh}`**（裝到 `~/.ai-memory/lib/`）：`list` / `run <slug> [args]` /
+  `add <slug> --desc --triggers --script` / `path`。`add` 把能用的程式複製進 `~/.ai-memory/tools/<slug>.{ps1,sh}`
+  並寫進註冊表 `tools/tools.json`（trigger 語 → 程式）；`run` 直接執行存好的程式、不重寫。
+- **兩條規則寫進入口檔 `CLAUDE.md`/`AGENTS.md`**：① **寫程式前先查** saved tools，命中就直接 `run`；
+  ② **第一次寫好且看似會重複**，主動問「要不要存起來下次直接跑？」存檔+註冊。Saved tools 屬個人層、跨專案。
+- `/help` 加「Saved Tool vs Skill」對照；`/status` 顯示已存幾支；安裝器建 `tools/` + 空註冊表 + 部署 lib/tool。
+
+### 修正
+- PS 5.1 用 ANSI 讀回無 BOM 的 JSON（trigger 含中文）→ `tool.ps1` 的 `Load()` 解析失敗、list 顯示空。
+  改用 `[IO.File]::ReadAllText(..., UTF8)` 明讀。驗證：add/list/run/idempotent 全過、中文 trigger 正確存讀、
+  run 真的執行存好的程式；隔離安裝部署 + 空註冊表就位。
+
+---
+
 ## 2026-06-02 — 重複計次「不分時間地點」：即時打標籤、單一 session 內也算
 
 延續上一筆的重複偵測器。原本標籤是 `/capture` 跑時才補，所以**同一 session 內**的重複在跑 capture 前
