@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-06-02 — 重複計次「不分時間地點」：即時打標籤、單一 session 內也算
+
+延續上一筆的重複偵測器。原本標籤是 `/capture` 跑時才補，所以**同一 session 內**的重複在跑 capture 前
+不會被數到。改成**即時、每次都打**：
+
+- `capture.md` Step 4 + 入口檔 `CLAUDE.md`/`AGENTS.md` 自動擷取段：**每做完一次重複工作流就當下立刻打**
+  `- 🔁 repeat:<slug>` 到今天 log——**包含同一 session 的第 2、3 次**，不等 `/capture`；一旦某 slug ≥2×
+  且無 skill，**session 中途就主動提醒**「要不要 /harvest 生成 skill？」。
+- 計次明定 **time- and place-agnostic**：同 session／同天／跨 session／跨層一律累加（偵測器本就數所有標籤、
+  含同一檔多筆）。
+- 驗證：偵測器對「單一檔 3 筆」數成 3；模擬同一 session 連做 3 次、全程沒打 `/capture`，第 2 次當下即跨門檻提醒 → 4/4 PASS。
+
+---
+
 ## 2026-06-02 — 重複工作流「主動偵測＋提醒生成 skill」（確定性偵測器）
 
 框架本來就會在 `/capture`、`/dream` 時 offer「seen N× → 要不要 /harvest 變 skill」，但計次靠 AI
