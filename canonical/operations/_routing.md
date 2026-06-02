@@ -6,7 +6,8 @@
 
 | Signal | Goes to | Exact file |
 |--------|---------|------------|
-| ❤️ User preference (how the user likes to work) | **PERSONAL** | `PERSONAL/feedback_user_style.md` |
+| 🎭 AI persona/identity (how the AI itself should sound/address you, its role/boundaries) | **PERSONAL** | `PERSONAL/persona.md` |
+| ❤️ User preference (how the user likes a TASK done) | **PERSONAL** | `PERSONAL/feedback_user_style.md` |
 | 🧭 Behavior rule / "don't repeat this mistake" (a doctrine) | **PERSONAL** | `PERSONAL/doctrine_candidates.md` → (after review) `PERSONAL/doctrine.md` |
 | 🪞 Cross-project reflection (what went right/wrong, how to improve) | **PERSONAL** | `PERSONAL/reflection.md` |
 | ⚙️ Tool/behaviour broken in this environment (machine-level) | **PERSONAL** | `PERSONAL/blocked-actions.json` + MEMORY.md top section + hook |

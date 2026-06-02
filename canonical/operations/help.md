@@ -14,6 +14,7 @@ Print this guide in the user's language. For each command give three things: **�
 | 指令 | 一句話 | 何時用 |
 |------|--------|--------|
 | `/capture` | 把這次對話的重點存進記憶 | 聊到值得記的東西、或某工具壞了 |
+| `/ingest-sessions` | 回頭把最近 Claude/Codex 會話沒記到的補抓進來 | 怕漏記、或交給每晚自動 |
 | `/dream` | 大整理 + 反思 + 提煉準則候選 | 累積幾天對話後（或每晚自動） |
 | `/harvest` | 把重複的工作流封裝成 skill | 同一流程做過 ≥2 次 |
 | `/review-doctrine` | 逐條批准 Claude 提的行為準則 | `/dream` 說有候選時 |
@@ -38,6 +39,13 @@ Print this guide in the user's language. For each command give three things: **�
   - `PROJECT 或 PERSONAL/conversations/今天.md` 應該有今天的紀錄；`MEMORY.md` 索引有更新。
   - 若是**工具失效**：`~/.ai-memory/blocked-actions.json` 應出現該工具一條，且 `~/.ai-memory/MEMORY.md`
     頂部「Environment Limits」段有對應指令。**重啟後**該工具再被呼叫會被擋下。
+- **🎭 人設**：你說「以後叫我老闆／講話直接點」這種「AI 該怎麼當」的話 → 存進 `persona.md`（個人層、每次載入），跟「任務偏好」分開。
+
+### `/ingest-sessions`
+- **功能**：不靠「當下記得捕捉」，而是**回頭讀最近的 Claude/Codex 會話記錄**（`~/.claude/projects/*.jsonl`、
+  `~/.codex/` 的會話檔）＋框架還沒整合的對話 log，把漏掉的訊號補抓進記憶。有**浮水印 + 去重**，重跑不會重複。
+- **使用時機**：怕某天忘了打 `/capture` 漏記；或**交給每晚自動**（nightly 會先跑它再 dream）。Chronicle 只當線索、要回源頭核實。
+- **✅ 怎麼確認通關**：報告列「掃了幾個 session、新建/合併幾筆、浮水印推進到哪」；`~/.ai-memory/cron/ingest-watermark.txt` 有更新。
 
 ### `/dream`
 - **功能**：多階段深度整合——實體掃描→修雙向連結→去重/矛盾→**反思寫 reflection.md**→把跨 ≥2 次反思的
@@ -101,7 +109,10 @@ Print this guide in the user's language. For each command give three things: **�
 
 1. **裝好了嗎**：個人層 `~/.ai-memory/`、入口 `~/.claude/CLAUDE.md` + `~/.codex/AGENTS.md`、
    操作（`~/.claude/commands/` + `~/.agents/skills/`）、hook（`settings.json` / `config.toml`）都在。
-2. **健康嗎**：跑 `/status` 看儀表板；跑 `memory-lint`（`~/.ai-memory/memory-lint.ps1` 或 `.sh`，可帶
+2. **健康嗎**：跑 `/status` 看儀表板（含「硬擋健康」——登記簿壞掉或 hook 沒註冊會報紅）；跑 doctor
+   `memory-lint`（`~/.ai-memory/memory-lint.ps1` 或 `.sh`）——它現在會檢：連結/死連結、Why+How+source+
+   layer、blocked-actions schema、**hook 是否註冊 + self-test**、skill 雙平台是否同步、未整合的舊 log。
+   看 `RESULT: X pass, Y warn, Z fail`，**Z（fail）=0** 才算乾淨；fail>0 代表安全網可能掉了，要先修。可帶
    專案路徑同時檢兩層）→ 看 `RESULT: X pass, Y warn, Z fail`，**Z=0** 為通關。
 3. **在進化嗎**：`reflection.md` 有累積、`doctrine.md` 有你批准的準則、`.claude/skills`＋`.agents/skills`
    有升格技能、壞工具被擋——這四個有動，就代表「外腦」真的在迭代。

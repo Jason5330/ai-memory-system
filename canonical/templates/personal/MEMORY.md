@@ -12,7 +12,8 @@
 _(none yet — entries look like: `- ❌ WebSearch broken (400, API key unset) → use WebFetch; do not call WebSearch.`)_
 
 ## User  (type: user)
-- [feedback_user_style.md](feedback_user_style.md) — communication style & preferences
+- [feedback_user_style.md](feedback_user_style.md) — how you like tasks done (preferences)
+- [persona.md](persona.md) — the AI's identity/voice/role for you (kind: persona)
 
 ## Feedback / Self-Evolution  (type: feedback)
 - [reflection.md](reflection.md) — accumulated reflection log (empty until first /dream)

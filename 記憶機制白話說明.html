@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>記憶機制：最白話說明</title>
+<style>
+  :root{
+    --bg:#0f1226; --card:#1a1f3a; --card2:#222845; --ink:#eef1ff; --muted:#aab2d5;
+    --accent:#7c9cff; --accent2:#5fd0c5; --line:#2c3358; --warn:#ffcf6b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+       background:linear-gradient(160deg,#0f1226,#161a35 60%,#101430);color:var(--ink);line-height:1.7}
+  .wrap{max-width:860px;margin:0 auto;padding:32px 20px 64px}
+  header{text-align:center;margin-bottom:28px}
+  header h1{font-size:28px;margin:0 0 8px}
+  header p{color:var(--muted);margin:0;font-size:15px}
+  .badge{display:inline-block;background:var(--card2);border:1px solid var(--line);color:var(--accent2);
+         padding:3px 12px;border-radius:999px;font-size:13px;margin-top:12px}
+  h2{font-size:20px;margin:36px 0 14px;display:flex;align-items:center;gap:10px}
+  h2 .n{background:var(--accent);color:#0c1024;width:28px;height:28px;border-radius:8px;
+        display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:14px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .layer{padding:18px;border-radius:14px;border:1px solid var(--line)}
+  .layer.brain{background:linear-gradient(160deg,#1d2547,#181d38)}
+  .layer.proj{background:linear-gradient(160deg,#15324a,#152436)}
+  .layer .ttl{font-size:18px;font-weight:700;margin-bottom:6px}
+  .layer .sub{color:var(--muted);font-size:14px}
+  .layer .ex{margin-top:10px;font-size:14px;color:#cdd5ff}
+  .buckets{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .bucket{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .bucket b{display:block;font-size:15px;margin-bottom:2px}
+  .bucket span{color:var(--muted);font-size:13.5px}
+  .flow{counter-reset:step}
+  .step{position:relative;background:var(--card2);border:1px solid var(--line);border-radius:12px;
+        padding:14px 16px 14px 56px;margin:10px 0}
+  .step::before{counter-increment:step;content:counter(step);position:absolute;left:14px;top:50%;
+        transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:var(--accent2);
+        color:#06231f;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step b{color:#fff}
+  .step small{display:block;color:var(--muted);margin-top:3px;font-size:13.5px}
+  .summary{background:linear-gradient(160deg,#243056,#1b2142);border:1px solid var(--accent);
+           border-radius:16px;padding:20px 22px;margin-top:30px;font-size:16px}
+  .summary b{color:var(--accent2)}
+  .tip{color:var(--warn);font-size:13.5px;margin-top:6px}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
+  @media(max-width:620px){.grid2,.buckets{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>🧠 記憶機制，最白話版</h1>
+    <p>把它想成：一位<strong>私人助理幫你記筆記</strong>。你照常聊天，它邊聊邊記。</p>
+    <div class="badge">AI Memory System ・ 給 Claude Code &amp; Codex</div>
+  </header>
+
+  <h2><span class="n">1</span>分兩層 = 兩本筆記本</h2>
+  <div class="grid2">
+    <div class="layer brain">
+      <div class="ttl">🧠 個人腦</div>
+      <div class="sub">記「你這個人」</div>
+      <div class="ex">你的習慣、你定的規矩。<b>每個專案都通用</b>，換專案還是懂你。</div>
+    </div>
+    <div class="layer proj">
+      <div class="ttl">📁 專案腦</div>
+      <div class="sub">記「這個專案」</div>
+      <div class="ex">這個案子的決定、知識、進度。<b>只屬於這個專案。</b></div>
+    </div>
+  </div>
+  <div class="card" style="text-align:center">
+    簡單記：<b>個人腦 = 懂「你」</b>　|　<b>專案腦 = 懂「這個案子」</b>
+  </div>
+
+  <h2><span class="n">2</span>記憶會分桶丟進</h2>
+  <div class="card">
+    <div class="buckets">
+      <div class="bucket"><b>❤️ 偏好桶</b><span>你喜歡怎麼做事（例：回答簡短一點）</span></div>
+      <div class="bucket"><b>📜 規矩桶</b><span>以後一定要遵守的（你點頭批准過才進這桶）</span></div>
+      <div class="bucket"><b>📚 知識桶</b><span>可重用的事實／工具用法／某個人事物</span></div>
+      <div class="bucket"><b>💬 對話桶</b><span>每天聊了什麼的流水帳</span></div>
+      <div class="bucket"><b>🪞 反思桶</b><span>助理自己檢討：做對／做錯／下次怎麼改</span></div>
+      <div class="bucket"><b>⛔ 壞工具桶</b><span>哪個工具在你電腦壞了，下次自動避開</span></div>
+    </div>
+  </div>
+
+  <h2><span class="n">3</span>平時對話，它做了哪些事</h2>
+  <div class="card flow">
+    <div class="step"><b>邊聊邊記</b>
+      <small>聽到值得記的（決定、習慣、解法）就丟進對的抽屜。純閒聊不記；連你回一句「好」，也會回頭看前幾句、記下你拍板了什麼。</small></div>
+    <div class="step"><b>偶爾大整理</b>
+      <small>回顧最近對話 → 反思 → 整理出「以後的規矩」建議給你。</small></div>
+    <div class="step"><b>你點頭 → 規矩永久生效</b>
+      <small>下次它自動遵守，不再犯同樣的錯。</small></div>
+    <div class="step"><b>重複的事變技能</b>
+      <small>同一招做過 2 次以上 → 幫你打包成一鍵技能。</small></div>
+  </div>
+
+  <h2><span class="n">4</span>多久動一次？</h2>
+  <div class="card">
+    <div style="margin-bottom:6px">⚡ <b>邊聊邊記</b>：對話中<b>即時</b>（沒有背景程式在偷跑）。</div>
+    <div style="margin-bottom:6px">🌙 <b>大整理</b>：可設成<b>每天一次</b>（預設建議凌晨 2 點），或你想整理時手動觸發。</div>
+    <div>✋ 其他（批准規矩、清空重來、看狀態）：<b>你想做才做</b>。</div>
+    <div class="tip">＊沒有「每幾分鐘掃一次」這種東西——就是「即時記 + 每天整理一次」。</div>
+  </div>
+
+  <div class="summary">
+    👉 一句話：你照常聊天，助理<b>邊聊邊把重點丟進對的抽屜</b>（分「懂你」和「懂這專案」兩本）；
+    <b>偶爾大整理一次</b>，把你的習慣提煉成規矩、把重複的事變技能——所以<b>越用越懂你、越來越好用</b>。
+  </div>
+
+  <footer>AI Memory System — github.com/Jason5330/ai-memory-system</footer>
+</div>
+</body>
+</html>

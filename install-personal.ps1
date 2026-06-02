@@ -40,7 +40,7 @@ if (Test-Path $oldMem) {
 
 # 3. Personal templates (copy-if-missing — this is your data)
 $tpl = Join-Path $SRC 'templates\personal'
-foreach ($f in @('MEMORY.md','doctrine.md','doctrine_candidates.md','feedback_user_style.md','reflection.md')) {
+foreach ($f in @('MEMORY.md','doctrine.md','doctrine_candidates.md','feedback_user_style.md','persona.md','reflection.md')) {
     $dest = Join-Path $PERSONAL $f
     if (-not (Test-Path $dest)) { Copy-Item (Join-Path $tpl $f) $dest -Force }
 }
@@ -84,7 +84,7 @@ Install-Entry (Join-Path $SRC 'entry\AGENTS.md') (Join-Path $CODEX 'AGENTS.md')
 Write-Host "[5] entry files: ~/.claude/CLAUDE.md + ~/.codex/AGENTS.md" -ForegroundColor Green
 
 # 6. Operations → Claude commands + Codex skills (single source, dual materialize)
-$ops = @('capture','dream','harvest','review-doctrine','status','schedule-dream','reset','help')
+$ops = @('capture','dream','harvest','review-doctrine','status','schedule-dream','reset','help','ingest-sessions')
 foreach ($op in $ops) {
     $opSrc = Join-Path $SRC "operations\$op.md"
     Copy-Item $opSrc (Join-Path $CMDS "$op.md") -Force                       # Claude slash-command

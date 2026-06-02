@@ -20,7 +20,8 @@ Full path rules: `~/.ai-memory/guides/PATHS.md`. Signal routing: `~/.ai-memory/g
    section is **executable directives, not trivia**. Obey every line. Named tools there are ALSO
    hard-blocked by a Codex PreToolUse hook as a safety net.
 2. Read `{{PERSONAL_MEMORY}}/doctrine.md` — the approved behavior doctrines. Read and obey every one.
-3. If `./.claude/memory/MEMORY.md` exists (you are inside an initialized project), read it too for
+3. Read `{{PERSONAL_MEMORY}}/persona.md` — the AI's identity/voice/role for this user. Embody it.
+4. If `./.claude/memory/MEMORY.md` exists (you are inside an initialized project), read it too for
    this project's state, open knowledge, and unfinished tasks.
 
 `doctrine.md` is how the system improves over time: rules you approve there change behavior in all

@@ -28,7 +28,7 @@ else echo "[2] no legacy ~/.claude/memory to migrate"; fi
 
 # 3. Personal templates (copy-if-missing — your data)
 TPL="$SRC/templates/personal"
-for f in MEMORY.md doctrine.md doctrine_candidates.md feedback_user_style.md reflection.md; do
+for f in MEMORY.md doctrine.md doctrine_candidates.md feedback_user_style.md persona.md reflection.md; do
     [ -f "$PERSONAL/$f" ] || cp "$TPL/$f" "$PERSONAL/$f"
 done
 [ -f "$PERSONAL/blocked-actions.json" ] || cp "$SRC/templates/blocked-actions.json" "$PERSONAL/blocked-actions.json"
@@ -62,7 +62,7 @@ install_entry "$SRC/entry/AGENTS.md" "$CODEX/AGENTS.md"
 echo "[5] entry files: ~/.claude/CLAUDE.md + ~/.codex/AGENTS.md"
 
 # 6. Operations → Claude commands + Codex skills
-for op in capture dream harvest review-doctrine status schedule-dream reset help; do
+for op in capture dream harvest review-doctrine status schedule-dream reset help ingest-sessions; do
     cp "$SRC/operations/$op.md" "$CMDS/$op.md"
     mkdir -p "$AGENTS_SK/$op"; cp "$SRC/operations/$op.md" "$AGENTS_SK/$op/SKILL.md"
 done

@@ -15,7 +15,8 @@ Routing table: `~/.ai-memory/guides/_routing.md`.
 |------|-------------|---------------|
 | 💡 Insight/Decision | something chosen or understood | PROJECT if about this project, else PERSONAL |
 | 📚 Knowledge | how something works, a fix, a gotcha | PROJECT if project-specific, else PERSONAL |
-| ❤️ Preference | how the user likes things done | **PERSONAL** (`feedback_user_style.md`) |
+| ❤️ Preference | how the user likes a TASK done | **PERSONAL** (`feedback_user_style.md`) |
+| 🎭 Persona | how the AI itself should sound/address you, its role/boundaries | **PERSONAL** (`persona.md`) |
 | 🚧 In Progress | unfinished task to continue | layer it belongs to |
 | 🐛 Problem Solved | error + fix | PROJECT if this codebase, else PERSONAL |
 | 🛠️ Skill Failure | a skill ran but was wrong/missed a case / user said "no" while it drove | log in that layer's conversation file |
@@ -57,6 +58,12 @@ For entities that pass the gate, pick the **layer** (per `_routing.md`) then the
 | mental model / workflow / concept | reference | concept | PERSONAL |
 | something being built in THIS project | project | project | **PROJECT** |
 
+**Fixed-file buckets (NOT entity pages — they live in their own files, all PERSONAL):**
+**user** (who you are) → `feedback_user_style.md` · **persona** (the AI's identity/voice/role/
+boundaries) → `persona.md` · **feedback** (approved behavior rules) → `doctrine.md` (via
+`/review-doctrine`). Route 🎭 persona signals to `persona.md`; ❤️ task preferences to
+`feedback_user_style.md` — they're different (persona = how the AI *is*; preference = how a *task* is done).
+
 Then for each entity, in the chosen layer's `knowledge/`:
 1. If `<layer>/knowledge/<entity>.md` doesn't exist → create it (format below).
 2. If it exists → refresh `## Current State` (overwrite stale facts), append a dated line **with its
@@ -75,10 +82,11 @@ last_updated: YYYY-MM-DD
 
 # <Entity Name>
 
-> Summary: one line — what it is now + why it matters
+> Summary (= the **Why**, REQUIRED): one line — what it is now + why it matters to the user.
 
 ## Current State          <!-- overwrite zone: latest truth; read this first -->
-## How to Apply           <!-- what to DO with this; omit for pure reference -->
+## How to Apply           <!-- REQUIRED: when <situation> → <action>. Pure reference? write
+                               "Reference only — surfaces when <topic> comes up." Never leave blank. -->
 ## Known Issues
 ## Relations
 - [[other-entity]]
@@ -88,6 +96,11 @@ last_updated: YYYY-MM-DD
 ## Timeline               <!-- append-only; newest first; every line ends with (source: ...) -->
 - YYYY-MM-DD — created / what changed  (source: conversation YYYY-MM-DD | file | URL)
 ```
+
+> **Every page carries a Why + a How to Apply** (the two REQUIRED parts above). The Why is the
+> Summary line; the How to Apply says what to *do* with it (or, for pure reference, when it becomes
+> relevant). `doctor` flags pages missing either. Source goes on every Timeline line; uncertain
+> Current-State facts get `(confidence: low)` until confirmed.
 
 ### 2.5 Environment/Tool Failure → 3-layer enforcement (PERSONAL) ⚠️
 A passive knowledge page will NOT change behavior. By failure kind:

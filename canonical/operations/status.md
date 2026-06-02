@@ -12,6 +12,9 @@ Read only; modify nothing. Roots: `PERSONAL = ~/.ai-memory`, `PROJECT = ./.claud
 - knowledge: page count
 - skills: count (Claude `.claude/skills` + Codex `.agents/skills`; flag if the two diverge)
 - PERSONAL only: approved doctrines, pending candidates, reflection entries, blocked-tools count
+- **hard-block health**: is `blocked-actions.json` valid JSON, and is the PreToolUse hook registered
+  (Claude `settings.json` / Codex `config.toml`)? If the registry is corrupt or the hook is missing,
+  the safety net is DOWN — report it **red**, don't stay silent.
 - repeat-workflow candidates: scan logs' `## 🔁 Repeat candidates` + recurring topics
 
 ## Report

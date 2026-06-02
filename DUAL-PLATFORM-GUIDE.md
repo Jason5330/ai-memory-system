@@ -68,8 +68,9 @@ Claude Code 與 Codex 用**相同的 `SKILL.md` 格式**，所以一份內容物
 
 | 操作 | 功能 |
 |---|---|
-| `capture` | 把這次對話的訊號存到「對的層」（個人 vs 專案） |
-| `dream` | 多階段整合：實體掃描→修連結→去重→反思→失敗回寫→同步索引→lint |
+| `capture` | 把這次對話的訊號存到「對的層」（個人 vs 專案）；含 🎭 人設→`persona.md`、短決策回溯 |
+| `ingest-sessions` | 回頭讀近期 Claude/Codex 會話記錄補抓漏記的訊號（浮水印+去重，nightly 會先跑它） |
+| `dream` | 多階段整合：實體掃描→修連結→去重→反思→失敗回寫→同步索引→**doctor 健檢** |
 | `harvest` | 掃歷史找重複工作流 → 證據候選清單 → 人審 → 只建高信心缺失項，雙物化 |
 | `review-doctrine` | 逐條批准/修改/拒絕 doctrine 候選 |
 | `status` | 唯讀健檢（個人 + 專案兩層） |

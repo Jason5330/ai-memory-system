@@ -4,6 +4,58 @@
 
 ---
 
+## 2026-06-02 — 採納 Codex code review（6 項）+ persona 桶
+
+### 背景
+Codex 對 v2 做了 code review，提 6 點。逐條對照程式碼驗證後處理（不盲從）：
+
+**① ingest-sessions（自動沉澱不再只靠 agent 自覺）— 新增**
+- 新建 `canonical/operations/ingest-sessions.md`：回頭讀 `~/.claude/projects/*.jsonl`、`~/.codex/` 會話
+  記錄 + 未整合 log，抽訊號補沉澱。**浮水印（`cron/ingest-watermark.txt`）+ 去重**故可重放冪等；
+  Chronicle 僅當線索、要回源頭核實。註冊進兩安裝器；**nightly 流程改為 ingest → dream → harvest 掃描**。
+
+**② nightly 加固 — 改寫**
+- `nightly.{ps1,sh}` 新增：單一 **`memory.lock`**（防並發 dream 弄壞記憶；逾 6h 自動清陳舊鎖）、
+  **run-id**、每階段 **JSON audit**（`cron/audit.jsonl`）、**`--dry-run`**（只報告不寫）。
+- **回應 reviewer 的「atomic write」**：實際 .md 寫檔在 agent 端（`claude -p`），wrapper 無法保證逐檔
+  atomic；故只做「序列化 + 可審計」，不誇大 atomicity（文件已誠實標註）。
+
+**③ doctor（lint 升級）— 改寫**
+- `memory-lint.{ps1,sh}` 升級為 doctor：加查 死連結、Why+How+source+layer、Timeline source、
+  未整合舊 log、專案層隱私洩漏啟發式、blocked-actions schema、**hook 是否註冊 + hook self-test**、
+  skill-creator 兩平台、**升格 skill 雙平台同步**（已修「操作=Claude 指令 vs Codex 技能」造成的假分歧）。
+- 隱私洩漏標明為**啟發式**（best-effort），不誇大成保證。
+
+**④ hard-block 矛盾與 fail-open**
+- **修矛盾**：`blocked-actions.json` 範本註解原本還說「要加 matcher」，與 capture「catch-all matcher
+  不必改」衝突 → 已統一為「加登記即可」。
+- **fail-open：保留並說明（pushback）**。安全 hook 若改 fail-closed，一個壞掉的 registry 會擋下**所有**
+  工具呼叫、把 agent 弄癱——可用性上 fail-open 才對。改為**加可見性**：doctor/`/status` 對「registry 壞掉
+  或 hook 沒註冊」**報紅（FAIL）**，並加 hook self-test，讓安全網掉了會被看見。
+
+**⑤ schema — 採最小化 + persona（依你選擇）**
+- 新增 **persona 桶**（type:user / kind:persona）：`canonical/templates/personal/persona.md`（AI 的
+  人設/語氣/定位/邊界），入口檔每次載入、capture 路由 🎭 訊號進去。**persona = AI 怎麼當**，與
+  **preference = 任務怎麼做** 分開。
+- **強制 Why + How to Apply**：知識頁 Summary(=Why) 與 How to Apply 改為必填，doctor 檢查缺漏。
+- 依你選擇**不加** confidence/privacy/review_after/last_used 等欄位（避免填寫摩擦，符合 ROADMAP 觸發式）。
+
+### 改動檔案（重點）
+`canonical/operations/{ingest-sessions(新),capture,status}.md`、`canonical/entry/{CLAUDE,AGENTS}.md`、
+`canonical/templates/personal/{persona(新),MEMORY}.md`、`canonical/templates/blocked-actions.json`、
+`canonical/operations/_routing.md`、`canonical/lint/memory-lint.{ps1,sh}`、`canonical/cron/nightly.{ps1,sh}`、
+`install-personal.{ps1,sh}`、`help/DUAL-PLATFORM-GUIDE/TECHNICAL_GUIDE`。
+
+### 驗證
+```
+doctor（隔離安裝後跑）→ 10 pass, 0 fail；hook self-test PASS；blocked-actions schema PASS；
+  promoted-skill 同步假分歧已修（PASS）。
+nightly -DryRun → run-id + dry_run:true + lock 取得/釋放 + JSON audit 三行齊全，lock 已釋放。
+bash -n memory-lint.sh / nightly.sh / install-personal.sh → 全 OK。
+```
+
+---
+
 ## 2026-06-01 — capture 回溯短決策（「OK / 好」也能抓到關鍵拍板）
 
 ### 背景
