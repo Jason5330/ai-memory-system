@@ -133,8 +133,9 @@ Print this guide in the user's language. For each command give three things: **�
   - （v1 用 Claude 內建 cron 者注意：`CronList` 在 Claude Code CLI 可能不顯示，要去 **VS Code 擴充**看。）
 
 ### `/reset`
-- **功能**：互動式清空記憶。執行時讓你選**層級**（個人/專案/兩者）+ **種類**（對話/反思/知識/準則/偏好）；
-  **一律先備份到 archive、要打 `yes reset` 才動手**，絕不刪唯一副本。`blocked-actions.json` 預設保留。
+- **功能**：互動式清空記憶。**全程點選、零打字**——點**層級**（個人/專案/兩者）+ **種類**（對話/反思/
+  知識/準則/偏好），看完計畫再點一下「確認重置」即可（不用敲 `yes reset`）。**一律先備份到 archive
+  才動手**，絕不刪唯一副本。`blocked-actions.json` 預設保留。
 - **使用時機**：多次 `/capture` 後存了一堆不想要的記憶、想重新開始時。
 - **✅ 怎麼確認通關**：報告會給**備份路徑** `archive/reset-時間戳/`（去確認檔案都在裡面）；被清的項目
   變回空/範本狀態。要復原＝把備份檔複製回去。清完**重啟** Claude Code/Codex 讓新索引載入。
