@@ -128,19 +128,22 @@ if (Test-Path (Join-Path $scSrc 'SKILL.md')) {
 $SETTINGS = Join-Path $CLAUDE 'settings.json'
 $hookPs = (Join-Path $HOOKS 'block-failed-actions.ps1')
 $claudeCmd = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$hookPs`" claude"
-if (Test-Path $SETTINGS) { $settings = Get-Content $SETTINGS -Raw -Encoding UTF8 | ConvertFrom-Json } else { $settings = [PSCustomObject]@{} }
-if (-not ($settings.PSObject.Properties.Name -contains 'hooks')) {
-    $settings | Add-Member -NotePropertyName 'hooks' -NotePropertyValue ([PSCustomObject]@{})
+# Use $settingsObj for the parsed object — NOT $settings: PowerShell variable names are
+# case-INSENSITIVE, so $settings aliases $SETTINGS and would clobber the file path (causing
+# WriteAllText to fail with a hashtable-as-path on a fresh machine where the hook isn't registered yet).
+if (Test-Path $SETTINGS) { $settingsObj = Get-Content $SETTINGS -Raw -Encoding UTF8 | ConvertFrom-Json } else { $settingsObj = [PSCustomObject]@{} }
+if (-not ($settingsObj.PSObject.Properties.Name -contains 'hooks')) {
+    $settingsObj | Add-Member -NotePropertyName 'hooks' -NotePropertyValue ([PSCustomObject]@{})
 }
-if (-not ($settings.hooks.PSObject.Properties.Name -contains 'PreToolUse')) {
-    $settings.hooks | Add-Member -NotePropertyName 'PreToolUse' -NotePropertyValue @()
+if (-not ($settingsObj.hooks.PSObject.Properties.Name -contains 'PreToolUse')) {
+    $settingsObj.hooks | Add-Member -NotePropertyName 'PreToolUse' -NotePropertyValue @()
 }
 $already = $false
-foreach ($e in @($settings.hooks.PreToolUse)) { foreach ($h in @($e.hooks)) { if ($h.command -like '*block-failed-actions*') { $already = $true } } }
+foreach ($e in @($settingsObj.hooks.PreToolUse)) { foreach ($h in @($e.hooks)) { if ($h.command -like '*block-failed-actions*') { $already = $true } } }
 if (-not $already) {
     $entry = [PSCustomObject]@{ matcher = '*'; hooks = @([PSCustomObject]@{ type='command'; command=$claudeCmd }) }
-    $settings.hooks.PreToolUse = @($settings.hooks.PreToolUse) + $entry
-    $json = $settings | ConvertTo-Json -Depth 20
+    $settingsObj.hooks.PreToolUse = @($settingsObj.hooks.PreToolUse) + $entry
+    $json = $settingsObj | ConvertTo-Json -Depth 20
     if ($json -is [array]) { $json = $json -join "`r`n" }   # guard: keep it one String for the overload
     $enc = New-Object System.Text.UTF8Encoding($false)
     [System.IO.File]::WriteAllText([string]$SETTINGS, [string]$json, $enc)
