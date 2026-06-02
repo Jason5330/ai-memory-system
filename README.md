@@ -1,11 +1,13 @@
 # AI Memory System（雙平台 × 雙層自我進化記憶）
 
 一套給 **Claude Code 與 Codex** 的持久記憶系統。讓 AI 在不同對話之間記住你的偏好、決策與知識，
-透過反思越來越懂你，犯過的錯不再犯，重複的工作流自動封裝成技能。
+透過反思越來越懂你，犯過的錯不再犯；**自動偵測你常做的事**——判斷型工作流封裝成技能，固定機械程式
+存成「工具」下次直接跑。
 
 A portable, self-evolving memory system for **Claude Code and Codex**.
 Remembers across sessions, reflects to understand you better, hard-blocks known-broken tools, and
-turns repeated workflows into skills.
+auto-detects repeated work — turning judgment workflows into skills and mechanical scripts into
+one-command saved tools.
 
 ---
 
@@ -15,10 +17,14 @@ turns repeated workflows into skills.
 每次對話
   → /capture 把有價值的訊號存到「對的層」（個人 vs 專案）
   → /dream 反思 → 提煉行為準則候選 → 你 /review-doctrine 批准 → 永久遵守
-  → /harvest 把重複 ≥2 次的工作流封裝成 skill（透過官方 skill-creator）
+  → 重複偵測器發現你常做某事 → 機械程式存成 Saved Tool（下次直接跑）／判斷工作流 → /harvest 封裝成 skill
   → 壞掉的工具自動硬擋、改用替代
 下次對話：自動載入記憶＋準則，不丟魂，越來越懂你
 ```
+
+> **自動為主、確定性兜底**：AI 在聊天中自己判斷要不要記/存（盡力而為），底層由 `~/.ai-memory/lib/` 的
+> 確定性腳本安全執行——`memory-write`（原子寫入）、`detect-repeats`（精準計次提醒）、`tool`（存/跑工具）。
+> 全部機制與腳本看 [`機制與工具總覽.md`](機制與工具總覽.md)。
 
 **變的不是模型權重，是「外腦」（memory + skill + doctrine）在迭代。核心是 audit + reflect + restore 閉環。**
 
@@ -67,6 +73,7 @@ C:\path\to\ai-memory-system\init-project.ps1
 |------|------|
 | [新手指南.md](新手指南.md) | 👈 **先看這個**：白話快速上手 |
 | [記憶名詞對照表.md](記憶名詞對照表.md) | 🔤 看不懂 conversations/doctrine/persona…？英文名詞中文白話對照（含例子）|
+| [機制與工具總覽.md](機制與工具總覽.md) | 🧰 所有 `lib/` 確定性腳本（memory-write／detect-repeats／tool）＋機制一張地圖、CLI/退出碼速查 |
 | [DUAL-PLATFORM-GUIDE.md](DUAL-PLATFORM-GUIDE.md) | 完整說明（架構／雙層／雙平台／驗證）|
 | [生活化測試流程.md](生活化測試流程.md) | 親手走一遍、驗收每個機制（約 15 分鐘）|
 | [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md) | 機制技術詳解 |

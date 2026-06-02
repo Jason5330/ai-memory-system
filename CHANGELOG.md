@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-06-02 — 新增「機制與工具總覽」文件 + README 更新
+
+- 新增 `機制與工具總覽.md`（+ `.html`）：把所有 `lib/` 確定性腳本（`memory-write`／`detect-repeats`／
+  `tool`）與其他腳本（hook／reset／doctor／nightly）、所有機制（Memory Decision Gate／two-step write／
+  重複偵測分流／Saved Tools／硬擋／注入防護／雙層／雙平台）整理成一張地圖，附 CLI/退出碼速查、三條
+  「省你重寫」lane（tool/skill/automation）對照、以及踩過的 PS 5.1 環境雷清單。
+- `README.md` 更新：核心理念加入「重複偵測 → Saved Tool／skill 分流」與 `lib/` 確定性腳本說明；
+  文件表加入總覽連結；首段介紹補上「機械程式存成工具直接跑」。
+
+---
+
 ## 2026-06-02 — 新增「Saved Tools」：存起來的程式，下次直接跑（不重寫、也不變 skill）
 
 解決一種情境：請 AI「截屏到桌面」這類**固定機械動作**，AI 每次都重寫程式很煩。這不適合 skill
