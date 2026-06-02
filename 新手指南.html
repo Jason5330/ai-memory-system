@@ -26,65 +26,100 @@ strong{color:#fff}
 footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:16px}
 </style></head>
 <body><div class="wrap"><div class="doc-nav">AI Memory System — github.com/Jason5330/ai-memory-system</div>
-<h1>新手指南（白話版）</h1>
-<blockquote>給完全沒用過的人。看完這份就會用。想看更深的：<code>DUAL-PLATFORM-GUIDE.md</code>（完整）、<code>TECHNICAL_GUIDE.md</code>（技術）。</blockquote>
-<hr>
-<h2>一句話：這是什麼？</h2>
-<p>平常每開一個新對話，AI 就<strong>失憶</strong>，你得重講一次你是誰、上次做到哪。</p>
-<p>裝了這套之後，<strong>Claude Code 或 Codex</strong> 會<strong>記住</strong>你的偏好、決策、知識，而且<strong>越用越懂你</strong>。</p>
-<pre><code>沒裝：你 →「幫我做 X」→ AI（完全不認識你）
-裝了：你 →「幫我做 X」→ AI 先讀記憶 → 知道你是誰、你的習慣 → 給更準的答案</code></pre>
-<h2>記憶分兩層（重要觀念）</h2>
-<ul><li><strong>個人腦</strong>（<code>~/.ai-memory</code>）：你的偏好、行為準則、反思——<strong>所有專案共用、越來越懂你</strong>，永不進專案 git。</li><li><strong>專案腦</strong>（<code>&lt;專案&gt;/.claude/memory</code>）：那個專案自己的知識、對話。</li></ul>
-<hr>
-<h2>先拿到框架</h2>
-<pre><code>git clone https://github.com/Jason5330/ai-memory-system.git</code></pre>
-<p>這樣會得到資料夾 <strong><code>ai-memory-system</code></strong>（下面範例都用這個名字）。</p>
-<blockquote>若你是按 GitHub 綠色按鈕「<strong>Download ZIP</strong>」下載解壓，資料夾會叫 <strong><code>ai-memory-system-main</code></strong>——<br>那下面範例的 <code>ai-memory-system</code> 請自行換成 <code>ai-memory-system-main</code>。</blockquote>
-<hr>
-<h2>安裝：兩個指令，別搞混</h2>
-<p>不是「裝兩次同一個東西」，是兩件不同的事：</p>
-<table><thead><tr><th></th><th>跑幾次</th><th>在哪跑</th><th>給你什麼</th></tr></thead><tbody><tr><td><code>install-personal.ps1</code></td><td><strong>每台電腦一次</strong></td><td>框架資料夾裡</td><td>你的<strong>個人腦</strong>（全域共用）</td></tr><tr><td><code>init-project.ps1</code></td><td><strong>每個新專案各一次</strong></td><td><strong>新專案資料夾裡</strong></td><td>那個專案自己的<strong>專案腦</strong></td></tr></tbody></table>
-<p><strong>順序：先 install-personal、後 init-project</strong>（init-project 會讀 install-personal 先放好的範本）。</p>
-<pre><code># 1) 每台電腦一次：在框架資料夾裡跑
-.\install-personal.ps1            # Windows
-./install-personal.sh             # Mac/Linux
-
-# 2) 每開一個新專案：進到「那個專案資料夾」再跑（不是框架資料夾！）
-cd C:\Users\你的帳號\Desktop\我的新專案
-C:\Users\你的帳號\Desktop\ai-memory-system\init-project.ps1</code></pre>
-<blockquote>⚠️ 出現「無法執行指令碼」紅字 → 先貼這行再重試：<br>```powershell<br>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned<br>```</blockquote>
-<p>裝完<strong>重啟 Claude Code / Codex</strong>。只是隨便聊、沒有專案 → 不用跑 init-project，個人腦已經能用。</p>
-<hr>
-<h2>實戰：框架夾放在專案裡，在 VSCode 怎麼下指令</h2>
-<pre><code>我的新專案\                          ← VSCode 開在這層（要初始化的是這層）
-└── ai-memory-system\     ← 框架夾放進來了</code></pre>
-<ol><li>按 <strong>Ctrl + 反引號鍵</strong>（鍵盤左上角、<code>Esc</code> 正下方、數字 <code>1</code> 左邊那顆）開內建終端機（或選單 Terminal → New Terminal），<br>確認提示字元是 <code>PS C:\Users\你的帳號\Desktop\我的新專案&gt;</code>。</li><li>第一次先裝個人層：<br>```powershell<br>powershell -ExecutionPolicy Bypass -File .\ai-memory-system\install-personal.ps1<br>```</li><li>初始化這個專案：<br>```powershell<br>powershell -ExecutionPolicy Bypass -File .\ai-memory-system\init-project.ps1<br>```</li></ol>
-<p>跑完專案根目錄會長出 <code>CLAUDE.md</code>、<code>AGENTS.md</code>、<code>.claude\</code>、<code>.codex\</code>、<code>.agents\</code>、<code>.gitignore</code> = 成功。</p>
-<blockquote>地雷：<strong>別先 <code>cd</code> 進框架子夾再跑</strong>（會把記憶建錯地方）；框架夾放專案裡會被 git 進去，介意就在<br><code>.gitignore</code> 加 <code>ai-memory-system/</code> 或把框架夾放專案外面。</blockquote>
-<hr>
-<h2>九個指令（打在對話框，像打字一樣）</h2>
-<table><thead><tr><th>指令</th><th>白話</th><th>何時用</th></tr></thead><tbody><tr><td><code>/capture</code></td><td>把這次對話的重點存起來</td><td>聊到值得記的、或某工具壞了</td></tr><tr><td><code>/ingest-sessions</code></td><td>回頭把最近會話沒記到的補抓進來</td><td>怕漏記；或交給每晚自動</td></tr><tr><td><code>/dream</code></td><td>大整理 + 反思 + 提煉準則候選</td><td>累積幾天後（或設每晚自動）</td></tr><tr><td><code>/harvest</code></td><td>把重複 ≥2 次的流程變成 skill</td><td>同個流程做過 ≥2 次（忘記也沒關係，capture 會主動問）</td></tr><tr><td><code>/review-doctrine</code></td><td>逐條批准 AI 提的行為準則</td><td><code>/dream</code> 說有候選時</td></tr><tr><td><code>/status</code></td><td>看現況（只看不改）</td><td>想知道記了多少</td></tr><tr><td><code>/schedule-dream</code></td><td>建立/列出/刪除每晚自動整理</td><td>設一次；或要列/刪排程時</td></tr><tr><td><code>/reset</code></td><td>互動式清空記憶、重新開始</td><td>存了一堆不想要的記憶</td></tr><tr><td><code>/help</code></td><td>列出所有指令 + <strong>怎麼確認通關</strong></td><td>忘記怎麼用</td></tr></tbody></table>
-<blockquote>Claude Code 打 <code>/指令</code>；Codex 用同名技能（講「capture 一下 / 跑 dream」即可）。<strong>最詳細的說明打 <code>/help</code>。</strong></blockquote>
-<p>幾個重點：</p>
-<ul><li><strong>多久變一個 skill</strong>：同一流程<strong>出現 ≥2 次（同一天也算，不用等三天）</strong>就會被提議。建技能一律透過<strong>官方 skill-creator</strong>。</li><li><strong>工具一直壞掉（例如搜尋失敗）不是做 skill</strong>：那是工具失效 → 自動<strong>硬擋</strong>、改用能用的替代。直接 <code>/capture</code> 跟它說「這個工具壞了」，<strong>第 2 次就該擋</strong>。</li><li><strong>排程不會越堆越多</strong>：只維護一個排程；說「列出排程／刪除排程」就能管理（<code>CronList</code> 在 Claude Code CLI 不顯示、要去 VS Code 看）。</li><li><strong>🎭 AI 人設</strong>：你說「以後叫我老闆／講話直接點」這種「AI 該怎麼當」的話，會存進<strong>人設</strong>（個人層、每次載入），跟「任務偏好」分開。</li><li><strong>怕漏記</strong>：就算忘了打 <code>/capture</code>，<code>/ingest-sessions</code>（每晚也會自動先跑）會回頭讀最近的會話記錄把漏掉的補上。</li></ul>
-<hr>
-<h2>每天怎麼用（最省事版）</h2>
-<pre><code>第一次：設一次 /schedule-dream（每天自動整理）
-每次重要對話結束前：打 /capture
-看到「有 X 條準則待審核」：打 /review-doctrine 批准你認同的
-覺得某流程重複做了：打 /harvest（或等 capture 主動問）</code></pre>
-<hr>
-<h2>常見問題（極簡）</h2>
-<p><strong>Q：怎麼確認裝好了 / 在運作？</strong> 打 <code>/status</code> 看儀表板；或打 <code>/help</code> 看每個指令「怎麼確認通關」。</p>
-<p><strong>Q：會不會把資料傳出去？</strong> 不會。全部存你自己電腦，純文字檔，不需網路、不需資料庫。</p>
-<p><strong>Q：記太多、存了不想要的怎麼辦？</strong> 打 <code>/reset</code>——它會問你清哪一層、哪些種類，<strong>先備份、要打 <code>yes reset</code> 才動手</strong>，救得回來。</p>
-<p><strong>Q：我只回一句「好 / OK」也會被記到嗎？</strong> 會。<code>/capture</code> 很聰明——它會<strong>回溯前 3-5 輪</strong>，把你拍板的決策<strong>實質</strong>存下來（選了哪個、為什麼、否決了什麼），而不是只存「好」。短但關鍵的決策不會漏，routine 閒聊還是會跳過。</p>
-<p><strong>Q：規矩是 AI 自己亂加的嗎？</strong> 不是。它只能「提議」，<strong>一定要你 <code>/review-doctrine</code> 批准</strong>才生效。</p>
-<p><strong>Q：某個技能一直犯同樣的錯？</strong> 它會自己學乖：<code>/capture</code> 記下失敗，<code>/dream</code> 寫進該技能的「失敗兜底」，下次自動避開。</p>
-<p><strong>Q：conversations / doctrine / persona… 這些英文看不懂？</strong> 翻 <a href="記憶名詞對照表.md"><code>記憶名詞對照表.md</code></a>（每個分類中文白話＋例子），或打 <code>/help</code> 看「記憶分類速查」。</p>
-<p><strong>Q：換電腦？</strong> 把 <code>~/.ai-memory</code>（個人腦）複製過去；專案腦跟著專案走。</p>
-<hr>
-<h2>只要記住這一件事</h2>
-<blockquote><strong>每次重要對話結束，打 <code>/capture</code>。</strong> 其他的系統會幫你搞定；忘記指令就打 <code>/help</code>。</blockquote>
-<footer>由 新手指南.md 自動轉出 · AI Memory System</footer></div></body></html>
+<p>&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-Hant&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;UTF-8&quot;&gt;</p>
+<p>&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;</p>
+<p>&lt;title&gt;新手指南&lt;/title&gt;&lt;style&gt;</p>
+<p>:root{--bg:#0f1226;--card:#1a1f3a;--ink:#eef1ff;--muted:#aab2d5;--accent:#7c9cff;--accent2:#5fd0c5;--line:#2c3358;--code:#11152b}</p>
+<p>*{box-sizing:border-box}</p>
+<p>body{margin:0;font-family:&quot;Segoe UI&quot;,&quot;PingFang TC&quot;,&quot;Microsoft JhengHei&quot;,system-ui,sans-serif;background:linear-gradient(160deg,#0f1226,#161a35 60%,#101430);color:var(--ink);line-height:1.75}</p>
+<p>.wrap{max-width:900px;margin:0 auto;padding:36px 22px 80px}</p>
+<p>h1,h2,h3,h4{line-height:1.3;margin:1.6em 0 .6em}</p>
+<p>h1{font-size:28px;border-bottom:2px solid var(--line);padding-bottom:.3em}</p>
+<p>h2{font-size:22px;color:#fff;border-left:4px solid var(--accent);padding-left:.5em}</p>
+<p>h3{font-size:18px;color:var(--accent2)}</p>
+<p>h4{font-size:16px;color:var(--muted)}</p>
+<p>a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}</p>
+<p>p{margin:.7em 0}</p>
+<p>code{background:var(--code);color:#9fe0d8;padding:.12em .4em;border-radius:6px;font-family:&quot;Cascadia Code&quot;,Consolas,monospace;font-size:.92em}</p>
+<p>pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow:auto}</p>
+<p>pre code{background:none;color:#cfe3ff;padding:0;font-size:.88em;line-height:1.6}</p>
+<p>blockquote{margin:.8em 0;padding:.6em 1em;background:#1c2342;border-left:4px solid var(--accent2);border-radius:0 10px 10px 0;color:#d7ddff}</p>
+<p>ul,ol{margin:.5em 0 .9em;padding-left:1.5em}li{margin:.28em 0}</p>
+<p>table{border-collapse:collapse;width:100%;margin:1em 0;display:block;overflow:auto}</p>
+<p>th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}</p>
+<p>th{background:#222845;color:#fff}tr:nth-child(even) td{background:#171c38}</p>
+<p>hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}</p>
+<p>strong{color:#fff}</p>
+<p>.doc-nav{font-size:13px;color:var(--muted);margin-bottom:8px}</p>
+<p>footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:16px}</p>
+<p>&lt;/style&gt;&lt;/head&gt;</p>
+<p>&lt;body&gt;&lt;div class=&quot;wrap&quot;&gt;&lt;div class=&quot;doc-nav&quot;&gt;AI Memory System — github.com/Jason5330/ai-memory-system&lt;/div&gt;</p>
+<p>&lt;h1&gt;新手指南（白話版）&lt;/h1&gt;</p>
+<p>&lt;blockquote&gt;給完全沒用過的人。看完這份就會用。想看更深的：&lt;code&gt;DUAL-PLATFORM-GUIDE.md&lt;/code&gt;（完整）、&lt;code&gt;TECHNICAL_GUIDE.md&lt;/code&gt;（技術）。&lt;/blockquote&gt;</p>
+<p>&lt;hr&gt;</p>
+<p>&lt;h2&gt;一句話：這是什麼？&lt;/h2&gt;</p>
+<p>&lt;p&gt;平常每開一個新對話，AI 就&lt;strong&gt;失憶&lt;/strong&gt;，你得重講一次你是誰、上次做到哪。&lt;/p&gt;</p>
+<p>&lt;p&gt;裝了這套之後，&lt;strong&gt;Claude Code 或 Codex&lt;/strong&gt; 會&lt;strong&gt;記住&lt;/strong&gt;你的偏好、決策、知識，而且&lt;strong&gt;越用越懂你&lt;/strong&gt;。&lt;/p&gt;</p>
+<p>&lt;pre&gt;&lt;code&gt;沒裝：你 →「幫我做 X」→ AI（完全不認識你）</p>
+<p>裝了：你 →「幫我做 X」→ AI 先讀記憶 → 知道你是誰、你的習慣 → 給更準的答案&lt;/code&gt;&lt;/pre&gt;</p>
+<p>&lt;h2&gt;記憶分兩層（重要觀念）&lt;/h2&gt;</p>
+<p>&lt;ul&gt;&lt;li&gt;&lt;strong&gt;個人腦&lt;/strong&gt;（&lt;code&gt;~/.ai-memory&lt;/code&gt;）：你的偏好、行為準則、反思——&lt;strong&gt;所有專案共用、越來越懂你&lt;/strong&gt;，永不進專案 git。&lt;/li&gt;&lt;li&gt;&lt;strong&gt;專案腦&lt;/strong&gt;（&lt;code&gt;&amp;lt;專案&amp;gt;/.claude/memory&lt;/code&gt;）：那個專案自己的知識、對話。&lt;/li&gt;&lt;/ul&gt;</p>
+<p>&lt;hr&gt;</p>
+<p>&lt;h2&gt;先拿到框架&lt;/h2&gt;</p>
+<p>&lt;pre&gt;&lt;code&gt;git clone https://github.com/Jason5330/ai-memory-system.git&lt;/code&gt;&lt;/pre&gt;</p>
+<p>&lt;p&gt;這樣會得到資料夾 &lt;strong&gt;&lt;code&gt;ai-memory-system&lt;/code&gt;&lt;/strong&gt;（下面範例都用這個名字）。&lt;/p&gt;</p>
+<p>&lt;blockquote&gt;若你是按 GitHub 綠色按鈕「&lt;strong&gt;Download ZIP&lt;/strong&gt;」下載解壓，資料夾會叫 &lt;strong&gt;&lt;code&gt;ai-memory-system-main&lt;/code&gt;&lt;/strong&gt;——&lt;br&gt;那下面範例的 &lt;code&gt;ai-memory-system&lt;/code&gt; 請自行換成 &lt;code&gt;ai-memory-system-main&lt;/code&gt;。&lt;/blockquote&gt;</p>
+<p>&lt;hr&gt;</p>
+<p>&lt;h2&gt;安裝：兩個指令，別搞混&lt;/h2&gt;</p>
+<p>&lt;p&gt;不是「裝兩次同一個東西」，是兩件不同的事：&lt;/p&gt;</p>
+<p>&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;th&gt;跑幾次&lt;/th&gt;&lt;th&gt;在哪跑&lt;/th&gt;&lt;th&gt;給你什麼&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;install-personal.ps1&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;strong&gt;每台電腦一次&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;框架資料夾裡&lt;/td&gt;&lt;td&gt;你的&lt;strong&gt;個人腦&lt;/strong&gt;（全域共用）&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;init-project.ps1&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;strong&gt;每個新專案各一次&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;&lt;strong&gt;新專案資料夾裡&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;那個專案自己的&lt;strong&gt;專案腦&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;順序：先 install-personal、後 init-project&lt;/strong&gt;（init-project 會讀 install-personal 先放好的範本）。&lt;/p&gt;</p>
+<p>&lt;pre&gt;&lt;code&gt;# 1) 每台電腦一次：在框架資料夾裡跑</p>
+<p>.\install-personal.ps1            # Windows</p>
+<p>./install-personal.sh             # Mac/Linux</p>
+<h1>2) 每開一個新專案：進到「那個專案資料夾」再跑（不是框架資料夾！）</h1>
+<p>cd C:\Users\你的帳號\Desktop\我的新專案</p>
+<p>C:\Users\你的帳號\Desktop\ai-memory-system\init-project.ps1&lt;/code&gt;&lt;/pre&gt;</p>
+<p>&lt;blockquote&gt;⚠️ 出現「無法執行指令碼」紅字 → 先貼這行再重試：&lt;br&gt;``<code>powershell&lt;br&gt;Set-ExecutionPolicy -Scope CurrentUser RemoteSigned&lt;br&gt;</code>``&lt;/blockquote&gt;</p>
+<p>&lt;p&gt;裝完&lt;strong&gt;重啟 Claude Code / Codex&lt;/strong&gt;。只是隨便聊、沒有專案 → 不用跑 init-project，個人腦已經能用。&lt;/p&gt;</p>
+<p>&lt;hr&gt;</p>
+<p>&lt;h2&gt;實戰：框架夾放在專案裡，在 VSCode 怎麼下指令&lt;/h2&gt;</p>
+<p>&lt;pre&gt;&lt;code&gt;我的新專案\                          ← VSCode 開在這層（要初始化的是這層）</p>
+<p>└── ai-memory-system\     ← 框架夾放進來了&lt;/code&gt;&lt;/pre&gt;</p>
+<p>&lt;ol&gt;&lt;li&gt;按 &lt;strong&gt;Ctrl + 反引號鍵&lt;/strong&gt;（鍵盤左上角、&lt;code&gt;Esc&lt;/code&gt; 正下方、數字 &lt;code&gt;1&lt;/code&gt; 左邊那顆）開內建終端機（或選單 Terminal → New Terminal），&lt;br&gt;確認提示字元是 &lt;code&gt;PS C:\Users\你的帳號\Desktop\我的新專案&amp;gt;&lt;/code&gt;。&lt;/li&gt;&lt;li&gt;第一次先裝個人層：&lt;br&gt;``<code>powershell&lt;br&gt;powershell -ExecutionPolicy Bypass -File .\ai-memory-system\install-personal.ps1&lt;br&gt;</code>`<code>&lt;/li&gt;&lt;li&gt;初始化這個專案：&lt;br&gt;</code>`<code>powershell&lt;br&gt;powershell -ExecutionPolicy Bypass -File .\ai-memory-system\init-project.ps1&lt;br&gt;</code>``&lt;/li&gt;&lt;/ol&gt;</p>
+<p>&lt;p&gt;跑完專案根目錄會長出 &lt;code&gt;CLAUDE.md&lt;/code&gt;、&lt;code&gt;AGENTS.md&lt;/code&gt;、&lt;code&gt;.claude\&lt;/code&gt;、&lt;code&gt;.codex\&lt;/code&gt;、&lt;code&gt;.agents\&lt;/code&gt;、&lt;code&gt;.gitignore&lt;/code&gt; = 成功。&lt;/p&gt;</p>
+<p>&lt;blockquote&gt;地雷：&lt;strong&gt;別先 &lt;code&gt;cd&lt;/code&gt; 進框架子夾再跑&lt;/strong&gt;（會把記憶建錯地方）；框架夾放專案裡會被 git 進去，介意就在&lt;br&gt;&lt;code&gt;.gitignore&lt;/code&gt; 加 &lt;code&gt;ai-memory-system/&lt;/code&gt; 或把框架夾放專案外面。&lt;/blockquote&gt;</p>
+<p>&lt;hr&gt;</p>
+<p>&lt;h2&gt;九個指令（打在對話框，像打字一樣）&lt;/h2&gt;</p>
+<p>&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;指令&lt;/th&gt;&lt;th&gt;白話&lt;/th&gt;&lt;th&gt;何時用&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;/capture&lt;/code&gt;&lt;/td&gt;&lt;td&gt;把這次對話的重點存起來&lt;/td&gt;&lt;td&gt;聊到值得記的、或某工具壞了&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;/ingest-sessions&lt;/code&gt;&lt;/td&gt;&lt;td&gt;回頭把最近會話沒記到的補抓進來&lt;/td&gt;&lt;td&gt;怕漏記；或交給每晚自動&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;/dream&lt;/code&gt;&lt;/td&gt;&lt;td&gt;大整理 + 反思 + 提煉準則候選&lt;/td&gt;&lt;td&gt;累積幾天後（或設每晚自動）&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;/harvest&lt;/code&gt;&lt;/td&gt;&lt;td&gt;把重複 ≥2 次的流程變成 skill&lt;/td&gt;&lt;td&gt;同個流程做過 ≥2 次（忘記也沒關係，capture 會主動問）&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;/review-doctrine&lt;/code&gt;&lt;/td&gt;&lt;td&gt;逐條批准 AI 提的行為準則&lt;/td&gt;&lt;td&gt;&lt;code&gt;/dream&lt;/code&gt; 說有候選時&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;/status&lt;/code&gt;&lt;/td&gt;&lt;td&gt;看現況（只看不改）&lt;/td&gt;&lt;td&gt;想知道記了多少&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;/schedule-dream&lt;/code&gt;&lt;/td&gt;&lt;td&gt;建立/列出/刪除每晚自動整理&lt;/td&gt;&lt;td&gt;設一次；或要列/刪排程時&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;/reset&lt;/code&gt;&lt;/td&gt;&lt;td&gt;互動式清空記憶、重新開始&lt;/td&gt;&lt;td&gt;存了一堆不想要的記憶&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;code&gt;/help&lt;/code&gt;&lt;/td&gt;&lt;td&gt;列出所有指令 + &lt;strong&gt;怎麼確認通關&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;忘記怎麼用&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</p>
+<p>&lt;blockquote&gt;Claude Code 打 &lt;code&gt;/指令&lt;/code&gt;；Codex 用同名技能（講「capture 一下 / 跑 dream」即可）。&lt;strong&gt;最詳細的說明打 &lt;code&gt;/help&lt;/code&gt;。&lt;/strong&gt;&lt;/blockquote&gt;</p>
+<p>&lt;p&gt;幾個重點：&lt;/p&gt;</p>
+<p>&lt;ul&gt;&lt;li&gt;&lt;strong&gt;多久變一個 skill&lt;/strong&gt;：同一流程&lt;strong&gt;出現 ≥2 次（同一天也算，不用等三天）&lt;/strong&gt;就會被提議。建技能一律透過&lt;strong&gt;官方 skill-creator&lt;/strong&gt;。&lt;/li&gt;&lt;li&gt;&lt;strong&gt;工具一直壞掉（例如搜尋失敗）不是做 skill&lt;/strong&gt;：那是工具失效 → 自動&lt;strong&gt;硬擋&lt;/strong&gt;、改用能用的替代。直接 &lt;code&gt;/capture&lt;/code&gt; 跟它說「這個工具壞了」，&lt;strong&gt;第 2 次就該擋&lt;/strong&gt;。&lt;/li&gt;&lt;li&gt;&lt;strong&gt;排程不會越堆越多&lt;/strong&gt;：只維護一個排程；說「列出排程／刪除排程」就能管理（&lt;code&gt;CronList&lt;/code&gt; 在 Claude Code CLI 不顯示、要去 VS Code 看）。&lt;/li&gt;&lt;li&gt;&lt;strong&gt;🎭 AI 人設&lt;/strong&gt;：你說「以後叫我老闆／講話直接點」這種「AI 該怎麼當」的話，會存進&lt;strong&gt;人設&lt;/strong&gt;（個人層、每次載入），跟「任務偏好」分開。&lt;/li&gt;&lt;/ul&gt;</p>
+<p>&lt;hr&gt;</p>
+<p>&lt;h2&gt;記憶是自動記，還是要我打 &lt;code&gt;/capture&lt;/code&gt;？（重要）&lt;/h2&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;聊天過程中 AI 就會自己判斷、自動記&lt;/strong&gt;——你不一定要打 &lt;code&gt;/capture&lt;/code&gt;。整套分三層，從「自動」到「保證」：&lt;/p&gt;</p>
+<p>&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;層級&lt;/th&gt;&lt;th&gt;要不要動手&lt;/th&gt;&lt;th&gt;它做什麼&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;① 聊天中自動&lt;/td&gt;&lt;td&gt;&lt;strong&gt;不用&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;AI 每輪自己判信心：&lt;strong&gt;高→當場記&lt;/strong&gt;（偏好／人設／知識／壞工具）、&lt;strong&gt;中→先存候選&lt;/strong&gt;、&lt;strong&gt;低→跳過&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;② &lt;code&gt;/capture&lt;/code&gt;&lt;/td&gt;&lt;td&gt;你打一次&lt;/td&gt;&lt;td&gt;完整掃這段對話、&lt;strong&gt;保證&lt;/strong&gt;存檔——想「確定這段一定進去」就打它&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;③ 每晚自動 &lt;code&gt;/ingest-sessions&lt;/code&gt;&lt;/td&gt;&lt;td&gt;設一次排程&lt;/td&gt;&lt;td&gt;回頭讀&lt;strong&gt;真實會話記錄&lt;/strong&gt;，把①漏掉的&lt;strong&gt;補回來&lt;/strong&gt;（確定性兜底）&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</p>
+<p>&lt;blockquote&gt;&lt;strong&gt;為什麼還要 ②③？&lt;/strong&gt; 因為①是「盡力而為」，AI 不保證每一輪都記全。所以：&lt;strong&gt;重要的就打 &lt;code&gt;/capture&lt;/code&gt; 保險，平常交給每晚自動補。&lt;/strong&gt;&lt;br&gt;&lt;br&gt;&lt;strong&gt;兩條鐵則（自動或手動都一樣）&lt;/strong&gt;：① &lt;strong&gt;行為準則／技能永遠不會自動生效&lt;/strong&gt;——AI 只能「提議」，要你 &lt;code&gt;/review-doctrine&lt;/code&gt;、&lt;code&gt;/harvest&lt;/code&gt; 批准才算數；② &lt;strong&gt;低信心（本次產物、暫存檔、閒聊）一律跳過&lt;/strong&gt;，不會越記越雜。&lt;/blockquote&gt;</p>
+<p>&lt;hr&gt;</p>
+<p>&lt;h2&gt;每天怎麼用（最省事版）&lt;/h2&gt;</p>
+<p>&lt;pre&gt;&lt;code&gt;平常：放著聊就好 —— AI 會自動記重點</p>
+<p>重要對話：結束前打 /capture 確保這段存進去</p>
+<p>第一次：設一次 /schedule-dream（每晚自動整理 + 補漏）</p>
+<p>看到「有 X 條準則待審核」：打 /review-doctrine 批准你認同的</p>
+<p>覺得某流程重複做了：打 /harvest（或等它主動問）&lt;/code&gt;&lt;/pre&gt;</p>
+<p>&lt;hr&gt;</p>
+<p>&lt;h2&gt;常見問題（極簡）&lt;/h2&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;Q：怎麼確認裝好了 / 在運作？&lt;/strong&gt; 打 &lt;code&gt;/status&lt;/code&gt; 看儀表板；或打 &lt;code&gt;/help&lt;/code&gt; 看每個指令「怎麼確認通關」。&lt;/p&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;Q：會不會把資料傳出去？&lt;/strong&gt; 不會。全部存你自己電腦，純文字檔，不需網路、不需資料庫。&lt;/p&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;Q：記太多、存了不想要的怎麼辦？&lt;/strong&gt; 打 &lt;code&gt;/reset&lt;/code&gt;——它會問你清哪一層、哪些種類，&lt;strong&gt;先備份、要打 &lt;code&gt;yes reset&lt;/code&gt; 才動手&lt;/strong&gt;，救得回來。&lt;/p&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;Q：我只回一句「好 / OK」也會被記到嗎？&lt;/strong&gt; 會。它會&lt;strong&gt;回溯前 3-5 輪&lt;/strong&gt;，把你拍板的決策&lt;strong&gt;實質&lt;/strong&gt;存下來（選了哪個、為什麼、否決了什麼），而不是只存「好」。短但關鍵的決策不會漏，routine 閒聊還是會跳過。&lt;/p&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;Q：一定要打 &lt;code&gt;/capture&lt;/code&gt; 才會記嗎？&lt;/strong&gt; 不用。聊天中 AI 會&lt;strong&gt;自動判斷並記下高信心的重點&lt;/strong&gt;；&lt;code&gt;/capture&lt;/code&gt; 是想「確定這段一定進去」時的手動保證，每晚 &lt;code&gt;/ingest-sessions&lt;/code&gt; 再回讀會話補漏。詳見上面〈記憶是自動記，還是要我打 /capture？〉。&lt;/p&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;Q：規矩是 AI 自己亂加的嗎？&lt;/strong&gt; 不是。它只能「提議」，&lt;strong&gt;一定要你 &lt;code&gt;/review-doctrine&lt;/code&gt; 批准&lt;/strong&gt;才生效。&lt;/p&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;Q：某個技能一直犯同樣的錯？&lt;/strong&gt; 它會自己學乖：&lt;code&gt;/capture&lt;/code&gt; 記下失敗，&lt;code&gt;/dream&lt;/code&gt; 寫進該技能的「失敗兜底」，下次自動避開。&lt;/p&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;Q：conversations / doctrine / persona… 這些英文看不懂？&lt;/strong&gt; 翻 &lt;a href=&quot;記憶名詞對照表.md&quot;&gt;&lt;code&gt;記憶名詞對照表.md&lt;/code&gt;&lt;/a&gt;（每個分類中文白話＋例子），或打 &lt;code&gt;/help&lt;/code&gt; 看「記憶分類速查」。&lt;/p&gt;</p>
+<p>&lt;p&gt;&lt;strong&gt;Q：換電腦？&lt;/strong&gt; 把 &lt;code&gt;~/.ai-memory&lt;/code&gt;（個人腦）複製過去；專案腦跟著專案走。&lt;/p&gt;</p>
+<p>&lt;hr&gt;</p>
+<p>&lt;h2&gt;只要記住這一件事&lt;/h2&gt;</p>
+<p>&lt;blockquote&gt;&lt;strong&gt;平常放著聊，AI 會自動記重點；重要的就打 &lt;code&gt;/capture&lt;/code&gt; 保險；其餘交給每晚自動整理＋補漏。&lt;/strong&gt; 忘記指令就打 &lt;code&gt;/help&lt;/code&gt;。&lt;/blockquote&gt;</p>
+<p>&lt;footer&gt;由 新手指南.md 自動轉出 · AI Memory System&lt;/footer&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</p>
+<footer>由 新手指南.html 自動轉出 · AI Memory System</footer></div></body></html>

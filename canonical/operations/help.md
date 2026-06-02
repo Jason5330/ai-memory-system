@@ -25,6 +25,17 @@ Print this guide in the user's language. For each command give three things: **�
 
 ---
 
+## 自動記，還是要打 `/capture`？
+
+記憶分三層，從「自動」到「保證」，**你不一定要打 `/capture`**：
+- **① 聊天中自動**（免動手）：AI 每輪用 Memory Decision Gate 判信心——**高→當場記**（偏好／人設／知識／壞工具）、**中→存候選**、**低→跳過**。屬「盡力而為」。
+- **② `/capture`**（手動保證）：完整掃這段對話、確定一定存進去。重要的就打它。
+- **③ 每晚 `/ingest-sessions`**（確定性兜底）：回讀真實會話記錄，把①漏掉的補回來（`/schedule-dream` 設一次即每晚自動跑）。
+
+> **兩條鐵則**：**行為準則／技能永不自動生效**（要 `/review-doctrine`、`/harvest` 批准）；**低信心一律跳過**。
+
+---
+
 ## 記憶分類速查（這些英文是什麼）
 
 > 完整版＋例子看框架 repo 的 `記憶名詞對照表.md`。記憶分**兩層**（個人腦 `~/.ai-memory` ⊥ 專案腦
