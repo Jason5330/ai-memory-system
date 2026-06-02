@@ -164,10 +164,16 @@ both layers, and excludes workflows that already have a skill):
 & "$env:USERPROFILE\.ai-memory\lib\detect-repeats.ps1" -Threshold 2     # Windows
 bash ~/.ai-memory/lib/detect-repeats.sh --threshold 2                   # Mac/Linux
 ```
-For any workflow it reports as **seen ≥2× with no skill yet**, **proactively offer**:
-*"我發現你做過 <X> N 次了，要不要我用 /harvest 幫你生成一個 skill 來做這件事？"* Don't silently wait —
-the user shouldn't have to remember `/harvest` exists. (Building still goes through /harvest's review
-gate; you're only offering to start it.)
+For any workflow it reports as **seen ≥2× with no skill yet**, **proactively offer — pick the right
+lane**:
+- if it's a **fixed mechanical script-task** (you keep writing/running a script to do the same thing,
+  e.g. screenshot-to-desktop) → offer a **Saved Tool**: *"我發現你做過 <X> N 次了，要不要我把那支程式存
+  起來、下次直接執行？"* (→ `lib/tool` add; see the entry file's "Saved tools").
+- if it's a **multi-step judgment workflow** → offer a **skill**: *"…要不要我用 /harvest 幫你生成一個
+  skill？"*
+
+Don't silently wait — the user shouldn't have to remember these exist. (Skills still go through
+/harvest's review gate; a Saved Tool is just kept on yes.)
 
 > ⚠️ **A repeatedly-FAILING built-in tool is NOT a skill candidate.** If the same tool/behavior failed
 > 2+ times, that's an ⚙️ Environment/Tool Failure → it belongs in the **hard-block** (Step 2.5), not a

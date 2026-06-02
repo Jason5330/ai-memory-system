@@ -97,6 +97,13 @@ that folder"). Those are NOT skills (playbooks you follow) and NOT automations (
   PERSONAL (cross-project). **Design saved tools to take positional args or env vars (not `-Named`
   flags)** — `tool run` forwards positional args, but a `-Named` flag gets intercepted by the runner.
 
+> **This is automatic — the user does NOT run `capture` for it.** You offer the moment you write a
+> reusable script; saving a tool has nothing to do with `capture`. In fact `capture` deliberately
+> **never stores scripts** — its Knowledge Filter Gate treats this-session code as *output, not
+> knowledge*. So: a **mechanical, fixed** repeated request → a **Saved Tool** (here); a multi-step
+> *judgment* workflow → a **skill** (`harvest`). The user never has to type a command for either —
+> you offer; they just say yes.
+
 ## Capturing signals (auto — decide it yourself)
 
 During conversation, judge each signal with the **Memory Decision Gate**
