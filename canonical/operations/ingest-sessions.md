@@ -21,10 +21,20 @@ Roots: `PERSONAL = ~/.ai-memory`, `PROJECT = ./.claude/memory` (if present). Rou
    something happened; **verify the actual detail in the source system** before storing. Never store a
    Chronicle summary as fact.
 
-## Step 2: Watermark (makes re-runs cheap + idempotent)
-Read `~/.ai-memory/cron/ingest-watermark.txt` (an ISO timestamp; absent = first run → look back 7 days).
-Only process sessions/messages **newer** than the watermark. At the end (Step 6) write the newest
-processed timestamp back. This stops re-ingesting the same sessions.
+## Step 2: Per-source checkpoints (idempotent; handles late/rewritten/out-of-order files)
+A single global timestamp is too coarse — transcripts can **land late**, get **rewritten/compacted**,
+or have **out-of-order mtimes across projects**, so a global watermark can skip real unprocessed
+content. Instead keep a **per-source checkpoint** store at
+`~/.ai-memory/cron/ingest-checkpoints.json`, keyed by source (the transcript file path), each holding:
+`{ session_id, last_event_ts, last_offset, content_hash }` (offset = lines or bytes processed;
+content_hash = hash of the processed range / whole file).
+
+Decide **per source** (sources are independent — a late/reordered file never makes another skip):
+- **Unseen source** → process from the start (first run only: cap look-back at 7 days to bound cost).
+- **content_hash unchanged AND nothing past `last_offset`** → skip (nothing new).
+- **Grew past `last_offset`** → process only the **delta** (events after `last_offset`).
+- **content_hash changed for an already-processed range** (file rewritten/compacted) → re-scan the
+  file and rely on Step 4 dedup to avoid re-storing; then reset that source's checkpoint.
 
 ## Step 3: Extract signals (same gate as /capture)
 For each session in scope, pull: 💡 decisions (incl. short "OK/好" resolved against its 3-5 surrounding
@@ -46,13 +56,14 @@ tool failures→`blocked-actions.json` (+ MEMORY.md Environment Limits + hard-bl
 format (Why + How to Apply required; every Timeline line names its source — here the source is the
 session id / file). Update each layer's `MEMORY.md` index.
 
-## Step 6: Advance watermark + report
-Write the newest processed timestamp to `~/.ai-memory/cron/ingest-watermark.txt`. Report:
+## Step 6: Update checkpoints + report
+For each source processed, write its updated checkpoint (`session_id`, `last_event_ts`, `last_offset`,
+`content_hash`) back to `~/.ai-memory/cron/ingest-checkpoints.json`. Report:
 ```
 🧹 Session ingest complete
-  Sources: Claude X sessions · Codex Y sessions · unconsolidated logs Z
-  New: A entity pages · B preferences/persona · C tool-failures enforced · D repeat-candidates
-  Deduped/merged: E   Watermark → <timestamp>
+  Sources: Claude X sessions · Codex Y sessions · unconsolidated logs Z (A skipped: no change)
+  New: B entity pages · C preferences/persona · D tool-failures enforced · E repeat-candidates
+  Deduped/merged: F   Checkpoints updated: G sources
 ```
 
 ## Rules

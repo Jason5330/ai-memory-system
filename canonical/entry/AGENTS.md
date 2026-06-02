@@ -35,25 +35,34 @@ rules accumulate in `doctrine.md`.
 
 ## Operations (Codex Agent Skills; Claude runs the twin slash-commands)
 
-On Codex these are skills under `~/.agents/skills/` (capture / dream / harvest / review-doctrine /
-status). Trigger by intent ("capture this", "run dream", "harvest workflows", "review doctrine",
-"memory status"):
+On Codex these are skills under `~/.agents/skills/` (capture / ingest-sessions / dream / harvest /
+review-doctrine / status / schedule-dream / reset / help). Trigger by intent ("capture this",
+"ingest sessions", "run dream", "harvest workflows", "review doctrine", "memory status", "reset
+memory", "help"):
 
 - **capture** — save the current conversation's signals to the correct layer (routing table above).
+- **ingest-sessions** — sediment missed signals from recent Claude/Codex session transcripts +
+  unconsolidated logs (per-source checkpoint, idempotent). Run when unsure what's been captured; the
+  nightly job runs it before `dream`.
 - **dream** — multi-phase consolidation: entity sweep → link repair → dedup → reflection → skill
-  fallback writeback → index sync → lint.
+  fallback writeback → index sync → doctor.
 - **harvest** — scan history for repeated manual workflows, propose Skill/subagent/automation/skip
-  with evidence, gate them by review, materialize approved skills to BOTH platforms.
+  with evidence, gate them by review, materialize approved skills to BOTH platforms (via skill-creator).
 - **review-doctrine** — approve/edit/reject the doctrine candidates `dream` distilled.
-- **status** — read-only health of personal + project memory.
+- **status** — read-only health of personal + project memory (incl. hard-block health).
+- **schedule-dream** — create/list/delete the OS-level nightly job (single, idempotent).
+- **reset** — interactive memory reset (pick layer + categories; archive-first, confirm required).
+- **help** — every command: what it does, when to use it, how to confirm success.
 
-## Enforcement layer (hard guarantee)
+## Enforcement layer (hard guarantee WHEN healthy)
 
 A Codex PreToolUse hook (registered in `~/.codex/config.toml` `[[hooks.PreToolUse]]`, or
 `~/.codex/hooks.json`) reads `{{PERSONAL_MEMORY}}/blocked-actions.json` and **physically blocks** any
 tool listed there — it returns `permissionDecision:"deny"` (or exits 2 with the reason on stderr),
 telling you which alternative to use. The same script + registry also backs Claude Code. `capture`
-registers a broken tool there. Data-driven: blocking a new tool needs no code change.
+registers a broken tool there. Data-driven: blocking a new tool needs no code change. **Hard guarantee
+only while the registry is valid JSON and the hook is registered** — the hook is fail-open on parse
+error (a corrupt registry never bricks all tools), and `doctor`/`status` report **red** if the net is down.
 
 ## When a skill triggers
 

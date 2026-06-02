@@ -43,9 +43,10 @@ Print this guide in the user's language. For each command give three things: **�
 
 ### `/ingest-sessions`
 - **功能**：不靠「當下記得捕捉」，而是**回頭讀最近的 Claude/Codex 會話記錄**（`~/.claude/projects/*.jsonl`、
-  `~/.codex/` 的會話檔）＋框架還沒整合的對話 log，把漏掉的訊號補抓進記憶。有**浮水印 + 去重**，重跑不會重複。
+  `~/.codex/` 的會話檔）＋框架還沒整合的對話 log，把漏掉的訊號補抓進記憶。用 **per-source checkpoint
+  （每個來源各記 offset/hash/ts）+ 去重**，所以檔案延遲落盤、被重寫、跨專案時間亂序都不會漏抓或重複。
 - **使用時機**：怕某天忘了打 `/capture` 漏記；或**交給每晚自動**（nightly 會先跑它再 dream）。Chronicle 只當線索、要回源頭核實。
-- **✅ 怎麼確認通關**：報告列「掃了幾個 session、新建/合併幾筆、浮水印推進到哪」；`~/.ai-memory/cron/ingest-watermark.txt` 有更新。
+- **✅ 怎麼確認通關**：報告列「掃了幾個 session、新建/合併幾筆、幾個來源因無變動跳過」；`~/.ai-memory/cron/ingest-checkpoints.json` 有更新。
 
 ### `/dream`
 - **功能**：多階段深度整合——實體掃描→修雙向連結→去重/矛盾→**反思寫 reflection.md**→把跨 ≥2 次反思的

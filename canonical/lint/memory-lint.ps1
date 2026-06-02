@@ -96,24 +96,31 @@ foreach ($root in $roots) {
 
 # ---- GLOBAL wiring checks ----
 Write-Host "Wiring (both platforms):" -ForegroundColor Cyan
-# Claude hook registered
+# Self-test runs the ACTUAL registered command (catches a stale path / wrong command), not just a
+# string match. Pipes a non-blocked test payload; the registered command must exit 0.
+function Invoke-RegisteredHook($cmd) {
+    '{"tool_name":"__doctor_selftest__"}' | cmd /c $cmd 1>$null 2>$null
+    return $LASTEXITCODE
+}
+# Claude: parse the registered command from settings.json and run IT
 $cs = Join-Path $U '.claude\settings.json'
 if (Test-Path $cs) {
-    if ((Get-Content $cs -Raw -Encoding UTF8) -match 'block-failed-actions') { P "Claude PreToolUse hook registered" }
-    else { F "Claude hook NOT registered in settings.json — hard-block net is DOWN" }
+    $reg = $null
+    try { $sj = Get-Content $cs -Raw -Encoding UTF8 | ConvertFrom-Json
+          foreach ($e in @($sj.hooks.PreToolUse)) { foreach ($h in @($e.hooks)) { if ($h.command -like '*block-failed-actions*') { $reg = $h.command } } } } catch {}
+    if (-not $reg) { F "Claude hook NOT registered in settings.json — hard-block net is DOWN" }
+    elseif ((Invoke-RegisteredHook $reg) -eq 0) { P "Claude hook registered command runs (self-test exit 0)" }
+    else { F "Claude registered hook command FAILED self-test (stale path / broken command?) — net is DOWN" }
 } else { W "Claude settings.json not found (run install-personal)" }
-# Codex hook registered
+# Codex: parse the registered command line from config.toml and run IT
 $cfg = Join-Path $U '.codex\config.toml'
 if (Test-Path $cfg) {
-    if ((Get-Content $cfg -Raw -Encoding UTF8) -match 'block-failed-actions') { P "Codex PreToolUse hook registered" }
-    else { W "Codex hook not registered in config.toml" }
+    $line = Get-Content $cfg -Encoding UTF8 | Where-Object { $_ -match 'block-failed-actions' -and $_ -match 'command' } | Select-Object -First 1
+    $reg = $null; if ($line -match "command\s*=\s*'(.+)'") { $reg = $matches[1] } elseif ($line -match 'command\s*=\s*"(.+)"') { $reg = $matches[1] }
+    if (-not $reg) { W "Codex hook not registered in config.toml" }
+    elseif ((Invoke-RegisteredHook $reg) -eq 0) { P "Codex hook registered command runs (self-test exit 0)" }
+    else { F "Codex registered hook command FAILED self-test — Codex hard-block is DOWN" }
 } else { W "Codex config.toml not found (Codex hard-block inactive)" }
-# hook script exists + runnable (self-test: a non-blocked tool must exit 0)
-$hook = Join-Path $U '.ai-memory\hooks\block-failed-actions.ps1'
-if (Test-Path $hook) {
-    '{"tool_name":"__doctor_selftest__"}' | & powershell -NoProfile -ExecutionPolicy Bypass -File $hook claude *> $null
-    if ($LASTEXITCODE -eq 0) { P "hook script runs (self-test exit 0 on non-blocked tool)" } else { F "hook self-test returned $LASTEXITCODE (expected 0) — hook is broken" }
-} else { F "hook script missing: $hook" }
 # skill-creator deployed both platforms
 $scC = Join-Path $U '.claude\skills\skill-creator\SKILL.md'
 $scA = Join-Path $U '.agents\skills\skill-creator\SKILL.md'

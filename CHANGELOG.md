@@ -4,6 +4,42 @@
 
 ---
 
+## 2026-06-02 — 採納 Codex 第二輪 review（5 項可靠性收尾，全部成立）
+
+逐條對照程式碼驗證，5 項皆成立（都是我引入的缺口），依 reviewer 優先序修：
+
+**① 入口檔 / README 同步 9 操作**
+- `canonical/entry/CLAUDE.md` + `AGENTS.md` 的操作清單原本只列 5 個 → 補成 **9 個**（加
+  ingest-sessions / schedule-dream / reset / help），恢復「入口即路由器」並讓補抓會話流程被新 session 看見。
+- `README.md`：「八個指令」→「九個指令」，加 `/ingest-sessions`。
+
+**② ingest-sessions：單一 watermark → per-source checkpoint**
+- `ingest-sessions.md` Step 2/6 改為 `~/.ai-memory/cron/ingest-checkpoints.json`，每來源記
+  `{session_id,last_event_ts,last_offset,content_hash}`。解決 transcript 延遲落盤 / 被重寫 / 跨專案
+  mtime 亂序導致的漏抓（呼應 LLM Wiki raw-source 累積、GBrain source-aware）。
+
+**③ nightly `-DryRun` 改成「真 dry-run」**
+- 原本仍寫 audit/lock 且仍啟動 `claude -p`（靠 prompt 要求不寫）＝軟約束。改為**plan-only**：偵測 CLI +
+  列出會處理的 scope + 印計畫即結束，**不啟動 agent、不寫 audit/lock/memory**。驗證：claude 在 PATH 仍不被呼叫。
+
+**④ doctor hook self-test：執行「實際註冊的指令」**
+- 原本只比對 settings.json/config.toml 是否含字串、self-test 跑 canonical 腳本（舊路徑/錯指令仍可能顯示通過）。
+  改為**解析實際註冊的 command 並執行它**（Claude 從 settings.json JSON、Codex 從 config.toml）→ 證明真正被
+  平台呼叫的那條指令可運作。驗證：`Codex hook registered command runs (self-test exit 0)`。
+
+**⑤ 「硬擋 100%」文案修正**
+- `README.md` + 入口檔：改為「**registry 為有效 JSON 且 hook 已註冊時為硬保證**；hook 解析失敗時 fail-open
+  （壞 registry 不癱掉所有工具），doctor/`/status` 會報紅」。
+
+### 驗證
+```
+nightly -DryRun → plan-only：不啟動 agent、audit.jsonl/memory.lock 皆未寫 ✓
+doctor（隔離安裝）→ Codex 自我測試跑「實際註冊指令」PASS；10 pass 0 fail（Claude WARN 為沙箱 settings.json 限制）
+bash -n nightly.sh / memory-lint.sh ✓
+```
+
+---
+
 ## 2026-06-02 — 文件補最新功能 + 產生 HTML 版
 
 ### 修改

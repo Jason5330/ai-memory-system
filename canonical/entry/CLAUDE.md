@@ -35,19 +35,28 @@ rules accumulate in `doctrine.md`.
 ## Operations (Claude slash-commands; Codex runs the twin skills)
 
 - `/capture` — save the current conversation's signals to the correct layer (routing table above).
+- `/ingest-sessions` — sediment missed signals from recent Claude/Codex session transcripts +
+  unconsolidated logs (per-source checkpoint, idempotent). Run this when starting fresh / unsure
+  what's been captured; the nightly job runs it before `/dream`.
 - `/dream` — multi-phase consolidation: entity sweep → link repair → dedup → reflection → skill
-  fallback writeback → index sync → lint.
+  fallback writeback → index sync → doctor.
 - `/harvest` — scan history for repeated manual workflows, propose Skill/subagent/automation/skip
-  with evidence, gate them by review, materialize approved skills to BOTH platforms.
+  with evidence, gate them by review, materialize approved skills to BOTH platforms (via skill-creator).
 - `/review-doctrine` — approve/edit/reject the doctrine candidates `/dream` distilled.
-- `/status` — read-only health of personal + project memory.
+- `/status` — read-only health of personal + project memory (incl. hard-block health).
+- `/schedule-dream` — create/list/delete the OS-level nightly job (single, idempotent).
+- `/reset` — interactive memory reset (pick layer + categories; archive-first, confirm required).
+- `/help` — every command: what it does, when to use it, how to confirm success.
 
-## Enforcement layer (hard guarantee)
+## Enforcement layer (hard guarantee WHEN healthy)
 
 A PreToolUse hook reads `{{PERSONAL_MEMORY}}/blocked-actions.json` and **physically blocks** any
 tool listed there (exit 2 + stderr), telling you which alternative to use. Works on both Claude Code
 (`settings.json`) and Codex (`~/.codex/config.toml`). `/capture` registers a broken tool there.
-Data-driven: blocking a new tool needs no code change.
+Data-driven: blocking a new tool needs no code change. **It is a hard guarantee only while the
+registry is valid JSON and the hook is registered**; the hook is fail-open on parse error (so a
+corrupt registry never bricks all tools), and `doctor`/`/status` report **red** if that safety net is
+down.
 
 ## When a skill triggers
 

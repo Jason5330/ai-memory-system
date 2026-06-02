@@ -79,17 +79,32 @@ done
 
 # ---- GLOBAL wiring checks ----
 echo "Wiring (both platforms):"
+# Self-test runs the ACTUAL registered command (catches stale path / wrong command). Exit 0 expected.
+run_reg(){ echo '{"tool_name":"__doctor_selftest__"}' | bash -c "$1" >/dev/null 2>&1; }
+# Claude: parse the registered command from settings.json (via python3) and run it
 if [ -f "$U/.claude/settings.json" ]; then
-    grep -q "block-failed-actions" "$U/.claude/settings.json" && P "Claude PreToolUse hook registered" || F "Claude hook NOT registered — hard-block net is DOWN"
+    reg="$(python3 - "$U/.claude/settings.json" <<'PY' 2>/dev/null
+import json,sys
+try: s=json.load(open(sys.argv[1],encoding="utf-8"))
+except Exception: sys.exit(0)
+for e in s.get("hooks",{}).get("PreToolUse",[]):
+    for h in e.get("hooks",[]):
+        c=h.get("command","")
+        if "block-failed-actions" in c: print(c); raise SystemExit
+PY
+)"
+    if [ -z "$reg" ]; then F "Claude hook NOT registered in settings.json — hard-block net is DOWN"
+    elif run_reg "$reg"; then P "Claude hook registered command runs (self-test exit 0)"
+    else F "Claude registered hook command FAILED self-test (stale path / broken?) — net is DOWN"; fi
 else W "Claude settings.json not found (run install-personal)"; fi
+# Codex: parse the registered command line from config.toml and run it
 if [ -f "$U/.codex/config.toml" ]; then
-    grep -q "block-failed-actions" "$U/.codex/config.toml" && P "Codex PreToolUse hook registered" || W "Codex hook not registered in config.toml"
+    line="$(grep 'block-failed-actions' "$U/.codex/config.toml" | grep -i command | head -1)"
+    reg="$(printf '%s' "$line" | sed -E "s/.*command[[:space:]]*=[[:space:]]*'([^']+)'.*/\1/; t; s/.*command[[:space:]]*=[[:space:]]*\"([^\"]+)\".*/\1/")"
+    if [ -z "$line" ]; then W "Codex hook not registered in config.toml"
+    elif run_reg "$reg"; then P "Codex hook registered command runs (self-test exit 0)"
+    else F "Codex registered hook command FAILED self-test — Codex hard-block is DOWN"; fi
 else W "Codex config.toml not found (Codex hard-block inactive)"; fi
-hook="$U/.ai-memory/hooks/block-failed-actions.sh"
-if [ -f "$hook" ]; then
-    echo '{"tool_name":"__doctor_selftest__"}' | bash "$hook" claude >/dev/null 2>&1
-    [ $? -eq 0 ] && P "hook script runs (self-test exit 0 on non-blocked tool)" || F "hook self-test failed — hook is broken"
-else F "hook script missing: $hook"; fi
 { [ -f "$U/.claude/skills/skill-creator/SKILL.md" ] && [ -f "$U/.agents/skills/skill-creator/SKILL.md" ]; } && P "skill-creator deployed (both platforms)" || W "skill-creator missing on a platform"
 # PROMOTED-skill twin consistency: operations are Claude commands vs Codex skills (expected to
 # differ), so exclude them; a /harvest-promoted skill must exist on BOTH sides.

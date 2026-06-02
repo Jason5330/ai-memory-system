@@ -45,11 +45,12 @@ C:\path\to\claude-memory-system-master\init-project.ps1
 ```
 裝完**重啟 Claude Code / Codex**。新手請看 [`新手指南.md`](新手指南.md)。
 
-## 八個指令
+## 九個指令
 
 | 指令 | 功能 |
 |------|------|
-| `/capture` | 把這次對話的訊號存進記憶（自動分層；工具失效會登記硬擋）|
+| `/capture` | 把這次對話的訊號存進記憶（自動分層；含 🎭 人設；工具失效會登記硬擋）|
+| `/ingest-sessions` | 回頭讀近期 Claude/Codex 會話記錄補抓漏記（per-source checkpoint、冪等；每晚先跑）|
 | `/dream` | 多階段整合：實體掃描→修連結→去重→反思→失敗回寫→同步索引→lint |
 | `/harvest` | 把重複 ≥2 次的工作流封裝成 skill（透過官方 **skill-creator**）|
 | `/review-doctrine` | 逐條批准/修改/拒絕 doctrine 候選 |
@@ -78,7 +79,8 @@ C:\path\to\claude-memory-system-master\init-project.ps1
 
 ## 誠實說明限制
 - 記憶與準則多為**軟約束**（約 95% 靠 AI 遵守）；**例外是硬擋層**——登記在 `blocked-actions.json` 的
-  工具由 PreToolUse hook 物理擋下，兩平台皆 100%（重啟後生效）。
+  工具由 PreToolUse hook 物理擋下。**在 registry 為有效 JSON 且 hook 已註冊時，這是硬保證**（重啟後生效）；
+  hook 在解析失敗時採 fail-open（壞掉的 registry 不會癱掉所有工具），且 `doctor`/`/status` 會在安全網掉時**報紅**。
 - **無向量搜尋**（關鍵字 + `MEMORY.md` 索引；規模大可選接 qmd，見 ROADMAP）。
 - 建立技能一律透過官方 [skill-creator](https://github.com/anthropics/skills)；完整評測迴圈需 Python。
 
