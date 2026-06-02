@@ -65,6 +65,8 @@ Copy-Item (Join-Path $SRC 'reset\reset.sh')  (Join-Path $RESET 'reset.sh')  -For
 $LIB = Join-Path $PERSONAL 'lib'; New-Item -ItemType Directory -Force $LIB | Out-Null
 Copy-Item (Join-Path $SRC 'lib\memory-write.ps1') (Join-Path $LIB 'memory-write.ps1') -Force
 Copy-Item (Join-Path $SRC 'lib\memory-write.sh')  (Join-Path $LIB 'memory-write.sh')  -Force
+Copy-Item (Join-Path $SRC 'lib\detect-repeats.ps1') (Join-Path $LIB 'detect-repeats.ps1') -Force
+Copy-Item (Join-Path $SRC 'lib\detect-repeats.sh')  (Join-Path $LIB 'detect-repeats.sh')  -Force
 # stage project scaffolding so init-project works from any folder without the framework repo
 $PT = Join-Path $PERSONAL 'project-templates'
 New-Item -ItemType Directory -Force $PT | Out-Null

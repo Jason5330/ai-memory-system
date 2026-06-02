@@ -55,7 +55,8 @@ near-duplicate page.
 Write each kept signal to the correct layer per `_routing.md` — preferences→`feedback_user_style.md`,
 persona→`persona.md`, project knowledge→`PROJECT/knowledge/`, generic knowledge→`PERSONAL/knowledge/`,
 tool failures→`blocked-actions.json` (+ MEMORY.md Environment Limits + hard-block), repeated workflows
-→ flag as `## 🔁 Repeat candidates` for `/harvest`. Entity pages use the compiled-truth + timeline
+→ tag each occurrence `- 🔁 repeat:<slug> — <desc>` (stable slug) under `## 🔁 Repeat candidates` so
+`lib/detect-repeats` can tally them for `/harvest`. Entity pages use the compiled-truth + timeline
 format (Why + How to Apply required; every Timeline line names its source — here the source is the
 session id / file). Update each layer's `MEMORY.md` index.
 

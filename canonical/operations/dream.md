@@ -32,12 +32,18 @@ from a PROJECT mention without it passing the knowledge gate.
 - In-progress tasks → mark completed if resolved in a later log.
 ### 3b Contradiction detection (both layers)
 Same topic with conflicting info across logs → keep newest, mark `[updated]`. Resolved task → `[✅ completed]`.
-### 3c Repeat-candidate roll-up (count occurrences, not days)
-Collect `## 🔁 Repeat candidates` and recurring workflows across logs — counting **occurrences**
-(twice in one day already qualifies; you do NOT need 3 separate days). Surface a short list and
-**offer to act**: "N repeatable workflows detected (≥2× each) — want me to run /harvest now?"
-Building still goes through `/harvest`'s review gate. **A repeatedly-failing built-in tool is NOT a
-skill** — it belongs in the hard-block (blocked-actions.json), not /harvest.
+### 3c Repeat-candidate roll-up (deterministic count)
+First **normalize**: ensure every recurring workflow you see across logs carries a stable
+`- 🔁 repeat:<slug> — <desc>` tag (one per occurrence; reuse the same slug across days — backfill the
+tag onto older un-tagged occurrences you recognize). Then run the detector for an exact count:
+```
+& "$env:USERPROFILE\.ai-memory\lib\detect-repeats.ps1" -Threshold 2     # Windows
+bash ~/.ai-memory/lib/detect-repeats.sh --threshold 2                   # Mac/Linux
+```
+For every workflow it reports **seen ≥2× with no skill yet**, surface it and **offer to act**:
+*"我發現你做過 <X> N 次了，要不要我用 /harvest 幫你生成 skill？"* Building still goes through `/harvest`'s
+review gate. **A repeatedly-failing built-in tool is NOT a skill** — it belongs in the hard-block
+(blocked-actions.json), not /harvest.
 ### 3d Memory Overflow Guard (per layer)
 - `conversations/` > 30 files → archive oldest 10 to `conversations/archive/YYYY-MM/` (extract
   knowledge first).

@@ -17,7 +17,10 @@ Read only; modify nothing. Roots: `PERSONAL = ~/.ai-memory`, `PROJECT = ./.claud
 - **hard-block health**: is `blocked-actions.json` valid JSON, and is the PreToolUse hook registered
   (Claude `settings.json` / Codex `config.toml`)? If the registry is corrupt or the hook is missing,
   the safety net is DOWN — report it **red**, don't stay silent.
-- repeat-workflow candidates: scan logs' `## 🔁 Repeat candidates` + recurring topics
+- repeat-workflow candidates: run the deterministic detector
+  `~/.ai-memory/lib/detect-repeats.ps1` (`.sh` on Mac/Linux) — it tallies `🔁 repeat:<slug>` tags
+  across both layers and lists workflows **seen ≥2× with no skill yet**. Surface those (the ones worth
+  a `/harvest` → skill).
 
 ## Report
 ```
@@ -32,7 +35,7 @@ Project (<name>):
   1. [2026-06-02 personal] 💡 Decided to use PGLite for the demo
   2. ...
 
-🔁 Repeat-workflow candidates: N  → run /harvest to evaluate
+🔁 Repeat-workflow candidates (seen ≥2×, no skill yet): <slug> ×N, ...  → 要不要 /harvest 生成 skill？
 💡 Suggested: <run /dream | /review-doctrine | /harvest | nothing — healthy>
 Platform skills in sync: ✅ / ⚠️ (list divergent skills)
 Status: Healthy / Approaching limit / ⚠️ Needs cleanup

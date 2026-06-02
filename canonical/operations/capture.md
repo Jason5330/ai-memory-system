@@ -144,17 +144,31 @@ Append to `<layer>/conversations/YYYY-MM-DD.md` (PROJECT if in a project, else P
 ```
 Preferences (❤️) and behavior rules always also update PERSONAL files even when logged inside a project.
 
-## Step 4: Workflow-harvest hint (count occurrences, not days)
-Count **occurrences**, not days — a workflow repeated twice in ONE day already qualifies (you do NOT
-need 3 separate days). If a repeatable workflow has now occurred **2+ times**, add a one-line note to
-today's log under `## 🔁 Repeat candidates`, then **proactively offer to act now**:
-*"This looks repeatable (seen N×) — want me to run /harvest to turn it into a skill?"* Don't silently
-wait; the user shouldn't have to remember `/harvest` exists. (Building still goes through /harvest's
-review gate; you're just offering to start it.)
+## Step 4: Tag repeated workflows (so the detector can remind the user later)
+**Whenever the user did a repeatable workflow this session, tag it — every occurrence, not only the
+2nd.** Append a line under `## 🔁 Repeat candidates` in today's log, using a **stable kebab-case slug**
+you reuse for the SAME workflow across days:
+```
+- 🔁 repeat:<slug> — <one-line description>  (source: conversation YYYY-MM-DD)
+```
+e.g. `- 🔁 repeat:pr-summary — wrote a PR description from the diff  (source: conversation 2026-06-02)`.
+The slug is what makes counting deterministic — pick it from the workflow's essence (`md-to-html`,
+`weekly-metrics`, `pr-summary`) and keep it identical each time.
+
+Then **count occurrences deterministically** with the detector (counts these tags across ALL logs,
+both layers, and excludes workflows that already have a skill):
+```
+& "$env:USERPROFILE\.ai-memory\lib\detect-repeats.ps1" -Threshold 2     # Windows
+bash ~/.ai-memory/lib/detect-repeats.sh --threshold 2                   # Mac/Linux
+```
+For any workflow it reports as **seen ≥2× with no skill yet**, **proactively offer**:
+*"我發現你做過 <X> N 次了，要不要我用 /harvest 幫你生成一個 skill 來做這件事？"* Don't silently wait —
+the user shouldn't have to remember `/harvest` exists. (Building still goes through /harvest's review
+gate; you're only offering to start it.)
 
 > ⚠️ **A repeatedly-FAILING built-in tool is NOT a skill candidate.** If the same tool/behavior failed
 > 2+ times, that's an ⚙️ Environment/Tool Failure → it belongs in the **hard-block** (Step 2.5), not a
-> skill. A "how to search" skill cannot fix a broken search tool.
+> `repeat:` tag. A "how to search" skill cannot fix a broken search tool.
 
 ## Step 5: Update the active layer's MEMORY.md index (two-step write — topic file FIRST)
 **Order matters (crash-safe):** finish writing the actual topic/knowledge/log file and confirm it

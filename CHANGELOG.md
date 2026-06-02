@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-06-02 — 重複工作流「主動偵測＋提醒生成 skill」（確定性偵測器）
+
+框架本來就會在 `/capture`、`/dream` 時 offer「seen N× → 要不要 /harvest 變 skill」，但計次靠 AI
+當下記得、且只在那兩個指令跑時才提。補上**確定性偵測 + 主動提醒**：
+
+- **新增 `canonical/lib/detect-repeats.{ps1,sh}`**（裝到 `~/.ai-memory/lib/`）：掃兩層 `conversations/*.md`
+  的 `🔁 repeat:<slug>` 標籤精準計次、排除「已有同名 skill」、列出 **seen ≥ 門檻且尚無 skill** 的工作流。
+  read-only、退出碼恆 0、支援 `-Threshold`/`-Json`。
+- **標籤格式**：capture/dream/ingest 改成每次出現都打 `- 🔁 repeat:<slug> — <desc>`（穩定 kebab slug、
+  跨天重用），讓計次可確定化。
+- **主動提醒**：入口檔 `CLAUDE.md`/`AGENTS.md` 的「On session start」加第 5 步——**一開 session 就跑偵測器**，
+  若有 ≥2× 無 skill 的工作流，主動說「我發現你做過 X N 次，要不要用 /harvest 生成 skill？」（提一次、不嘮叨）。
+- `/status` 也改用偵測器列出這些候選。安裝器部署兩個 lib 腳本。
+
+### 修正（實作時踩到並驗證）
+- PS 5.1 把**無 BOM 的 .ps1 內非 ASCII 字面**當 cp950 誤解碼 → 破壞腳本解析。偵測器**輸出改純 ASCII**，
+  中文提醒語改放在入口檔/markdown（由 AI 講），不放在 .ps1。
+- regex 加 `$` 錨點配 em-dash 比對失敗 → `md-to-html` 被回溯切成 `md-to`。改用 `repeat:` ASCII token、
+  去掉尾錨點，slug 完整。
+- 驗證：偵測器計次/排除已有skill/低門檻排除全對；隔離安裝部署 + session-start 提醒鏈通過；bash -n OK。
+
+---
+
 ## 2026-06-02 — 吸收 GBrain / Harness / Hermes 的記憶處理（自主記憶 + 安全外殼）
 
 從 `GBRAIN-系統理解.md`、`HARNESS-ENGINEERING-方法論與守則.md` 萃取記憶源碼處理方式，並參考

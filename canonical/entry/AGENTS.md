@@ -28,6 +28,10 @@ Full path rules: `~/.ai-memory/guides/PATHS.md`. Signal routing: `~/.ai-memory/g
 3. Read `{{PERSONAL_MEMORY}}/persona.md` — the AI's identity/voice/role for this user. Embody it.
 4. If `./.claude/memory/MEMORY.md` exists (you are inside an initialized project), read it too for
    this project's state, open knowledge, and unfinished tasks.
+5. **Proactive skill reminder (run once)** — run the read-only detector
+   `~/.ai-memory/lib/detect-repeats.sh` (`.ps1` on Windows). If it reports any workflow **seen ≥2×
+   with no skill yet**, mention it early and offer: *"我發現你做過 <X> N 次了，要不要我用 /harvest 幫你
+   生成一個 skill 來做這件事？"* Mention once; don't nag.
 
 `doctrine.md` is how the system improves over time: rules you approve there change behavior in all
 future sessions, on both platforms. This entry file stays small — it only points at the memory; the

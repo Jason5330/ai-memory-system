@@ -44,6 +44,7 @@ cp "$SRC/cron/nightly.ps1" "$CRON/"; cp "$SRC/cron/nightly.sh" "$CRON/"; chmod +
 cp "$SRC/lint/memory-lint.ps1" "$PERSONAL/"; cp "$SRC/lint/memory-lint.sh" "$PERSONAL/"; chmod +x "$PERSONAL/memory-lint.sh"
 mkdir -p "$PERSONAL/reset"; cp "$SRC/reset/reset.ps1" "$PERSONAL/reset/"; cp "$SRC/reset/reset.sh" "$PERSONAL/reset/"; chmod +x "$PERSONAL/reset/reset.sh"
 mkdir -p "$PERSONAL/lib"; cp "$SRC/lib/memory-write.ps1" "$PERSONAL/lib/"; cp "$SRC/lib/memory-write.sh" "$PERSONAL/lib/"; chmod +x "$PERSONAL/lib/memory-write.sh"
+cp "$SRC/lib/detect-repeats.ps1" "$PERSONAL/lib/"; cp "$SRC/lib/detect-repeats.sh" "$PERSONAL/lib/"; chmod +x "$PERSONAL/lib/detect-repeats.sh"
 # stage project scaffolding so init-project works from any folder without the framework repo
 PT="$PERSONAL/project-templates"; mkdir -p "$PT"
 cp "$SRC/entry/project-CLAUDE.md" "$PT/project-CLAUDE.md"
