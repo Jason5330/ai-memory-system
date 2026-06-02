@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-06-02 — 文件同步收尾（硬擋措辭 + 白話版補 persona）
+
+逐檔確認後，把上一輪「硬擋 100%」修正補到漏掉的文件：
+- `DUAL-PLATFORM-GUIDE.md`：硬擋段標題與限制段 2 處「100% 技術保證」→「registry 有效且 hook 註冊時為硬保證；fail-open；doctor 報紅」。
+- `TECHNICAL_GUIDE.md`：同上 2 處改寫，並補 doctor 跑「實際註冊指令」self-test 的說明；重生 `TECHNICAL_GUIDE.html`。
+- `記憶機制白話說明.html`：抽屜補 **🎭 人設桶**；「邊聊邊記」補一句「忘了存也會回頭補抓最近對話」。
+- 已確認 `README.md`、`MEMORY_GUIDE.html`、`新手指南.html` 本來就是最新（HTML 的 `100%` 僅 CSS `width:100%`，非內文）。
+
+---
+
 ## 2026-06-02 — Codex 第三輪 review（2 項，皆成立）
 
 **① ingest-sessions 殘留 "watermark" 字樣 → 統一為 checkpoint**

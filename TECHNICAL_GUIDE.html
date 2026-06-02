@@ -62,10 +62,12 @@ init-project.*        每個專案一次</code></pre>
 <ul><li><strong>review-doctrine</strong>：逐條 ✅✏️❌⏭️ → 批准寫 <code>doctrine.md</code>（<code>### D-XXX</code>）；入口檔只指向 doctrine，永不膨脹。</li><li><strong>status</strong>：唯讀雙層儀表板；偵測平台技能是否同步。</li><li><strong>schedule-dream</strong>：OS 排程器（Task Scheduler / cron）建立/列出/刪除<strong>單一具名排程</strong>（建立=取代，</li></ul>
 <p>  不亂堆）；agent 代跑指令。</p>
 <ul><li><strong>reset</strong>：互動式選層級+種類 → <strong>先備份到 archive/reset-時間戳 → 要 <code>yes reset</code> 才清</strong>，絕不刪唯一副本。</li><li><strong>help</strong>：逐指令的功能/時機/怎麼確認通關 + 整體健康總檢。</li></ul>
-<h2>五、硬擋層（兩平台 100% 技術保證）</h2>
+<h2>五、硬擋層（registry 有效且 hook 註冊時為硬保證）</h2>
 <p><code>block-failed-actions.{ps1,sh}</code> 讀 <code>~/.ai-memory/blocked-actions.json</code>，命中即 <code>exit 2</code> + stderr（Claude</p>
 <p>與 Codex 都支援）。以 <strong>catch-all matcher</strong> 註冊（Claude <code>*</code> / Codex <code>.*</code>），由登記簿 gate——**加一條</p>
 <p>登記即可，不必改 matcher**；條目含 <code>platform</code> 欄位。重啟後生效。資料驅動：封鎖新工具不必改程式。</p>
+<p><strong>fail-open</strong>：解析 payload/registry 失敗時放行（壞掉的 registry 不會癱掉所有工具），所以硬保證的前提是</p>
+<p>registry 有效且 hook 已註冊；doctor 解析「實際註冊的指令」並執行 self-test、<code>/status</code> 會在安全網掉時報紅。</p>
 <h2>六、反思進化迴路（越來越懂你）</h2>
 <pre><code>capture → conversations/*.md
   → dream 反思寫 reflection.md → 跨 ≥2 次模式 → doctrine 候選
@@ -86,5 +88,5 @@ init-project.*        每個專案一次</code></pre>
 <p><strong><code>--dry-run</code></strong>（只報告不寫）。流程是 <strong>ingest-sessions → dream → harvest 掃描</strong>，只產候選、不自動批准/建技能。</p>
 <p>（註：實際 .md 寫檔在 agent 端，逐檔 atomic 由操作負責，wrapper 只保證序列化 + 可審計。）</p>
 <h2>九、技術限制（誠實說明）</h2>
-<table><thead><tr><th>限制</th><th>說明</th></tr></thead><tbody><tr><td>無向量搜尋</td><td>關鍵字 + MEMORY.md 索引；規模大可選接 qmd（見 ROADMAP）</td></tr><tr><td>依賴 AI 判斷</td><td>記憶/準則約 95% 軟約束；<strong>例外</strong>：blocked-actions hook 為 100%（重啟後生效）</td></tr><tr><td>無背景程序</td><td>整合在對話中或 OS 排程的 headless 執行；不開 IDE 的自動跑需 <code>claude</code>/<code>codex</code> CLI</td></tr><tr><td>技能評測依賴</td><td>skill-creator 完整 eval/benchmark 需 Python + subagents（Codex 走輕量 author）</td></tr></tbody></table>
+<table><thead><tr><th>限制</th><th>說明</th></tr></thead><tbody><tr><td>無向量搜尋</td><td>關鍵字 + MEMORY.md 索引；規模大可選接 qmd（見 ROADMAP）</td></tr><tr><td>依賴 AI 判斷</td><td>記憶/準則約 95% 軟約束；<strong>例外</strong>：blocked-actions hook 在 registry 有效且註冊時為硬保證（fail-open、doctor 報紅）</td></tr><tr><td>無背景程序</td><td>整合在對話中或 OS 排程的 headless 執行；不開 IDE 的自動跑需 <code>claude</code>/<code>codex</code> CLI</td></tr><tr><td>技能評測依賴</td><td>skill-creator 完整 eval/benchmark 需 Python + subagents（Codex 走輕量 author）</td></tr></tbody></table>
 <footer>由 TECHNICAL_GUIDE.md 自動轉出 · AI Memory System</footer></div></body></html>

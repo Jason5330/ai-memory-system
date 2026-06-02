@@ -62,11 +62,13 @@ Claude 與 Codex 用**相同 `SKILL.md` 格式**。物化目標：
 - **reset**：互動式選層級+種類 → **先備份到 archive/reset-時間戳 → 要 `yes reset` 才清**，絕不刪唯一副本。
 - **help**：逐指令的功能/時機/怎麼確認通關 + 整體健康總檢。
 
-## 五、硬擋層（兩平台 100% 技術保證）
+## 五、硬擋層（registry 有效且 hook 註冊時為硬保證）
 
 `block-failed-actions.{ps1,sh}` 讀 `~/.ai-memory/blocked-actions.json`，命中即 `exit 2` + stderr（Claude
 與 Codex 都支援）。以 **catch-all matcher** 註冊（Claude `*` / Codex `.*`），由登記簿 gate——**加一條
 登記即可，不必改 matcher**；條目含 `platform` 欄位。重啟後生效。資料驅動：封鎖新工具不必改程式。
+**fail-open**：解析 payload/registry 失敗時放行（壞掉的 registry 不會癱掉所有工具），所以硬保證的前提是
+registry 有效且 hook 已註冊；doctor 解析「實際註冊的指令」並執行 self-test、`/status` 會在安全網掉時報紅。
 
 ## 六、反思進化迴路（越來越懂你）
 
@@ -100,6 +102,6 @@ config.toml）+ hook self-test**、skill-creator 兩平台、**升格 skill 雙�
 | 限制 | 說明 |
 |------|------|
 | 無向量搜尋 | 關鍵字 + MEMORY.md 索引；規模大可選接 qmd（見 ROADMAP）|
-| 依賴 AI 判斷 | 記憶/準則約 95% 軟約束；**例外**：blocked-actions hook 為 100%（重啟後生效）|
+| 依賴 AI 判斷 | 記憶/準則約 95% 軟約束；**例外**：blocked-actions hook 在 registry 有效且註冊時為硬保證（fail-open、doctor 報紅）|
 | 無背景程序 | 整合在對話中或 OS 排程的 headless 執行；不開 IDE 的自動跑需 `claude`/`codex` CLI |
 | 技能評測依賴 | skill-creator 完整 eval/benchmark 需 Python + subagents（Codex 走輕量 author）|

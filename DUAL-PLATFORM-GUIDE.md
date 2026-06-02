@@ -94,14 +94,17 @@ dream + harvest-scan，留候選給你隔天人審。agent 會幫你跑指令，
 - 「關於**這個專案**的知識/決策/對話」→ **專案層**。
 - 沒在專案裡 → 全進個人層，照常運作。
 
-## 硬擋層（兩平台都 100% 技術保證）
+## 硬擋層（registry 有效且 hook 註冊時為硬保證）
 `capture` 偵測到內建工具在此環境壞掉 → 寫進 `~/.ai-memory/blocked-actions.json`。PreToolUse hook 在
 Claude（`settings.json`）與 Codex（`config.toml`）都以 **catch-all matcher** 註冊、由登記簿 gate，
 命中即 `exit 2`/`deny` 物理擋下並提示替代工具。**加一條登記即可，不必改 matcher**；重啟後生效。
 登記簿是 machine-specific，分享框架時是空的，不會誤傷朋友。
+**注意**：hook 在解析 payload/registry 失敗時採 **fail-open**（壞掉的 registry 不會癱掉所有工具），
+所以「硬保證」成立的前提是 **registry 為有效 JSON 且 hook 已註冊**；`doctor`/`/status` 會在安全網掉時**報紅**。
 
 ## 誠實說明限制（平台差異）
-- **記憶/準則仍多為軟約束**（~95% 靠 agent 遵守）；**例外是硬擋層**，兩平台皆 100%（重啟後生效）。
+- **記憶/準則仍多為軟約束**（~95% 靠 agent 遵守）；**例外是硬擋層**——在 registry 有效且 hook 註冊時為
+  硬保證（重啟後生效）；fail-open，doctor/`/status` 會在安全網掉時報紅。
 - **無向量搜尋**：關鍵字 + `MEMORY.md` 索引（規模上百頁後可選接 qmd，見 v1 ROADMAP）。
 - **Codex 技能路徑**是 `.agents/skills/`（非 `.codex/skills/`）——這是 Codex 的真實約定。
 - **每晚 cron** 走 OS 排程（非某 agent 內建排程），需 `claude` 或 `codex` CLI 在 PATH。
