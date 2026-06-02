@@ -8,6 +8,11 @@ description: Multi-phase memory consolidation across both layers — entity swee
 Roots: `PERSONAL = ~/.ai-memory`, `PROJECT = ./.claude/memory` (if it exists). Run phases against
 **both** layers where noted. Reflection + doctrine are PERSONAL-only.
 
+> Follows the **Memory Decision Gate** (`~/.ai-memory/guides/_memory-gate.md`): dream may create/refresh
+> safe categories (entities, preferences, logs) and may **propose** doctrine/skill *candidates*, but it
+> **never auto-promotes** a doctrine or builds a skill — those stay behind `/review-doctrine` and
+> `/harvest` (human gate). Two-step write throughout: persist the topic file first, then index it.
+
 ## Phase 1: Entity Sweep (both layers)
 For each layer, read `conversations/*.md`, scan `## 🧩 Entities Mentioned` + names in text, compare to
 `knowledge/`. For each entity without a page → create `knowledge/<entity>.md` (compiled-truth +
@@ -83,11 +88,14 @@ Then **re-materialize** the updated SKILL.md to its Codex twin (`.agents/skills/
 `~/.agents/skills/<n>/`) so both platforms see the fallback. If the skill doesn't exist yet, leave the
 failure in the log for `/harvest` to handle.
 
-## Phase 4: Sync Index (per layer)
-Rewrite each layer's `MEMORY.md`, grouped by type with **bilingual headers** (keep the form the
-template uses: `## User 用戶`, `## Feedback / Self-Evolution 反饋／自我進化`, `## Reference 參考`,
-`## Skills 技能`, `## Conversations 對話紀錄`). Verify every link resolves; drop dead links; newest
-conversations first. PERSONAL MEMORY.md keeps the `## ⚠️ Environment Limits & Blocked Tools 環境限制／壞工具`
+## Phase 4: Sync Index (per layer) — keep it a BOUNDED INDEX
+Rewrite each layer's `MEMORY.md` as a **bounded index only**: one line per item (a title/hook + link),
+**never body text** — the substance lives in the topic files, MEMORY.md just points at them. Group by
+type with **bilingual headers** (keep the form the template uses: `## User 用戶`,
+`## Feedback / Self-Evolution 反饋／自我進化`, `## Reference 參考`, `## Skills 技能`,
+`## Conversations 對話紀錄`). Verify every link resolves; drop dead links; newest conversations first.
+If an entry has grown into a paragraph, move the prose into its topic file and leave only the one-line
+pointer here (Phase 3d also trims MEMORY.md past 150 lines). PERSONAL MEMORY.md keeps the `## ⚠️ Environment Limits & Blocked Tools 環境限制／壞工具`
 section at the top.
 
 ## Phase 5: Dream Report
