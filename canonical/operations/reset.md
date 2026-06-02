@@ -20,20 +20,25 @@ sees what they're about to clear.
 
 ## Step 2: Ask the choices as CLICKABLE options (no typing)
 Use a selection prompt (**AskUserQuestion** on Claude; on Codex present numbered options to pick).
-Ask in ONE prompt:
+**The selection UI allows at most 4 options per question — use single-select PRESET BUNDLES, not a
+5-way multi-select.** The platform auto-adds an "Other" choice, so the user can still name a custom
+combination by clicking Other (no required typing for the common cases).
 
-- **Which layer** (the rule depends on whether a project exists here):
-  - **No project memory** (`./.claude/memory` absent) → don't even ask layer; it's `personal`.
-    (Just include it in the final confirm.)
+- **Which layer** (only ask this question if a project exists here):
+  - **No project memory** (`./.claude/memory` absent) → don't ask; it's `personal` (state it in the
+    confirm).
   - **Project memory exists** → options: `只這個專案` → `project` · `只個人記憶` → `personal` ·
     `兩個都清` → `both`.
-- **Which categories** (multi-select; pre-tick the recommended default):
-  - options: `對話紀錄 conversations` · `反思 reflection` · `知識 knowledge` · `準則 doctrine` ·
-    `偏好 preferences`
-  - **default (recommended)** = `conversations` + `reflection` (the noisy logs; keeps
-    doctrine/preferences/knowledge). Project layer only has `conversations` + `knowledge`
-    (reflection/doctrine/preferences are personal-only — the script ignores them for a project).
-  - `blocked-actions` stays preserved unless the user explicitly picks it.
+- **Which categories** — offer single-click preset bundles (recommended first):
+  - `只清雜訊：對話＋反思（推薦）` → `conversations,reflection` (keeps knowledge/doctrine/preferences)
+  - `對話＋反思＋知識` → `conversations,reflection,knowledge`
+  - `全部清空` → `conversations,reflection,knowledge,doctrine,preferences`
+  - (auto "Other" = a custom combination if they really need it)
+  - Project layer only has `conversations` + `knowledge` (reflection/doctrine/preferences are
+    personal-only — the script ignores them for a project). `blocked-actions` stays preserved unless
+    explicitly named.
+
+You may ask layer + categories together in ONE AskUserQuestion call (each ≤4 options).
 
 ## Step 3: DRY-RUN the script and show the plan (read-only)
 Run the script with `-DryRun` using the picked layer/categories, and show the user the exact list of
