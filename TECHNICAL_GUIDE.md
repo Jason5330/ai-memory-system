@@ -86,6 +86,7 @@ Timeline 是否附 source、kebab 檔名、doctrine D-XXX 唯一、**未整合�
 啟發式；以及**全域接線**：blocked-actions schema、**hook 是否註冊（Claude settings.json / Codex
 config.toml）+ hook self-test**、skill-creator 兩平台、**升格 skill 雙平台是否同步**。輸出
 `RESULT: X pass, Y warn, Z fail`，**fail>0 = 安全網可能掉了**。dream 末會自動跑。
+預設 exit 0（報告用）；**加 `-Strict`/`--strict` 變 CI gate**：fail>0 → exit 1（擋得住壞狀態，符合 Harness）。
 
 ## 八、夜間排程加固（nightly）
 

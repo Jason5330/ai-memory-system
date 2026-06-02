@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-06-02 — Codex 第三輪 review（2 項，皆成立）
+
+**① ingest-sessions 殘留 "watermark" 字樣 → 統一為 checkpoint**
+- `ingest-sessions.md` 的 description、標題、Step 1、Rules 仍寫 watermark，易讓 AI 以為還是「單一全域
+  浮水印」。已改為 per-source checkpoint 用語（line 26 保留——那是在解釋「為何全域 watermark 太粗」的反例）。
+
+**② doctor 是「報告工具」非「CI gate」→ 加 `-Strict`**
+- `memory-lint.{ps1,sh}` 原本 `Exit 0 always`。新增 **`-Strict`（Win）/`--strict`（Mac/Linux）**：
+  fail>0 → **exit 1**，讓它能當自動化/分享把關的 gate（符合 Harness「檢查要真的擋得住壞狀態」）。
+  預設仍 exit 0（人看報告）。help / TECHNICAL_GUIDE 補說明；TECHNICAL_GUIDE.html 重新產生。
+
+### 驗證
+```
+memory-lint -Strict：clean → exit 0；壞 registry → exit 1 ✓
+ingest-sessions 僅剩 line 26 的反例 watermark；bash -n memory-lint.sh ✓
+```
+
+---
+
 ## 2026-06-02 — 採納 Codex 第二輪 review（5 項可靠性收尾，全部成立）
 
 逐條對照程式碼驗證，5 項皆成立（都是我引入的缺口），依 reviewer 優先序修：

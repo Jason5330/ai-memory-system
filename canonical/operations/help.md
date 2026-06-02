@@ -113,7 +113,8 @@ Print this guide in the user's language. For each command give three things: **�
 2. **健康嗎**：跑 `/status` 看儀表板（含「硬擋健康」——登記簿壞掉或 hook 沒註冊會報紅）；跑 doctor
    `memory-lint`（`~/.ai-memory/memory-lint.ps1` 或 `.sh`）——它現在會檢：連結/死連結、Why+How+source+
    layer、blocked-actions schema、**hook 是否註冊 + self-test**、skill 雙平台是否同步、未整合的舊 log。
-   看 `RESULT: X pass, Y warn, Z fail`，**Z（fail）=0** 才算乾淨；fail>0 代表安全網可能掉了，要先修。可帶
+   看 `RESULT: X pass, Y warn, Z fail`，**Z（fail）=0** 才算乾淨；fail>0 代表安全網可能掉了，要先修。
+   **自動化/CI 或分享給朋友把關**：加 `-Strict`（Win）/`--strict`（Mac/Linux）→ fail>0 時回 **exit 1**（變成擋得住的 gate，不只是報告）。可帶
    專案路徑同時檢兩層）→ 看 `RESULT: X pass, Y warn, Z fail`，**Z=0** 為通關。
 3. **在進化嗎**：`reflection.md` 有累積、`doctrine.md` 有你批准的準則、`.claude/skills`＋`.agents/skills`
    有升格技能、壞工具被擋——這四個有動，就代表「外腦」真的在迭代。

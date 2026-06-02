@@ -79,6 +79,7 @@ init-project.*        每個專案一次</code></pre>
 <p>啟發式；以及<strong>全域接線</strong>：blocked-actions schema、**hook 是否註冊（Claude settings.json / Codex</p>
 <p>config.toml）+ hook self-test<strong>、skill-creator 兩平台、</strong>升格 skill 雙平台是否同步**。輸出</p>
 <p><code>RESULT: X pass, Y warn, Z fail</code>，<strong>fail&gt;0 = 安全網可能掉了</strong>。dream 末會自動跑。</p>
+<p>預設 exit 0（報告用）；<strong>加 <code>-Strict</code>/<code>--strict</code> 變 CI gate</strong>：fail&gt;0 → exit 1（擋得住壞狀態，符合 Harness）。</p>
 <h2>八、夜間排程加固（nightly）</h2>
 <p><code>nightly.{ps1,sh}</code> 不只把 prompt 丟給 <code>claude -p</code>/<code>codex exec</code>，還有：<strong>單一 <code>memory.lock</code></strong>（防並發 dream</p>
 <p>弄壞記憶；逾 6 小時自動清陳舊鎖）、<strong>run-id</strong>、每階段 <strong>JSON audit</strong>（<code>~/.ai-memory/cron/audit.jsonl</code>）、</p>

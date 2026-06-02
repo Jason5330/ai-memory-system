@@ -1,9 +1,9 @@
 ---
 name: ingest-sessions
-description: Batch-sediment memory from ACTUAL recent session records (Claude Code / Codex transcripts) instead of relying on in-the-moment self-capture. Use when the user says "ingest sessions", "sweep my recent chats", "補抓最近的對話", or on the nightly schedule. Reads recent transcripts + framework conversation logs, extracts signals, routes them to the right layer, dedups against what's already stored, and advances a watermark so re-runs only process new material.
+description: Batch-sediment memory from ACTUAL recent session records (Claude Code / Codex transcripts) instead of relying on in-the-moment self-capture. Use when the user says "ingest sessions", "sweep my recent chats", "補抓最近的對話", or on the nightly schedule. Reads recent transcripts + framework conversation logs, extracts signals, routes them to the right layer, dedups against what's already stored, and advances per-source checkpoints so re-runs only process new material.
 ---
 
-# ingest-sessions — Sediment from real session records (idempotent, watermarked)
+# ingest-sessions — Sediment from real session records (idempotent, per-source checkpoints)
 
 This closes the gap where "every conversation auto-sediments" otherwise depends on the agent
 remembering to capture in the moment. It re-reads what *actually happened* and files what was missed.
@@ -12,7 +12,7 @@ Roots: `PERSONAL = ~/.ai-memory`, `PROJECT = ./.claude/memory` (if present). Rou
 
 ## Step 1: Sources (in priority order)
 1. **Claude Code transcripts** — `~/.claude/projects/<encoded-cwd>/*.jsonl` (one folder per project
-   path; each `.jsonl` is a session). Read sessions newer than the watermark (Step 2).
+   path; each `.jsonl` is a session). Read past each source's checkpoint (Step 2).
 2. **Codex transcripts** — under `~/.codex/` (e.g. `~/.codex/sessions/*.jsonl` rollout files, or
    `~/.codex/history.jsonl`). Paths vary by version — look in `~/.codex` for session/history files.
 3. **Framework conversation logs** — `conversations/*.md` in both layers NOT yet marked
@@ -67,7 +67,7 @@ For each source processed, write its updated checkpoint (`session_id`, `last_eve
 ```
 
 ## Rules
-- Idempotent: the watermark + dedup mean re-running is safe and cheap; never double-store.
+- Idempotent: the per-source checkpoints + dedup mean re-running is safe and cheap; never double-store.
 - Same discipline as `/capture`: knowledge gate, layer routing, personal memory never into a project tree.
 - Chronicle = leads only; verify in source before storing.
 - Read-only on the transcripts themselves (never modify `~/.claude/projects` or `~/.codex`).

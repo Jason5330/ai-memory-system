@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # memory-lint.sh — the "doctor": deterministic health check (Mac/Linux)
-# Usage: memory-lint.sh [root1] [root2] ...
+# Usage: memory-lint.sh [--strict] [root1] [root2] ...
 # Default roots: ~/.ai-memory and ./.claude/memory (if present). Also runs GLOBAL wiring checks.
-# Exit 0 always; prints "RESULT: X pass, Y warn, Z fail".
+# Reports and exits 0 by default. With --strict it is a CI GATE: exit 1 if fail > 0.
 
 pass=0; warn=0; fail=0
 P(){ pass=$((pass+1)); echo "  PASS  $1"; }
@@ -10,9 +10,11 @@ W(){ warn=$((warn+1)); echo "  WARN  $1"; }
 F(){ fail=$((fail+1)); echo "  FAIL  $1"; }
 
 U="$HOME"
-roots=()
-if [ "$#" -gt 0 ]; then roots=("$@")
-else roots+=("$U/.ai-memory"); [ -d "./.claude/memory" ] && roots+=("./.claude/memory"); fi
+strict=0; roots=()
+for a in "$@"; do case "$a" in --strict|-Strict|-strict) strict=1;; *) roots+=("$a");; esac; done
+if [ "${#roots[@]}" -eq 0 ]; then
+    roots+=("$U/.ai-memory"); [ -d "./.claude/memory" ] && roots+=("./.claude/memory")
+fi
 
 for root in "${roots[@]}"; do
     [ -d "$root" ] || { W "root not found: $root"; continue; }
@@ -118,3 +120,5 @@ fi
 
 echo ""
 echo "RESULT: $pass pass, $warn warn, $fail fail"
+if [ "$strict" = 1 ] && [ "$fail" -gt 0 ]; then echo "STRICT: $fail failure(s) — exit 1"; exit 1; fi
+exit 0

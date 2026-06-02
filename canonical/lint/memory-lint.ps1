@@ -1,8 +1,8 @@
 # memory-lint.ps1 — the "doctor": deterministic health check for the memory system (Windows)
-# Usage: memory-lint.ps1 [root1] [root2] ...
+# Usage: memory-lint.ps1 [-Strict] [root1] [root2] ...
 # Default roots: ~/.ai-memory (personal) and ./.claude/memory (project, if present).
 # Also runs GLOBAL wiring checks (hook registration, skill twin consistency, skill-creator).
-# Exit 0 always; prints a final "RESULT: X pass, Y warn, Z fail" line. fail>0 = something to fix.
+# Reports and exits 0 by default. With -Strict it acts as a CI GATE: exit 1 if fail > 0.
 
 $ErrorActionPreference = 'Continue'
 $pass=0; $warn=0; $fail=0
@@ -11,9 +11,12 @@ function W($m){ $script:warn++; Write-Host "  WARN  $m" -ForegroundColor Yellow 
 function F($m){ $script:fail++; Write-Host "  FAIL  $m" -ForegroundColor Red }
 
 $U = $env:USERPROFILE
+$strict = $false
 $roots = @()
-if ($args.Count -gt 0) { $roots = $args }
-else {
+foreach ($a in $args) {
+    if ("$a" -in @('-Strict','--strict','-strict')) { $strict = $true } else { $roots += $a }
+}
+if ($roots.Count -eq 0) {
     $roots += (Join-Path $U '.ai-memory')
     $proj = Join-Path (Get-Location) '.claude\memory'
     if (Test-Path $proj) { $roots += $proj }
@@ -138,3 +141,5 @@ if ((Test-Path $claudeSk) -and (Test-Path $agentSk)) {
 
 Write-Host ""
 Write-Host "RESULT: $pass pass, $warn warn, $fail fail" -ForegroundColor Cyan
+if ($strict -and $fail -gt 0) { Write-Host "STRICT: $fail failure(s) — exit 1" -ForegroundColor Red; exit 1 }
+exit 0
