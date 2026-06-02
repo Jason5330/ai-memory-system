@@ -41,7 +41,7 @@ turns repeated workflows into skills.
 
 # 2) 每個新專案一次：進到那個專案資料夾再跑
 cd C:\path\to\我的新專案
-C:\path\to\claude-memory-system-master\init-project.ps1
+C:\path\to\ai-memory-system\init-project.ps1
 ```
 裝完**重啟 Claude Code / Codex**。新手請看 [`新手指南.md`](新手指南.md)。
 

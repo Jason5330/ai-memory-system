@@ -37,6 +37,11 @@ footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;borde
 <h2>記憶分兩層（重要觀念）</h2>
 <ul><li><strong>個人腦</strong>（<code>~/.ai-memory</code>）：你的偏好、行為準則、反思——<strong>所有專案共用、越來越懂你</strong>，永不進專案 git。</li><li><strong>專案腦</strong>（<code>&lt;專案&gt;/.claude/memory</code>）：那個專案自己的知識、對話。</li></ul>
 <hr>
+<h2>先拿到框架</h2>
+<pre><code>git clone https://github.com/Jason5330/ai-memory-system.git</code></pre>
+<p>這樣會得到資料夾 <strong><code>ai-memory-system</code></strong>（下面範例都用這個名字）。</p>
+<blockquote>若你是按 GitHub 綠色按鈕「<strong>Download ZIP</strong>」下載解壓，資料夾會叫 <strong><code>ai-memory-system-main</code></strong>——<br>那下面範例的 <code>ai-memory-system</code> 請自行換成 <code>ai-memory-system-main</code>。</blockquote>
+<hr>
 <h2>安裝：兩個指令，別搞混</h2>
 <p>不是「裝兩次同一個東西」，是兩件不同的事：</p>
 <table><thead><tr><th></th><th>跑幾次</th><th>在哪跑</th><th>給你什麼</th></tr></thead><tbody><tr><td><code>install-personal.ps1</code></td><td><strong>每台電腦一次</strong></td><td>框架資料夾裡</td><td>你的<strong>個人腦</strong>（全域共用）</td></tr><tr><td><code>init-project.ps1</code></td><td><strong>每個新專案各一次</strong></td><td><strong>新專案資料夾裡</strong></td><td>那個專案自己的<strong>專案腦</strong></td></tr></tbody></table>
@@ -47,16 +52,16 @@ footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;borde
 
 # 2) 每開一個新專案：進到「那個專案資料夾」再跑（不是框架資料夾！）
 cd C:\Users\你的帳號\Desktop\我的新專案
-C:\Users\你的帳號\Desktop\claude-memory-system-master\init-project.ps1</code></pre>
+C:\Users\你的帳號\Desktop\ai-memory-system\init-project.ps1</code></pre>
 <blockquote>⚠️ 出現「無法執行指令碼」紅字 → 先貼這行再重試：<br>```powershell<br>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned<br>```</blockquote>
 <p>裝完<strong>重啟 Claude Code / Codex</strong>。只是隨便聊、沒有專案 → 不用跑 init-project，個人腦已經能用。</p>
 <hr>
 <h2>實戰：框架夾放在專案裡，在 VSCode 怎麼下指令</h2>
 <pre><code>我的新專案\                          ← VSCode 開在這層（要初始化的是這層）
-└── claude-memory-system-master\     ← 框架夾放進來了</code></pre>
-<ol><li>按 <strong>Ctrl + 反引號鍵</strong>（鍵盤左上角、<code>Esc</code> 下面那顆 `<code> </code> ``）開內建終端機（或選單 Terminal → New Terminal），<br>確認提示字元是 <code>PS C:\Users\你的帳號\Desktop\我的新專案&gt;</code>。</li><li>第一次先裝個人層：<br>```powershell<br>powershell -ExecutionPolicy Bypass -File .\claude-memory-system-master\install-personal.ps1<br>```</li><li>初始化這個專案：<br>```powershell<br>powershell -ExecutionPolicy Bypass -File .\claude-memory-system-master\init-project.ps1<br>```</li></ol>
+└── ai-memory-system\     ← 框架夾放進來了</code></pre>
+<ol><li>按 <strong>Ctrl + 反引號鍵</strong>（鍵盤左上角、<code>Esc</code> 正下方、數字 <code>1</code> 左邊那顆）開內建終端機（或選單 Terminal → New Terminal），<br>確認提示字元是 <code>PS C:\Users\你的帳號\Desktop\我的新專案&gt;</code>。</li><li>第一次先裝個人層：<br>```powershell<br>powershell -ExecutionPolicy Bypass -File .\ai-memory-system\install-personal.ps1<br>```</li><li>初始化這個專案：<br>```powershell<br>powershell -ExecutionPolicy Bypass -File .\ai-memory-system\init-project.ps1<br>```</li></ol>
 <p>跑完專案根目錄會長出 <code>CLAUDE.md</code>、<code>AGENTS.md</code>、<code>.claude\</code>、<code>.codex\</code>、<code>.agents\</code>、<code>.gitignore</code> = 成功。</p>
-<blockquote>地雷：<strong>別先 <code>cd</code> 進框架子夾再跑</strong>（會把記憶建錯地方）；框架夾放專案裡會被 git 進去，介意就在<br><code>.gitignore</code> 加 <code>claude-memory-system-master/</code> 或把框架夾放專案外面。</blockquote>
+<blockquote>地雷：<strong>別先 <code>cd</code> 進框架子夾再跑</strong>（會把記憶建錯地方）；框架夾放專案裡會被 git 進去，介意就在<br><code>.gitignore</code> 加 <code>ai-memory-system/</code> 或把框架夾放專案外面。</blockquote>
 <hr>
 <h2>九個指令（打在對話框，像打字一樣）</h2>
 <table><thead><tr><th>指令</th><th>白話</th><th>何時用</th></tr></thead><tbody><tr><td><code>/capture</code></td><td>把這次對話的重點存起來</td><td>聊到值得記的、或某工具壞了</td></tr><tr><td><code>/ingest-sessions</code></td><td>回頭把最近會話沒記到的補抓進來</td><td>怕漏記；或交給每晚自動</td></tr><tr><td><code>/dream</code></td><td>大整理 + 反思 + 提煉準則候選</td><td>累積幾天後（或設每晚自動）</td></tr><tr><td><code>/harvest</code></td><td>把重複 ≥2 次的流程變成 skill</td><td>同個流程做過 ≥2 次（忘記也沒關係，capture 會主動問）</td></tr><tr><td><code>/review-doctrine</code></td><td>逐條批准 AI 提的行為準則</td><td><code>/dream</code> 說有候選時</td></tr><tr><td><code>/status</code></td><td>看現況（只看不改）</td><td>想知道記了多少</td></tr><tr><td><code>/schedule-dream</code></td><td>建立/列出/刪除每晚自動整理</td><td>設一次；或要列/刪排程時</td></tr><tr><td><code>/reset</code></td><td>互動式清空記憶、重新開始</td><td>存了一堆不想要的記憶</td></tr><tr><td><code>/help</code></td><td>列出所有指令 + <strong>怎麼確認通關</strong></td><td>忘記怎麼用</td></tr></tbody></table>
