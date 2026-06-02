@@ -41,6 +41,7 @@ cp "$SRC/operations/_materialize-skill.md" "$GUIDES/_materialize-skill.md"
 cp "$SRC/hooks/block-failed-actions.ps1" "$HOOKS/"; cp "$SRC/hooks/block-failed-actions.sh" "$HOOKS/"; chmod +x "$HOOKS/block-failed-actions.sh"
 cp "$SRC/cron/nightly.ps1" "$CRON/"; cp "$SRC/cron/nightly.sh" "$CRON/"; chmod +x "$CRON/nightly.sh"
 cp "$SRC/lint/memory-lint.ps1" "$PERSONAL/"; cp "$SRC/lint/memory-lint.sh" "$PERSONAL/"; chmod +x "$PERSONAL/memory-lint.sh"
+mkdir -p "$PERSONAL/reset"; cp "$SRC/reset/reset.ps1" "$PERSONAL/reset/"; cp "$SRC/reset/reset.sh" "$PERSONAL/reset/"; chmod +x "$PERSONAL/reset/reset.sh"
 # stage project scaffolding so init-project works from any folder without the framework repo
 PT="$PERSONAL/project-templates"; mkdir -p "$PT"
 cp "$SRC/entry/project-CLAUDE.md" "$PT/project-CLAUDE.md"

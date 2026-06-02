@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-06-02 — /capture 顯示近 5 筆+累計、/reset 改用 deterministic 腳本
+
+### ① 擷取紀錄看得見（用戶回報）
+- `capture.md` Step 6：每次 /capture 完，除了本次結果，**列出近 5 筆擷取紀錄 + 累計筆數**，不用另開指令就看得到。
+- `status.md`：新增「擷取紀錄總覽」——**累計 N 筆（跨 D 天）+ 近 5 筆**，當成「查看總紀錄」的指令。
+
+### ② /reset 補一層 deterministic script（提升 Harness 可靠度）
+原本 /reset 全靠 AI 照 markdown 跑，安全性不如真工具。新增：
+- **`canonical/reset/reset.{ps1,sh}`**（安裝到 `~/.ai-memory/reset/`）：支援
+  `-Layer personal|project|both`、`-Categories ...`、`-DryRun`、強制 `-Yes "yes reset"`；
+  **先備份 → 校驗備份檔數 → 才清除 → 任何步驟失敗自動 rollback**。退出碼 0/2(拒絕)/3(校驗失敗)/4(已回滾)。
+- `reset.md` 改為「**互動收集選擇 → 先跑 -DryRun 給用戶看計畫 → 用戶打 `yes reset` → 呼叫腳本實際執行**」，
+  破壞性動作一律交給腳本，不再手動刪檔。層級規則照你說的：沒專案只問個人；有專案要選 只專案/只個人/兩者。
+- 安裝器（`install-personal.{ps1,sh}`）部署 reset 腳本。
+
+### 驗證
+```
+reset.ps1：dry-run 列 3 檔不動 · 無 -Yes → exit 2 拒絕 · 實跑 → 備份校驗 3 檔、清除、reflection 重置、
+           doctrine（未選）保留、exit 0；rollback 路徑亦驗證。bash -n reset.sh / install-personal.sh ✓
+```
+
+---
+
 ## 2026-06-02 — 讓用戶看懂記憶名詞（中文對照表 + 索引雙語 + /help 速查）
 
 ### 背景

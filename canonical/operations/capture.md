@@ -152,13 +152,24 @@ Group entries by type, keeping the template's **bilingual headers** (`## User �
 `## Feedback / Self-Evolution 反饋／自我進化`, `## Reference 參考`, `## Skills 技能`,
 `## Conversations 對話紀錄`).
 
-## Step 6: Report
+## Step 6: Report (always show recent + totals)
+After saving, show what just got captured AND a recent recap, so the user can see their running
+record without a separate command:
 ```
 ✅ Capture complete
 - Layer(s) written: personal / project
-- Signals: X   New/updated entity pages: X (names)
-- Tool failures enforced: X   Repeat candidates flagged: X
+- This run → signals: X · new/updated entity pages: X (names) · tool-failures enforced: X · repeat candidates: X
+
+🗒️ 近 5 筆擷取紀錄 (most recent 5)
+  1. [2026-06-02 personal] 💡 Decided to use PGLite for the demo
+  2. [2026-06-02 project:acme] 📚 Bun on Windows needs --ignore-scripts
+  3. ...
+   （從各層 conversations/*.md 的條目，依日期由新到舊取前 5）
+
+📊 累計 N 筆擷取（跨 D 天）。看完整紀錄打 /status。
 ```
+To build this: scan the active layer(s)' `conversations/*.md`, take the newest 5 individual entries
+(across the signal sections), and count the total entries for the running tally.
 
 ## Rules
 - Write in the user's language; be concise (bullets).

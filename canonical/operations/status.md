@@ -9,6 +9,8 @@ Read only; modify nothing. Roots: `PERSONAL = ~/.ai-memory`, `PROJECT = ./.claud
 
 ## Gather (per layer)
 - conversations: count + oldest/newest dates
+- **captured-entries tally**: total individual entries across all `conversations/*.md` (the bullet
+  items under the signal sections) + the **5 most recent** entries (newest first, with date+layer)
 - knowledge: page count
 - skills: count (Claude `.claude/skills` + Codex `.agents/skills`; flag if the two diverge)
 - PERSONAL only: approved doctrines, pending candidates, reflection entries, blocked-tools count
@@ -25,6 +27,10 @@ Personal (~/.ai-memory):
   doctrine: X approved, Y pending   reflection: Z entries   blocked tools: N
 Project (<name>):
   conversations: X   knowledge: X   skills: X (claude/codex in sync? yes/no)
+
+🗒️ 擷取紀錄：累計 N 筆（跨 D 天）。近 5 筆：
+  1. [2026-06-02 personal] 💡 Decided to use PGLite for the demo
+  2. ...
 
 🔁 Repeat-workflow candidates: N  → run /harvest to evaluate
 💡 Suggested: <run /dream | /review-doctrine | /harvest | nothing — healthy>
