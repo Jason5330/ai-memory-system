@@ -3,6 +3,11 @@
 This is the personal-layer entry for the dual-platform, two-layer self-evolving memory system.
 Claude Code loads this file every session. (The Codex twin is `~/.codex/AGENTS.md` — same content.)
 
+## Reply language (global)
+**Always reply to the user in Traditional Chinese (繁體中文)** — every answer, command output, summary,
+and action description — unless the user clearly writes in another language. These instruction files
+stay in English; only your *output to the user* is in Traditional Chinese.
+
 ## Two layers (read this first)
 
 - **Personal layer** = `{{PERSONAL_MEMORY}}` — who you are, behavior doctrine, cross-project
