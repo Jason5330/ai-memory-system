@@ -94,7 +94,8 @@ that folder"). Those are NOT skills (playbooks you follow) and NOT automations (
   inputs/outputs), **offer to keep it**: *"要不要我把這支程式存起來，下次直接執行、不用重寫？"* On yes:
   `tool.sh add <slug> --desc "..." --triggers "中文觸發語;english trigger" --script <the working script>`
   (it copies the script into `~/.ai-memory/tools/` and registers its triggers). Saved tools are
-  PERSONAL (cross-project).
+  PERSONAL (cross-project). **Design saved tools to take positional args or env vars (not `-Named`
+  flags)** — `tool run` forwards positional args, but a `-Named` flag gets intercepted by the runner.
 
 ## Capturing signals (auto — decide it yourself)
 

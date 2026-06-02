@@ -6,7 +6,8 @@
 # Registry: ~/.ai-memory/tools/tools.json  ;  scripts live next to it as <slug>.sh / <slug>.ps1
 # Usage:
 #   tool.sh list
-#   tool.sh run <slug> [args...]
+#   tool.sh run <slug> [args...]     (forwards positional args; design saved tools to take positional
+#                                     args or env vars for cross-platform parity with the .ps1 runner)
 #   tool.sh add <slug> --desc "..." --triggers "a;b;c" --script <path-to-working-script>
 #   tool.sh path <slug>
 # Exit: 0 ok / 2 not found / 3 bad usage / 4 run error.

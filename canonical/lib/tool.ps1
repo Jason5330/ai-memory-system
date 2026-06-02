@@ -6,7 +6,9 @@
 # Registry: ~/.ai-memory/tools/tools.json  ;  scripts live next to it as <slug>.ps1 / <slug>.sh
 # Usage:
 #   tool.ps1 list
-#   tool.ps1 run <slug> [args...]
+#   tool.ps1 run <slug> [args...]    (forwards POSITIONAL args to the saved script; design saved tools
+#                                     to take positional args or env vars, not -Named flags — a -Named
+#                                     flag gets intercepted by this wrapper's own parameter binding)
 #   tool.ps1 add <slug> -Desc "..." -Triggers "a;b;c" -Script <path-to-working-script>
 #   tool.ps1 path <slug>
 # Exit: 0 ok / 2 not found / 3 bad usage / 4 run error.
