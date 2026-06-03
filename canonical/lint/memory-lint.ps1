@@ -169,15 +169,19 @@ elseif ($libBad.Count -gt 0) { F "lib .ps1 parse errors: $($libBad -join ', ')" 
 else { P "lib backbone present (.ps1+.sh) + .ps1 parse-clean (memory-write/detect-repeats/tool)" }
 # Note: .sh syntax is validated by memory-lint.sh on its native platform — running `bash -n` against
 # Windows-path/CRLF copies here gives false positives, so this (Windows) doctor only parse-checks .ps1.
-# PROMOTED-skill twin consistency: operations live as Claude commands vs Codex skills (expected to
-# differ), so exclude them; a /harvest-promoted skill must exist on BOTH sides.
+# Platform skills: operations live as Claude commands vs Codex skills (expected to differ) → exclude
+# them. A /harvest-promoted skill is materialized to BOTH platforms atomically, so anything present on
+# only ONE platform is the USER'S OWN skill (installed independently) — that is NOT a problem, just
+# informational. Don't WARN on it (it caused false "needs cleanup" alarms).
 $ops = @('capture','dream','harvest','review-doctrine','status','schedule-dream','reset','help','skill-creator','ingest-sessions')
 $claudeSk = Join-Path $U '.claude\skills'; $agentSk = Join-Path $U '.agents\skills'
 if ((Test-Path $claudeSk) -and (Test-Path $agentSk)) {
     $cn = @(Get-ChildItem $claudeSk -Directory -ErrorAction SilentlyContinue | Where-Object { $ops -notcontains $_.Name } | Select-Object -Expand Name)
     $an = @(Get-ChildItem $agentSk  -Directory -ErrorAction SilentlyContinue | Where-Object { $ops -notcontains $_.Name } | Select-Object -Expand Name)
-    $diff = @(Compare-Object $cn $an)
-    if ($diff.Count -eq 0) { P "promoted skills in sync across platforms ($($cn.Count))" } else { W "promoted skills diverge: $((($diff | ForEach-Object { $_.InputObject }) -join ', '))" }
+    $both = @($cn | Where-Object { $an -contains $_ })
+    $oneOnly = @(@($cn | Where-Object { $an -notcontains $_ }) + @($an | Where-Object { $cn -notcontains $_ }))
+    if ($oneOnly.Count -eq 0) { P "platform skills in sync ($($both.Count) on both)" }
+    else { P "platform skills: $($both.Count) on both; one-platform-only (your own, not a problem): $($oneOnly -join ', ')" }
 }
 
 Write-Host ""

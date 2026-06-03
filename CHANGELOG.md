@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-06-03 — 修 /status 與 doctor 對「技能不同步」的誤報（用戶回報）
+
+用戶在 Codex 跑 /status 得到「Needs cleanup：個人層技能不同步」，但那其實正常：
+- 9 個**操作**（capture/dream/.../status）在 **Claude 是指令、Codex 是技能＝設計如此**，必然顯示「Codex only」。
+- 其餘像 cheat-*/internal-check/pdf-to-excel/pptx 是**用戶自己之前裝的技能**；`/harvest` 升格的技能一律
+  **原子物化到兩平台**，所以單平台的技能＝用戶自己的＝**不是問題**。
+
+修正（純提示詞 + doctor 腳本）：
+- `status.md`：比對技能同步時**排除操作名**；單平台技能標為「你自己的、純資訊」，**不據此判 Needs cleanup**。
+  「Needs cleanup」只留給真問題（死連結、硬擋掛掉、層級溢出）。全新安裝、計數全 0 且硬擋正常＝**Healthy**。
+- `memory-lint.{ps1,sh}`：原本 `WARN promoted skills diverge` → 改為 **PASS（資訊）**：「N on both；
+  one-platform-only（your own, not a problem）：…」。
+
+驗證：本機 doctor 該行由 WARN → **PASS**（cheat-* 列為「你自己的」），其餘不受影響。
+
+---
+
 ## 2026-06-03 — Codex 也有斜線指令（/capture 等，用戶要求）
 
 查證 Codex 支援 custom prompts：`~/.codex/prompts/<name>.md` → 檔名即指令名（`capture.md`→`/capture`）。

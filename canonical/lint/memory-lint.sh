@@ -137,12 +137,17 @@ elif [ -n "$libbad" ]; then F "lib .sh syntax errors:$libbad"
 else P "lib backbone present + .sh syntax-clean (memory-write/detect-repeats/tool)"; fi
 # PROMOTED-skill twin consistency: operations are Claude commands vs Codex skills (expected to
 # differ), so exclude them; a /harvest-promoted skill must exist on BOTH sides.
+# operations are Claude commands vs Codex skills (excluded). A /harvest-promoted skill lands on BOTH
+# atomically, so a one-platform-only skill is the USER'S OWN — informational, NOT a problem (no WARN).
 if [ -d "$U/.claude/skills" ] && [ -d "$U/.agents/skills" ]; then
     ops='^(capture|dream|harvest|review-doctrine|status|schedule-dream|reset|help|skill-creator|ingest-sessions)$'
     cn="$(ls "$U/.claude/skills" 2>/dev/null | grep -Ev "$ops" | sort)"
     an="$(ls "$U/.agents/skills" 2>/dev/null | grep -Ev "$ops" | sort)"
-    diff="$(comm -3 <(printf '%s\n' "$cn") <(printf '%s\n' "$an") | tr -d '\t' | grep -v '^$' || true)"
-    [ -z "$diff" ] && P "promoted skills in sync across platforms" || W "promoted skills diverge: $(echo "$diff" | tr '\n' ' ')"
+    both="$(comm -12 <(printf '%s\n' "$cn") <(printf '%s\n' "$an") | grep -v '^$' || true)"
+    oneOnly="$(comm -3 <(printf '%s\n' "$cn") <(printf '%s\n' "$an") | tr -d '\t' | grep -v '^$' || true)"
+    bc="$(printf '%s\n' "$both" | grep -c . || true)"
+    if [ -z "$oneOnly" ]; then P "platform skills in sync ($bc on both)"
+    else P "platform skills: $bc on both; one-platform-only (your own, not a problem): $(echo "$oneOnly" | tr '\n' ' ')"; fi
 fi
 
 echo ""
