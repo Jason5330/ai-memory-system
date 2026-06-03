@@ -19,6 +19,15 @@ auto-write.
 | **MEDIUM** — probable | You *infer* a preference / reusable fact that wasn't stated outright; "this might be how they like it". | **Write a CANDIDATE only** — `reflection.md` (an observation) or `doctrine_candidates.md` (a possible rule). Never straight into doctrine/skill. |
 | **LOW** — one-off / vague | This-session artifact, temp path, chit-chat, a guess, a task that won't recur. | **Skip.** (Same spirit as `/capture` Step 2.0 knowledge gate — when in doubt, don't store.) |
 
+> **Signal-density test (apply to every candidate):** *"if I DROP this, would the AI's **next step** be
+> wrong?"* If nothing changes → **skip**. Context is a limited attention budget, not a warehouse —
+> low-signal memory *dilutes* the high-signal memory, so over-capturing makes recall worse, not safer.
+>
+> **Preserve exact identifiers VERBATIM** in anything you do write — file paths, function/variable
+> names, error codes, commit SHAs, API params, versions, exact commands (`config/redis.ts`,
+> `ECONNREFUSED`, `bun install --ignore-scripts`). **Never paraphrase** ("the config file") — a
+> paraphrased identifier forces a future session to re-discover it, defeating the memory.
+
 ## B. Category gate — what HIGH confidence is ALLOWED to auto-write
 
 **✅ Safe categories — auto-write on HIGH confidence** (these describe the user or the world, not the

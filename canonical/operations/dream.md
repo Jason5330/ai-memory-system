@@ -44,11 +44,25 @@ For every workflow it reports **seen ≥2× with no skill yet**, surface it and 
 *"我發現你做過 <X> N 次了，要不要我用 /harvest 幫你生成 skill？"* Building still goes through `/harvest`'s
 review gate. **A repeatedly-failing built-in tool is NOT a skill** — it belongs in the hard-block
 (blocked-actions.json), not /harvest.
-### 3d Memory Overflow Guard (per layer)
-- `conversations/` > 30 files → archive oldest 10 to `conversations/archive/YYYY-MM/` (extract
-  knowledge first).
+### 3d Memory Overflow Guard (per layer) — compress with STRUCTURED summaries, not blind trimming
+**Before you move anything to `archive/`, distill it into a structured summary so compression never
+silently drops the "why".** Don't just keep-the-last-N-lines. For each batch you archive, write a
+short block (at the top of the archive file or the surviving page) with these sections — populate every
+one, leave blank only if truly N/A:
+```
+### Compacted YYYY-MM-DD
+- Intent:        <what these sessions/timeline entries were about>
+- Decisions:     <choices made + the reason (A over B because …)>
+- Files/IDs:     <exact paths, function names, error codes, commands — VERBATIM, never paraphrased>
+- Current state: <what's true now>
+- Next steps:    <anything still open>
+```
+- `conversations/` > 30 files → **first** extract the structured summary above into the surviving
+  index/knowledge, **then** archive oldest 10 to `conversations/archive/YYYY-MM/`.
 - any `knowledge/*.md` > 200 lines → keep `## Current State`, move OLDEST `## Timeline` to
-  `knowledge/archive/<entity>.md`, keep ~20 newest lines.
+  `knowledge/archive/<entity>.md` **prefaced by the structured summary**, keep ~20 newest lines.
+- **Preserve identifiers verbatim** in the summary (file paths, function names, error codes, SHAs,
+  commands) — a paraphrased identifier forces re-discovery and defeats the archive.
 - `MEMORY.md` > 150 lines → merge older index entries.
 - `PERSONAL/doctrine.md` > 80 entries → merge semantic dups; move >6-month-untriggered to
   `doctrine_archive.md` `[verify if still needed]`; notify user → /review-doctrine.

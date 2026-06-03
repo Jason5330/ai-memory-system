@@ -129,6 +129,17 @@ counts these tags across everything (same session, same day, across sessions, bo
 instant a slug reaches **≥2× with no skill yet**, offer right then: *"我發現你做過 <X> N 次了，要不要
 我用 /harvest 幫你生成一個 skill？"* — you don't have to wait for the next session's start-up check.
 
+## During a long session — capture before the window compacts
+
+Your live context window is a limited **attention budget**; the harness will **compact/summarize** it
+when it fills, and older turns can be lost. Persistent memory is the safety net — **before that
+happens, proactively run `capture` for the high-signal state**: the current task, decisions made *with
+their reasons*, exact identifiers (paths / function names / error codes / commands — **verbatim**), and
+the next step. Triggers: a long or highly iterative session; a **phase transition** (research → plan →
+build → verify); or you notice yourself re-deriving something already settled. Don't try to manage the
+live window yourself (masking/compaction is the harness's job) — your job is to make sure the
+*persistent* layer captured the high-signal parts **first**, so a compaction loses nothing that matters.
+
 ## Before ending a session
 
 Did this conversation contain anything worth remembering? Yes → write to the right layer's log and

@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-06-03 — Context engineering 紀律（A–D）：what to keep / compress / clean
+
+讀完 4 份 context-engineering 技能（fundamentals / compression / optimization / memory-systems）+ Codex
+分析後，補上「對話沉澱成記憶」時的上下文管理紀律。核心觀念：**context 是有限的注意力預算、不是倉庫**——
+低訊號記憶會稀釋高訊號記憶。骨架本來就對（index/detail 分離、compiled-truth+timeline、信心分層、dream
+整合），這次補的是**寫入/壓縮的紀律規則**（純提示詞、零依賴）：
+
+- **A. identifier 原文保留**：捕捉/壓縮時，路徑/函式名/error code/SHA/API 參數/指令**一律原文，不可改寫**
+  （`config/redis.ts` 不可寫成「那個設定檔」）。改 `capture.md` Step 2.0、`dream.md` Phase 3d、`_memory-gate.md`。
+- **B. 結構化摘要壓縮**：`dream.md` 溢出守衛封存/裁切前，先產 `Intent/Decisions/Files-IDs/Current state/
+  Next steps` 結構化摘要再搬原文——不再「保留 N 行」式盲裁，避免無聲丟掉「為什麼」。
+- **C. 利化保留判準（signal-density test）**：知識閘門/Gate 加「**拿掉它，AI 下一步會不會做錯？不會就不留**」。
+  改 `capture.md` Step 2.0、`_memory-gate.md`。
+- **D. compaction 前安全網**：入口檔 `CLAUDE.md`/`AGENTS.md` 加規則——長對話/階段轉換/視窗快滿時，
+  **主動 `/capture` 當前任務+決策+下一步+原文 identifier**，再讓 harness 壓縮；不重造 runtime mask/compaction
+  （那是 harness 的層）。
+
+刻意不做：① 不在框架內重造 runtime context 的 mask/compaction（harness 職責）；② 不現在上向量檢索
+（ROADMAP 項目 6，等知識頁破百再說）。
+
+驗證：4 條規則在 7 個已部署檔點全部就位、doctor 0 fail。
+
+---
+
 ## 2026-06-03 — 修 bug：/reset 沒有重置 MEMORY.md 索引（用戶回報）
 
 用戶回報「reset 後記憶還在」——因為腳本清了內容檔（conversations/knowledge…），但**沒清每次載入的

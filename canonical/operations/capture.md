@@ -50,6 +50,15 @@ knowledge.
 **✅ Genuine-knowledge test (all three "yes"):** (1) useful in a *different future* conversation?
 (2) a reusable fact/method/gotcha/setting, not "what I did this time"? (3) carries a fact worth
 keeping? Shortcut: *"three months from now, on a different project, would I open this page?"*
+**Signal-density test (the sharper version):** *"if I DROP this, would a future me / the AI take a
+**wrong next step**?"* If the answer is "no, it changes nothing" → **don't store it** (storing low-signal
+content dilutes attention from the high-signal memory, it doesn't just waste space).
+
+> **Preserve exact identifiers VERBATIM** — whenever you do store a decision / fix / fact, keep file
+> paths, function/variable names, error codes, commit SHAs, API params, versions, exact commands
+> **word-for-word** (`config/redis.ts`, `ECONNREFUSED`, `bun install --ignore-scripts`). **Never
+> paraphrase them** ("the config file", "the install command") — a paraphrased identifier forces a
+> future session to re-discover it, defeating the memory.
 
 ### 2.1 Layer + type resolver
 For entities that pass the gate, pick the **layer** (per `_routing.md`) then the **type/kind**:
