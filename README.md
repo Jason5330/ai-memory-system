@@ -87,10 +87,6 @@ C:\path\to\ai-memory-system\init-project.ps1
 | [新手指南.md](新手指南.md) | 👈 **先看這個**：白話快速上手 |
 | [記憶名詞對照表.md](記憶名詞對照表.md) | 🔤 看不懂 conversations/doctrine/persona…？英文名詞中文白話對照（含例子）|
 | [機制與工具總覽.md](機制與工具總覽.md) | 🧰 所有 `lib/` 確定性腳本（memory-write／detect-repeats／tool）＋機制一張地圖、CLI/退出碼速查 |
-| [DUAL-PLATFORM-GUIDE.md](DUAL-PLATFORM-GUIDE.md) | 完整說明（架構／雙層／雙平台／驗證）|
-| [生活化測試流程.md](生活化測試流程.md) | 親手走一遍、驗收每個機制（約 15 分鐘）|
-| [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md) | 機制技術詳解 |
-| [MEMORY_GUIDE.md](MEMORY_GUIDE.md) | 完整使用說明 |
 | [安裝行為說明.md](安裝行為說明.md) | 安裝器動到哪些檔案 |
 | [CHANGELOG.md](CHANGELOG.md) / [ROADMAP.md](ROADMAP.md) | 變更歷程 / 延後工作 |
 

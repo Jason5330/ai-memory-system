@@ -59,7 +59,7 @@
    ```
 2. 改 `install-personal.ps1` 與 `install-personal.sh`：把它複製到 `~/.ai-memory/.gitignore`
    （沿用既有「copy-if-missing」模式，與其他範本檔同一個迴圈即可）。
-3. 在 `TECHNICAL_GUIDE.md` / `README.md` 補一段「分層理由」說明。
+3. 在 `機制與工具總覽.md` / `README.md` 補一段「分層理由」說明。
 4. （可選）框架本身根目錄的 `.gitignore` 維持現狀（整個 memory/ 仍是範本、不進框架 repo）。
 
 ### 怎麼驗證

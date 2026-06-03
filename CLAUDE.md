@@ -6,7 +6,7 @@
 
 ## What this repo is
 A dual-platform (Claude Code + Codex), two-layer (personal + per-project), self-evolving memory
-system. See [`README.md`](README.md) and [`DUAL-PLATFORM-GUIDE.md`](DUAL-PLATFORM-GUIDE.md).
+system. See [`README.md`](README.md) and [`機制與工具總覽.md`](機制與工具總覽.md).
 
 ## Contract-first: edit the canonical source, not the installed copies
 Everything is authored ONCE under `canonical/` and **materialized** to each platform by the
