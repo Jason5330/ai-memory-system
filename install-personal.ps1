@@ -139,24 +139,32 @@ $claudeCmd = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$hookPs`" cl
 # Use $settingsObj for the parsed object — NOT $settings: PowerShell variable names are
 # case-INSENSITIVE, so $settings aliases $SETTINGS and would clobber the file path (causing
 # WriteAllText to fail with a hashtable-as-path on a fresh machine where the hook isn't registered yet).
-if (Test-Path $SETTINGS) { $settingsObj = Get-Content $SETTINGS -Raw -Encoding UTF8 | ConvertFrom-Json } else { $settingsObj = [PSCustomObject]@{} }
-if (-not ($settingsObj.PSObject.Properties.Name -contains 'hooks')) {
-    $settingsObj | Add-Member -NotePropertyName 'hooks' -NotePropertyValue ([PSCustomObject]@{})
+# Wrapped so a LOCKED settings.json (Claude Code is open) doesn't abort the install — defer the Claude
+# hook with a clear message, same as the Codex config.toml case below.
+try {
+    if (Test-Path $SETTINGS) { $settingsObj = Get-Content $SETTINGS -Raw -Encoding UTF8 | ConvertFrom-Json } else { $settingsObj = [PSCustomObject]@{} }
+    if (-not ($settingsObj.PSObject.Properties.Name -contains 'hooks')) {
+        $settingsObj | Add-Member -NotePropertyName 'hooks' -NotePropertyValue ([PSCustomObject]@{})
+    }
+    if (-not ($settingsObj.hooks.PSObject.Properties.Name -contains 'PreToolUse')) {
+        $settingsObj.hooks | Add-Member -NotePropertyName 'PreToolUse' -NotePropertyValue @()
+    }
+    $already = $false
+    foreach ($e in @($settingsObj.hooks.PreToolUse)) { foreach ($h in @($e.hooks)) { if ($h.command -like '*block-failed-actions*') { $already = $true } } }
+    if (-not $already) {
+        $entry = [PSCustomObject]@{ matcher = '*'; hooks = @([PSCustomObject]@{ type='command'; command=$claudeCmd }) }
+        $settingsObj.hooks.PreToolUse = @($settingsObj.hooks.PreToolUse) + $entry
+        $json = $settingsObj | ConvertTo-Json -Depth 20
+        if ($json -is [array]) { $json = $json -join "`r`n" }   # guard: keep it one String for the overload
+        $enc = New-Object System.Text.UTF8Encoding($false)
+        [System.IO.File]::WriteAllText([string]$SETTINGS, [string]$json, $enc)
+        Write-Host "[7a] Claude PreToolUse hook registered (matcher: *)" -ForegroundColor Green
+    } else { Write-Host "[7a] Claude hook already registered" -ForegroundColor Gray }
+} catch {
+    Write-Host "[7a] DEFERRED: ~/.claude/settings.json is locked/unreadable (Claude Code is open)." -ForegroundColor Yellow
+    Write-Host "     Everything else is installed; close Claude Code and re-run this installer once to" -ForegroundColor Yellow
+    Write-Host "     register the Claude hard-block hook (idempotent)." -ForegroundColor Yellow
 }
-if (-not ($settingsObj.hooks.PSObject.Properties.Name -contains 'PreToolUse')) {
-    $settingsObj.hooks | Add-Member -NotePropertyName 'PreToolUse' -NotePropertyValue @()
-}
-$already = $false
-foreach ($e in @($settingsObj.hooks.PreToolUse)) { foreach ($h in @($e.hooks)) { if ($h.command -like '*block-failed-actions*') { $already = $true } } }
-if (-not $already) {
-    $entry = [PSCustomObject]@{ matcher = '*'; hooks = @([PSCustomObject]@{ type='command'; command=$claudeCmd }) }
-    $settingsObj.hooks.PreToolUse = @($settingsObj.hooks.PreToolUse) + $entry
-    $json = $settingsObj | ConvertTo-Json -Depth 20
-    if ($json -is [array]) { $json = $json -join "`r`n" }   # guard: keep it one String for the overload
-    $enc = New-Object System.Text.UTF8Encoding($false)
-    [System.IO.File]::WriteAllText([string]$SETTINGS, [string]$json, $enc)
-    Write-Host "[7a] Claude PreToolUse hook registered (matcher: *)" -ForegroundColor Green
-} else { Write-Host "[7a] Claude hook already registered" -ForegroundColor Gray }
 
 # 7b. Hook registration — Codex config.toml (append-if-marker-absent)
 $CFG = Join-Path $CODEX 'config.toml'

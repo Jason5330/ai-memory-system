@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-06-03 — install-personal：Claude settings.json 被鎖也容錯（與 Codex 對稱）
+
+上次只對 Codex `config.toml` 被鎖容錯；這次把 Claude `settings.json`（第 7a 步）也包 try/catch——
+萬一 Claude Code 開著鎖住 settings.json，**印 `[7a] DEFERRED` 並照常裝完**，關掉 Claude Code 重跑一次補上。
+驗證：無鎖時 7a 正常註冊、走到 complete、settings.json 有效（3/3）。
+
+---
+
 ## 2026-06-03 — 修 /status 與 doctor 對「技能不同步」的誤報（用戶回報）
 
 用戶在 Codex 跑 /status 得到「Needs cleanup：個人層技能不同步」，但那其實正常：
