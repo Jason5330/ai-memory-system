@@ -123,6 +123,54 @@
 
 ---
 
+## 項目 7：真正的 session-end auto-capture（runtime hook，非提示詞驅動）
+
+### 為什麼做
+目前「聊天中自動記」靠入口檔要求 AI 執行，是**盡力而為**（AI 可能忘）。Hermes 式做法是裝一個
+**SessionEnd / Stop hook**，session 結束時固定掃當輪 transcript 自動補抓，降低漏記機率。
+
+### 觸發訊號
+用戶抱怨「明明聊了重要的，AI 沒記到」反覆發生，且 `/ingest-sessions`+nightly 的補漏不夠即時。
+
+### 怎麼做（步驟）
+1. 新增 `canonical/hooks/session-end-capture.{ps1,sh}`：讀當前 session transcript（Claude 的
+   `~/.claude/projects/<cwd>/*.jsonl` 最新一筆 / Codex 對應檔），跑與 `/ingest-sessions` 相同的萃取+去重+路由。
+2. 註冊 **Stop/SessionEnd hook**（Claude `settings.json` 的 `Stop`；Codex 對應事件）——
+   **務必防迴圈**（hook 內不可再觸發會寫檔又觸發 hook 的動作；用 run-id/lock，比照 `nightly`）。
+3. 與 nightly `/ingest-sessions` 共用 per-source checkpoint，避免重複處理。
+
+### 成本 / 風險
+中。多一種 hook 事件型別（目前只有 PreToolUse）；headless 萃取與防迴圈要小心。
+**先確認 `/ingest-sessions`+nightly 真的不夠**再做——否則是重複建設。
+
+### 參考
+Codex 建議（2026-06-03）；現有 `ingest-sessions.md`、`cron/nightly.{ps1,sh}`（lock/run-id 範式）。
+
+---
+
+## 項目 8：Saved Tool 加驗證中繼資料（verify / hash / platform / last_verified）
+
+### 為什麼做
+`tools.json` 目前只存 slug/desc/triggers/added。存久了無法得知某工具「**還能不能用**」
+（依賴的外部程式被移除、跨平台不相容、檔案被改壞）。
+
+### 觸發訊號
+用戶回報「`tool run` 跑出來壞了 / 在另一台不能用」，或 saved tools 累積到需要體檢時。
+
+### 怎麼做（步驟）
+1. `tool add` 時多記：`platform`（存的副檔名/OS）、`hash`（程式內容雜湊）、可選 `verify_command`
+   （一句能快速驗證可用性的指令）、`last_verified`。
+2. `tool run` 前可選做 **drift 檢查**：現檔 hash ≠ 註冊 hash → 提示「程式被改過，確認再跑」。
+3. 新增 `tool verify [<slug>]`：跑 `verify_command`、更新 `last_verified`；併入 `doctor` 當一項健檢。
+
+### 成本 / 風險
+低～中。注意別過度——欄位要有人消費才加（**現在沒有消費者就先不加，避免空殼**，故延後）。
+
+### 參考
+Codex 建議（2026-06-03）；現有 `lib/tool.{ps1,sh}`、`tools/tools.json`。
+
+---
+
 ## 動工前的共同檢查清單（未來的 Claude 照做）
 
 1. 先確認觸發訊號真的出現了（見上方決策檢查表），沒出現就回報用戶「目前不需要」。

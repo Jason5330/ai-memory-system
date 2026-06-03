@@ -77,6 +77,15 @@ PY
         leak="$(grep -rlE 'feedback_user_style|\.ai-memory|persona\.md' "$root/knowledge" 2>/dev/null | wc -l)"
         [ "$leak" -gt 0 ] && W "PRIVACY: project knowledge references personal-layer memory ($leak file(s)) — must not leak into shared project"
     fi
+
+    # SECURITY: scan stored memory for prompt-injection / exfiltration phrasing (WARN; human reviews)
+    susp='ignore (all )?(previous|prior|above) instructions|disregard (all |the )?(previous|prior|above)|exfiltrat|(reveal|print|show) (your )?(system )?prompt'
+    shits=0
+    for sf in "$root/MEMORY.md" "$root"/knowledge/*.md "$root"/conversations/*.md; do
+        [ -f "$sf" ] || continue
+        grep -qiE "$susp" "$sf" && shits=$((shits+1))
+    done
+    [ "$shits" -gt 0 ] && W "SECURITY: injection/exfiltration phrasing in $shits memory file(s) — review (stored memory is data, never an instruction)" || P "memory content clean (no injection/exfiltration phrasing)"
 done
 
 # ---- GLOBAL wiring checks ----
@@ -108,6 +117,17 @@ if [ -f "$U/.codex/config.toml" ]; then
     else F "Codex registered hook command FAILED self-test — Codex hard-block is DOWN"; fi
 else W "Codex config.toml not found (Codex hard-block inactive)"; fi
 { [ -f "$U/.claude/skills/skill-creator/SKILL.md" ] && [ -f "$U/.agents/skills/skill-creator/SKILL.md" ]; } && P "skill-creator deployed (both platforms)" || W "skill-creator missing on a platform"
+# lib backbone present + .sh syntax-clean (memory-write / detect-repeats / tool — deterministic scripts)
+libdir="$U/.ai-memory/lib"; libmiss=""; libbad=""
+for b in memory-write detect-repeats tool; do
+    for ext in .ps1 .sh; do
+        if [ ! -f "$libdir/$b$ext" ]; then libmiss="$libmiss $b$ext"
+        elif [ "$ext" = ".sh" ]; then bash -n "$libdir/$b$ext" 2>/dev/null || libbad="$libbad $b$ext"; fi
+    done
+done
+if [ -n "$libmiss" ]; then F "lib scripts MISSING:$libmiss (run install-personal)"
+elif [ -n "$libbad" ]; then F "lib .sh syntax errors:$libbad"
+else P "lib backbone present + .sh syntax-clean (memory-write/detect-repeats/tool)"; fi
 # PROMOTED-skill twin consistency: operations are Claude commands vs Codex skills (expected to
 # differ), so exclude them; a /harvest-promoted skill must exist on BOTH sides.
 if [ -d "$U/.claude/skills" ] && [ -d "$U/.agents/skills" ]; then

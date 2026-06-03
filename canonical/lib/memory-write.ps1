@@ -7,7 +7,8 @@
 #   memory-write.ps1 -Mode append     -File <path> -Content "<text block>"
 #   memory-write.ps1 -Mode block-tool  -Tool <Name> -Reason "..." -UseInstead "<Alt>" [-Platform both] [-File <registry.json>]
 #
-# Exit: 0 written · 0 (prints SKIP) duplicate/no-op · 2 empty content refused · 3 lock busy · 4 write error.
+# Exit: 0 written · 0 (prints SKIP) duplicate/no-op · 2 empty content refused · 3 lock busy · 4 write error
+#       · 5 registry corrupt (block-tool refused — original preserved, fix by hand).
 param(
   [ValidateSet('append','block-tool')][string]$Mode = 'append',
   [string]$File,
@@ -67,9 +68,14 @@ if ($Mode -eq 'block-tool') {
   $lock = Acquire-Lock $File
   if (-not $lock) { Write-Host "LOCK BUSY: $File.lock held — try again." -ForegroundColor Red; exit 3 }
   try {
-    $data = $null
-    if (Test-Path $File) { try { $data = Get-Content $File -Raw | ConvertFrom-Json } catch { $data = $null } }
-    if (-not $data) { $data = [pscustomobject]@{ blocked_tools = @() } }
+    # If the registry EXISTS but is corrupt, REFUSE — never overwrite it with a fresh empty object
+    # (that would silently drop every existing blocked tool, disarming the hard-block net). Preserve
+    # the original and tell the user to fix it. Only seed an empty registry when the file truly absent.
+    if (Test-Path $File) {
+      try { $data = [System.IO.File]::ReadAllText($File, [System.Text.Encoding]::UTF8) | ConvertFrom-Json }
+      catch { Write-Host "REFUSED: $File exists but is not valid JSON — NOT overwriting (would lose existing blocked tools). Fix it by hand, then retry." -ForegroundColor Red; exit 5 }
+      if ($null -eq $data.blocked_tools) { Write-Host "REFUSED: $File has no 'blocked_tools' array — NOT overwriting. Fix it by hand." -ForegroundColor Red; exit 5 }
+    } else { $data = [pscustomobject]@{ blocked_tools = @() } }
     $list = @($data.blocked_tools)
     foreach ($e in $list) {
       if ($e.tool -eq $Tool -and ($e.platform -eq $Platform -or $e.platform -eq 'both' -or $Platform -eq 'both')) {

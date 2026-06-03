@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-06-03 — Codex 第 4 輪建議：採納 3 條、延後 2 條
+
+- **#2 memory-write 壞 registry 不再重建空檔（安全 bug）**：`block-tool` 讀到**存在但壞掉**的
+  `blocked-actions.json` 時，原本退回空物件→會把既有壞工具洗掉（安全網本身）。改成**拒絕寫入、保留原檔、
+  退出碼 5**，提示手動修。`.ps1`+`.sh` 都改；`.ps1` 順手改 UTF-8 明讀。檔案不存在才 seed 空檔。
+- **#1 doctor 檢查 lib backbone**：`memory-lint` 新增——`memory-write`/`detect-repeats`/`tool` 的
+  `.ps1`+`.sh` 是否齊全、`.ps1` parse-clean（`.sh` 由 Mac/Linux 端 doctor 用 `bash -n` 驗，Windows 端
+  不跑 bash 避免 CRLF/路徑假錯）。
+- **#5 doctor 記憶內容安全掃描**：掃 MEMORY.md/knowledge/conversations 是否含 prompt-injection /
+  exfiltration 句型（ignore previous instructions、exfiltrate、reveal system prompt…），命中 **WARN**
+  （人審；記憶可能合法引用這類字）。是「記憶當 data」規則的確定性兜底。
+- **延後（ROADMAP 項目 7、8）**：#3 session-end auto-capture（要 SessionEnd hook 子系統，較大；
+  /ingest+nightly 已補漏）、#4 saved-tool 驗證中繼資料（YAGNI，沒消費者前先不加空殼）。
+
+### 驗證
+```
+memory-write：壞 registry → exit 5、原檔保留、修好後既有+新工具都在 → 3/3 PASS
+doctor：lib backbone present(PASS)、memory content clean(PASS)、注入語句→SECURITY WARN(命中)
+        修掉 Windows 端 bash -n 假錯後 → 12 pass / 0 warn / 0 fail；bash -n 兩腳本乾淨
+```
+
+---
+
 ## 2026-06-02 — 新增「機制與工具總覽」文件 + README 更新
 
 - 新增 `機制與工具總覽.md`（+ `.html`）：把所有 `lib/` 確定性腳本（`memory-write`／`detect-repeats`／

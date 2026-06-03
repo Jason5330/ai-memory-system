@@ -8,7 +8,8 @@
 #   memory-write.sh append     --file <path> --content "<text block>"
 #   memory-write.sh block-tool  --tool <Name> --reason "..." --use-instead "<Alt>" [--platform both] [--file <registry.json>]
 #
-# Exit: 0 written · 0 (prints SKIP) duplicate/no-op · 2 empty content refused · 3 lock busy · 4 write error.
+# Exit: 0 written · 0 (prints SKIP) duplicate/no-op · 2 empty content refused · 3 lock busy · 4 write error
+#       · 5 registry corrupt (block-tool refused — original preserved, fix by hand).
 set -euo pipefail
 MODE="${1:-append}"; shift || true
 FILE=""; CONTENT=""; TOOL=""; REASON=""; USE_INSTEAD=""; PLATFORM="both"
@@ -71,8 +72,14 @@ import json, sys, os
 path, tool, reason, use_instead, platform, added = sys.argv[1:7]
 data = {"blocked_tools": []}
 if os.path.exists(path):
+    # corrupt existing registry -> REFUSE (don't overwrite away the existing blocked tools)
     try: data = json.load(open(path, encoding="utf-8"))
-    except Exception: data = {"blocked_tools": []}
+    except Exception:
+        print(f"REFUSED: {path} exists but is not valid JSON -- NOT overwriting (would lose existing blocked tools). Fix it by hand, then retry."); sys.exit(5)
+    if "blocked_tools" not in data:
+        print(f"REFUSED: {path} has no 'blocked_tools' array -- NOT overwriting. Fix it by hand."); sys.exit(5)
+else:
+    data = {"blocked_tools": []}
 data.setdefault("blocked_tools", [])
 for e in data["blocked_tools"]:
     if e.get("tool") == tool and (e.get("platform") in (platform, "both") or platform == "both"):

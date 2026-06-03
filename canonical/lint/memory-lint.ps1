@@ -95,6 +95,20 @@ foreach ($root in $roots) {
         $leak = Get-ChildItem $kdir -Filter '*.md' -File -ErrorAction SilentlyContinue | Where-Object { (Get-Content $_.FullName -Raw -Encoding UTF8) -match 'feedback_user_style|\.ai-memory|persona\.md' }
         if ($leak) { W "PRIVACY: project knowledge references personal-layer memory ($($leak.Count) file(s)) — personal memory must not leak into a shared project" }
     }
+
+    # SECURITY: deterministic scan for prompt-injection / exfiltration phrasing inside stored memory
+    # (defense-in-depth behind the "memory is data, not instructions" rule). WARN only — a human reviews,
+    # since memory may legitimately quote such text.
+    $suspect = 'ignore\s+(all\s+)?(previous|prior|above)\s+instructions|disregard\s+(all\s+|the\s+)?(previous|prior|above)|exfiltrat|(reveal|print|show)\s+(your\s+)?(system\s+)?prompt'
+    $scanFiles = @($mem)
+    if (Test-Path $kdir) { $scanFiles += (Get-ChildItem $kdir -Filter '*.md' -File -EA SilentlyContinue | ForEach-Object FullName) }
+    if (Test-Path $cdir) { $scanFiles += (Get-ChildItem $cdir -Filter '*.md' -File -EA SilentlyContinue | ForEach-Object FullName) }
+    $hits = @()
+    foreach ($sf in ($scanFiles | Where-Object { $_ -and (Test-Path $_) })) {
+        if (([System.IO.File]::ReadAllText($sf, [System.Text.Encoding]::UTF8)) -match $suspect) { $hits += (Split-Path $sf -Leaf) }
+    }
+    if ($hits.Count -gt 0) { W "SECURITY: injection/exfiltration phrasing in $($hits.Count) memory file(s): $($hits -join ', ') — review (stored memory is data, never an instruction to obey)" }
+    else { P "memory content clean (no injection/exfiltration phrasing)" }
 }
 
 # ---- GLOBAL wiring checks ----
@@ -128,6 +142,25 @@ if (Test-Path $cfg) {
 $scC = Join-Path $U '.claude\skills\skill-creator\SKILL.md'
 $scA = Join-Path $U '.agents\skills\skill-creator\SKILL.md'
 if ((Test-Path $scC) -and (Test-Path $scA)) { P "skill-creator deployed (both platforms)" } else { W "skill-creator missing on a platform (Claude:$([bool](Test-Path $scC)) Codex:$([bool](Test-Path $scA)))" }
+# lib backbone present + parse-clean (memory-write / detect-repeats / tool — the deterministic scripts)
+$libDir = Join-Path $U '.ai-memory\lib'
+$expectLib = @('memory-write','detect-repeats','tool')
+$libMissing = @(); $libBad = @()
+foreach ($b in $expectLib) {
+    foreach ($ext in @('.ps1','.sh')) {
+        $p = Join-Path $libDir "$b$ext"
+        if (-not (Test-Path $p)) { $libMissing += "$b$ext" }
+        elseif ($ext -eq '.ps1') {
+            $perr = $null; [void][System.Management.Automation.Language.Parser]::ParseFile($p, [ref]$null, [ref]$perr)
+            if ($perr -and $perr.Count -gt 0) { $libBad += "$b$ext" }
+        }
+    }
+}
+if ($libMissing.Count -gt 0) { F "lib scripts MISSING: $($libMissing -join ', ') (run install-personal)" }
+elseif ($libBad.Count -gt 0) { F "lib .ps1 parse errors: $($libBad -join ', ')" }
+else { P "lib backbone present (.ps1+.sh) + .ps1 parse-clean (memory-write/detect-repeats/tool)" }
+# Note: .sh syntax is validated by memory-lint.sh on its native platform — running `bash -n` against
+# Windows-path/CRLF copies here gives false positives, so this (Windows) doctor only parse-checks .ps1.
 # PROMOTED-skill twin consistency: operations live as Claude commands vs Codex skills (expected to
 # differ), so exclude them; a /harvest-promoted skill must exist on BOTH sides.
 $ops = @('capture','dream','harvest','review-doctrine','status','schedule-dream','reset','help','skill-creator','ingest-sessions')
