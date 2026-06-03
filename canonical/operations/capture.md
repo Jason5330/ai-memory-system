@@ -12,6 +12,17 @@ Routing table: `~/.ai-memory/guides/_routing.md`. **Decision gate: `~/.ai-memory
 LOW→skip) and the hard rule that **doctrine and skills are NEVER auto-written** (they go to candidates
 / `## 🔁 Repeat candidates` for human review). Apply that gate throughout the steps below.
 
+> **⚠️ Recall depends on the INDEX, not the log.** At session start only each layer's `MEMORY.md`
+> (+ personal `doctrine.md` / `persona.md`) is auto-loaded — `conversations/*.md` are **NOT**. So
+> anything you want recalled next time MUST end up as a one-line pointer in **its own layer's**
+> `MEMORY.md` (Step 5), not only inside a conversation log. A capture that lands only in
+> `conversations/` will look "forgotten" on reopen until `/dream` promotes it.
+>
+> **Non-initialized folder:** if `./.claude/memory` does NOT exist (this folder was never
+> `init-project`'d), there is no project layer — everything routes to **PERSONAL** (`~/.ai-memory`,
+> which loads in *every* session). That's fine; just **say so in the report** (Step 6) so the user
+> knows where it went and can run `init-project` if they wanted project-local memory here.
+
 ## Step 1: Scan for signals
 
 | Type | Description | Default layer |
@@ -188,21 +199,37 @@ Don't silently wait — the user shouldn't have to remember these exist. (Skills
 > 2+ times, that's an ⚙️ Environment/Tool Failure → it belongs in the **hard-block** (Step 2.5), not a
 > `repeat:` tag. A "how to search" skill cannot fix a broken search tool.
 
-## Step 5: Update the active layer's MEMORY.md index (two-step write — topic file FIRST)
+## Step 5: Index it in the CONTENT'S OWN layer MEMORY.md (two-step write — topic file FIRST)
+Update the `MEMORY.md` **of the layer the content was written to** — personal content →
+`~/.ai-memory/MEMORY.md`; project content → `./.claude/memory/MEMORY.md`. (Not "the active layer" — the
+*content's* layer, so a personal-routed knowledge page is indexed in the personal index even when you're
+sitting inside a project.)
+
+**Every knowledge page / decision you want recalled MUST get a one-line pointer here.** This is the
+fix for "I captured it but it's gone on reopen": a capture that only appends to `conversations/*.md`
+is **not** auto-loaded next session — only `MEMORY.md` is. So if it's worth recalling, it must be a
+knowledge page (or a MEMORY.md line), not merely a log entry.
+
 **Order matters (crash-safe):** finish writing the actual topic/knowledge/log file and confirm it
-exists, **then** add its one-line pointer here. Never index content you haven't persisted — a crash
-then leaves at worst an orphan file, never a corrupt index. Group entries by type, keeping the
-template's **bilingual headers** (`## User 用戶`, `## Feedback / Self-Evolution 反饋／自我進化`,
-`## Reference 參考`, `## Skills 技能`, `## Conversations 對話紀錄`). Keep it a bounded index (one line
-per item) — never paste body text into MEMORY.md.
+exists, **then** add its one-line pointer here. Never index content you haven't persisted. Group
+entries by type, keeping the template's **bilingual headers** (`## User 用戶`,
+`## Feedback / Self-Evolution 反饋／自我進化`, `## Reference 參考`, `## Skills 技能`,
+`## Conversations 對話紀錄`). Keep it a bounded index (one line per item) — never paste body text in.
 
 ## Step 6: Report (always show recent + totals)
 After saving, show what just got captured AND a recent recap, so the user can see their running
 record without a separate command:
 ```
 ✅ Capture complete
-- Layer(s) written: personal / project
+- Layer(s) written: personal / project   ·   Indexed in <layer>/MEMORY.md: ✅ (so it loads next session)
+- Recall: personal memory loads in EVERY session · project memory loads when you open THIS project
 - This run → signals: X · new/updated entity pages: X (names) · tool-failures enforced: X · repeat candidates: X
+```
+> If `./.claude/memory` doesn't exist here, also tell the user: *「此資料夾未初始化，已存到**個人層**
+> （全域、每次都會載入）。想要這個專案的本地記憶，請在此資料夾跑 `init-project`。」*
+> If anything was logged but NOT indexed (e.g. only a conversation-log entry), say so and suggest
+> `/dream` to promote it — otherwise it won't be recalled.
+```text
 
 🗒️ 近 5 筆擷取紀錄 (most recent 5)
   1. [2026-06-02 personal] 💡 Decided to use PGLite for the demo
