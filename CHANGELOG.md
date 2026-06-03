@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-06-03 — README 補「上下文紀律」核心段（繁中文件更新）
+
+- `README.md` 新增〈上下文紀律：什麼該記／壓縮／清理〉一節，把 A–D 的精神（完整保留高訊號＋原文 identifier、
+  結構化壓縮、signal-density 篩選、compaction 前安全網）寫成核心理念，並連到 `機制與工具總覽.md`。CHANGELOG
+  的 A–D 細節見下一筆。
+
 ## 2026-06-03 — Context engineering 紀律（A–D）：what to keep / compress / clean
 
 讀完 4 份 context-engineering 技能（fundamentals / compression / optimization / memory-systems）+ Codex

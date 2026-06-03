@@ -38,6 +38,19 @@ one-command saved tools.
 
 > ⚠️ Codex 技能在 `.agents/skills/`（**不是** `.codex/skills/`）。
 
+## 上下文紀律：什麼該記／壓縮／清理（核心）
+
+記憶的價值不在「記越多」，而在**把有限的注意力預算用在「會影響下一步」的資訊**上——低訊號記憶會稀釋高訊號記憶。
+
+- **完整保留**會直接影響下一步的：決策＋理由、任務狀態，以及**精確 identifier 原文**（路徑／函式名／
+  error code／指令，例如 `src/config/redis.ts`、`ECONNREFUSED`——**不可改寫成「那個設定檔」**，否則下次要重找）。
+- **總結壓縮**已處理、未來可能回看的：`/dream` 用**結構化摘要**（Intent／Decisions／Files-IDs／Current／Next）
+  萃取，不「保留 N 行」盲裁；原文進 `archive/`。
+- **篩掉／清理**重複、過期、可重抓的：signal-density 判準「**拿掉它，下一步會不會做錯？不會就不留**」；
+  視窗被 harness 壓縮前，**主動 `/capture` 高訊號**讓持久層接住（不重造 runtime compaction）。
+
+> 全部機制與腳本見 [`機制與工具總覽.md`](機制與工具總覽.md)。
+
 ## 安裝（兩步）
 
 ```powershell
