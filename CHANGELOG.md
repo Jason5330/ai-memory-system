@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-06-03 — 新手指南加「Codex / VS Code 一行安裝」小節
+
+把「自動找框架夾、一行跑 install+init、無視帳號名/專案名」的無腦安裝法寫進 `新手指南.md`，
+附 Codex 後續 3 步（批准 hook、重載、講意圖）與容錯說明（Codex 開著也會裝完、印 DEFERRED）。
+這樣分享給朋友只要丟新手指南連結即可，不必每次複製指令。
+
+---
+
 ## 2026-06-03 — install-personal 對「Codex 開著鎖住 config.toml」容錯（用戶回報）
 
 朋友首次安裝時，因 Codex 正開著鎖住 `~/.codex/config.toml`，第 7b 步 `Add-Content` 拋 IOException，
