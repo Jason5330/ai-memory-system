@@ -27,6 +27,22 @@ $reseed = @{
   'persona.md'             = "# Agent Persona`r`n`r`n_(none yet)_`r`n"
   'blocked-actions.json'   = "{`r`n  `"blocked_tools`": []`r`n}`r`n"
 }
+# After clearing, prune MEMORY.md so its index reflects reality: drop any line whose linked .md file
+# no longer exists (e.g. the conversation logs / knowledge pages we just cleared). Non-link lines
+# (headers, the Environment-Limits section) and links to surviving files are kept. This is what makes
+# the *visible* memory actually reset — clearing the content files alone leaves a stale index.
+function Prune-Index($root) {
+  $mem = Join-Path $root 'MEMORY.md'
+  if (-not (Test-Path $mem)) { return }
+  $kept = @()
+  foreach ($ln in [System.IO.File]::ReadAllLines($mem, [System.Text.Encoding]::UTF8)) {
+    $mt = [regex]::Match($ln, '\]\(([^)#:]+\.md)\)')
+    if ($mt.Success -and -not (Test-Path (Join-Path $root $mt.Groups[1].Value.Trim()))) { continue }  # dead link → drop
+    $kept += $ln
+  }
+  [System.IO.File]::WriteAllText($mem, (($kept -join "`r`n") + "`r`n"), (New-Object System.Text.UTF8Encoding $false))
+}
+
 # category -> items for a layer. dir items are cleared (files moved to backup); file items are reseeded.
 function Items($root, $cat, $isPersonal) {
   switch ($cat) {
@@ -97,6 +113,9 @@ catch {
   exit 4
 }
 
-Write-Host "`n✅ reset complete — cleared $($plan.Count) file(s). Backup: $(($plan | ForEach-Object { $_.backup } | Select-Object -Unique) -join ', ')" -ForegroundColor Green
-Write-Host "Restore = copy files back from the backup. Run /dream (or /status) to refresh the index." -ForegroundColor Gray
+# clear succeeded → prune each affected layer's MEMORY.md so the loaded index no longer lists cleared content
+foreach ($r in @($plan | ForEach-Object { $_.root } | Select-Object -Unique)) { Prune-Index $r }
+
+Write-Host "`n✅ reset complete — cleared $($plan.Count) file(s) + pruned MEMORY.md index. Backup: $(($plan | ForEach-Object { $_.backup } | Select-Object -Unique) -join ', ')" -ForegroundColor Green
+Write-Host "Restore = copy files back from the backup. Run /dream to fully rebuild the index if needed." -ForegroundColor Gray
 exit 0

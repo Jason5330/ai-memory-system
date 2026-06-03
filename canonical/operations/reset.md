@@ -58,11 +58,14 @@ Present a simple confirm **selection** (AskUserQuestion / numbered choice), e.g.
 bash ~/.ai-memory/reset/reset.sh --layer <L> --categories <C> --yes "yes reset"               # Mac/Linux
 ```
 The script backs up to `<layer>/archive/reset-<timestamp>/`, **verifies the backup count**, only then
-clears, and **rolls back** if any step fails. Relay its output (cleared N, backup path).
+clears, **prunes `MEMORY.md`** (drops index lines pointing at the now-deleted files, so the loaded
+index actually reflects the reset), and **rolls back** if any step fails. Relay its output
+(cleared N, backup path).
 
 ## Step 5: After
-Tell the user the backup path (restore = copy files back) and suggest `/dream` or `/status` to refresh
-the index. Restart Claude Code / Codex if doctrine/preferences/persona were cleared.
+Tell the user the backup path (restore = copy files back). The script already pruned `MEMORY.md` so
+the index no longer lists the cleared content; run `/dream` only if you want a full index rebuild.
+Restart Claude Code / Codex if doctrine/preferences/persona were cleared.
 
 ## Rules
 - **User only clicks** — never make them type `yes reset` or any other token. The token is an

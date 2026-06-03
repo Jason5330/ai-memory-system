@@ -85,6 +85,19 @@ for i in "${!PLAN_SRC[@]}"; do
 done
 trap - ERR
 
-echo; echo "✅ reset complete — cleared ${#PLAN_SRC[@]} file(s). Backup: $(printf '%s\n' "${PLAN_BAK[@]}" | sort -u | tr '\n' ' ')"
-echo "Restore = copy files back from the backup. Run /dream (or /status) to refresh the index."
+# prune each affected layer's MEMORY.md: drop lines whose linked .md no longer exists (the cleared
+# logs/knowledge), keep headers and links to surviving files — so the visible index reflects the reset.
+prune_index(){ local root="$1"; local mem="$root/MEMORY.md"; [ -f "$mem" ] || return
+  local tmp="$mem.tmp"; : > "$tmp"
+  while IFS= read -r ln || [ -n "$ln" ]; do
+    local tgt; tgt="$(printf '%s' "$ln" | grep -oE '\]\([^)#:]+\.md\)' | head -1 | sed -E 's/^\]\(//; s/\)$//')"
+    if [ -n "$tgt" ] && [ ! -f "$root/$tgt" ]; then continue; fi   # dead link → drop
+    printf '%s\n' "$ln" >> "$tmp"
+  done < "$mem"
+  mv -f "$tmp" "$mem"
+}
+while IFS= read -r r; do [ -n "$r" ] && prune_index "$r"; done <<< "$(printf '%s\n' "${PLAN_ROOT[@]}" | sort -u)"
+
+echo; echo "✅ reset complete — cleared ${#PLAN_SRC[@]} file(s) + pruned MEMORY.md index. Backup: $(printf '%s\n' "${PLAN_BAK[@]}" | sort -u | tr '\n' ' ')"
+echo "Restore = copy files back from the backup. Run /dream to fully rebuild the index if needed."
 exit 0
