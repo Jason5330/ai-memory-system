@@ -1,8 +1,8 @@
 # AGENTS.md — guidance for working ON this framework repo
 
-> This file is for contributors editing the framework itself (it's the project guidance Claude Code
-> loads when you open this repo). It is NOT the memory-system entry that gets installed — that lives
-> in `canonical/entry/`.
+> This file is for contributors editing the framework itself (it's the project guidance **Codex**
+> loads when you open this repo; the Claude Code twin is `./CLAUDE.md`). It is NOT the memory-system
+> entry that gets installed — that lives in `canonical/entry/`.
 
 ## What this repo is
 A dual-platform (Claude Code + Codex), two-layer (personal + per-project), self-evolving memory

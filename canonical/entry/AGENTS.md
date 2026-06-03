@@ -29,9 +29,9 @@ Full path rules: `~/.ai-memory/guides/PATHS.md`. Signal routing: `~/.ai-memory/g
 4. If `./.claude/memory/MEMORY.md` exists (you are inside an initialized project), read it too for
    this project's state, open knowledge, and unfinished tasks.
 5. **Proactive skill reminder (run once)** — run the read-only detector
-   `~/.ai-memory/lib/detect-repeats.sh` (`.ps1` on Windows). If it reports any workflow **seen ≥2×
-   with no skill yet**, mention it early and offer: *"我發現你做過 <X> N 次了，要不要我用 /harvest 幫你
-   生成一個 skill 來做這件事？"* Mention once; don't nag.
+   `~/.ai-memory/lib/detect-repeats.ps1` (Windows) / `detect-repeats.sh` (Mac/Linux). If it reports any
+   workflow **seen ≥2× with no skill yet**, mention it early and offer: *"我發現你做過 <X> N 次了，要不要
+   我用 /harvest 幫你生成一個 skill 來做這件事？"* Mention once; don't nag.
 
 `doctrine.md` is how the system improves over time: rules you approve there change behavior in all
 future sessions, on both platforms. This entry file stays small — it only points at the memory; the
@@ -87,12 +87,13 @@ that folder"). Those are NOT skills (playbooks you follow) and NOT automations (
 **script you wrote once and keep, then just RUN** next time. Two rules:
 
 - **Before writing a script for a request, check saved tools first:** run
-  `~/.ai-memory/lib/tool.sh list` (`.ps1` on Windows). If a tool's triggers match the request,
-  **run it instead of re-authoring**: `tool.sh run <slug> [args]`. Don't make the user wait while you
-  rewrite code that already exists.
+  `~/.ai-memory/lib/tool.ps1 list` (Windows) / `tool.sh list` (Mac/Linux). If a tool's triggers match
+  the request, **run it instead of re-authoring**: `tool.ps1 run <slug> [args]`. Don't make the user
+  wait while you rewrite code that already exists.
 - **After you write a script that works** for a task that looks repeatable (mechanical, stable
-  inputs/outputs), **offer to keep it**: *"要不要我把這支程式存起來，下次直接執行、不用重寫？"* On yes:
-  `tool.sh add <slug> --desc "..." --triggers "中文觸發語;english trigger" --script <the working script>`
+  inputs/outputs), **offer to keep it**: *"要不要我把這支程式存起來，下次直接執行、不用重寫？"* On yes
+  (Windows): `tool.ps1 add <slug> -Desc "..." -Triggers "中文觸發語;english trigger" -Script <script>`
+  (Mac/Linux: `tool.sh add <slug> --desc "..." --triggers "..." --script <script>`)
   (it copies the script into `~/.ai-memory/tools/` and registers its triggers). Saved tools are
   PERSONAL (cross-project). **Design saved tools to take positional args or env vars (not `-Named`
   flags)** — `tool run` forwards positional args, but a `-Named` flag gets intercepted by the runner.

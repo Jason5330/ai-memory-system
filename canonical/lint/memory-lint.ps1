@@ -138,6 +138,14 @@ if (Test-Path $cfg) {
     elseif ((Invoke-RegisteredHook $reg) -eq 0) { P "Codex hook registered command runs (self-test exit 0)" }
     else { F "Codex registered hook command FAILED self-test — Codex hard-block is DOWN" }
 } else { W "Codex config.toml not found (Codex hard-block inactive)" }
+# Entry files present + carry the AI-MEMORY block (so each platform actually loads memory at startup)
+foreach ($ent in @(@{p=(Join-Path $U '.claude\CLAUDE.md'); n='Claude ~/.claude/CLAUDE.md'},
+                   @{p=(Join-Path $U '.codex\AGENTS.md');  n='Codex ~/.codex/AGENTS.md'})) {
+    if (Test-Path $ent.p) {
+        if ((Get-Content $ent.p -Raw -Encoding UTF8) -match 'AI-MEMORY-START') { P "$($ent.n) present + AI-MEMORY block" }
+        else { W "$($ent.n) exists but MISSING the AI-MEMORY block — that platform won't load memory (run install-personal)" }
+    } else { W "$($ent.n) not found — that platform won't load memory (run install-personal)" }
+}
 # skill-creator deployed both platforms
 $scC = Join-Path $U '.claude\skills\skill-creator\SKILL.md'
 $scA = Join-Path $U '.agents\skills\skill-creator\SKILL.md'

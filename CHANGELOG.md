@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-03 — Codex 可見性修正（功能本就支援，修文件＋doctor 檢查）
+
+Codex 第 5 輪：功能上已支援 Codex，要補的是**文件與 doctor 的 Codex 可見性**。4 條全採納：
+- **#1 根目錄 `AGENTS.md`**：第 3 行原寫「Claude Code loads」（這是 Codex 讀的 repo 指引）→ 改「**Codex**
+  loads；Claude 雙生是 `./CLAUDE.md`」。（亂碼連結已於上輪文件瘦身一併修為 `機制與工具總覽.md`。）
+- **#2 `canonical/entry/AGENTS.md`**：Codex 範例（detector / Saved Tools）原本 `.sh` 在前 →
+  改 **`.ps1`（Windows）在前、`.sh`（Mac/Linux）在後**，避免 Windows 上的 Codex 照抄錯腳本。
+- **#3 doctor 檢查入口檔**：`memory-lint.{ps1,sh}` 新增——`~/.claude/CLAUDE.md` 與 `~/.codex/AGENTS.md`
+  是否存在且含 `AI-MEMORY` block；缺了該平台開場就不載入記憶 → **WARN**（補上 Codex 入口的紅旗）。
+- **#4 `機制與工具總覽.md`**：檔案樹的「開場載入」只寫 CLAUDE.md → 補上「Codex 由 `AGENTS.md` 載入」。
+
+> 維持：Codex skill 走 `.agents/skills/`（**非** `.codex/skills/`）。
+> 驗證：doctor 入口檢查正向 2 PASS、負向（缺 block／缺檔）各 WARN；隔離安裝 14 pass/0 fail；bash -n 乾淨。
+
+---
+
 ## 2026-06-03 — 文件瘦身：刪 4 份重疊／過時技術文件（8 → 4）
 
 文件太多且重疊、技術類又跟不上最近功能（Saved Tools／detect-repeats／memory-write）。整併：

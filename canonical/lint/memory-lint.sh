@@ -116,6 +116,13 @@ if [ -f "$U/.codex/config.toml" ]; then
     elif run_reg "$reg"; then P "Codex hook registered command runs (self-test exit 0)"
     else F "Codex registered hook command FAILED self-test — Codex hard-block is DOWN"; fi
 else W "Codex config.toml not found (Codex hard-block inactive)"; fi
+# Entry files present + carry the AI-MEMORY block (so each platform loads memory at startup)
+for pair in "$U/.claude/CLAUDE.md|Claude ~/.claude/CLAUDE.md" "$U/.codex/AGENTS.md|Codex ~/.codex/AGENTS.md"; do
+    ep="${pair%%|*}"; en="${pair##*|}"
+    if [ -f "$ep" ]; then
+        grep -q 'AI-MEMORY-START' "$ep" && P "$en present + AI-MEMORY block" || W "$en exists but MISSING the AI-MEMORY block — that platform won't load memory (run install-personal)"
+    else W "$en not found — that platform won't load memory (run install-personal)"; fi
+done
 { [ -f "$U/.claude/skills/skill-creator/SKILL.md" ] && [ -f "$U/.agents/skills/skill-creator/SKILL.md" ]; } && P "skill-creator deployed (both platforms)" || W "skill-creator missing on a platform"
 # lib backbone present + .sh syntax-clean (memory-write / detect-repeats / tool — deterministic scripts)
 libdir="$U/.ai-memory/lib"; libmiss=""; libbad=""
