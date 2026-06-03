@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-06-03 — 修 bug：/reset 沒有重置 MEMORY.md 索引（用戶回報）
+
+用戶回報「reset 後記憶還在」——因為腳本清了內容檔（conversations/knowledge…），但**沒清每次載入的
+索引 `MEMORY.md`**，它還列著已被刪的條目。舊流程要再跑 `/dream` 才會重建索引，不直覺。
+
+- `reset.{ps1,sh}` 清除成功後**自動剪枝 `MEMORY.md`**：移除「連結指向已不存在 .md 檔」的索引行
+  （剛清掉的對話/知識），保留標題、Environment-Limits 區段、以及仍存在檔案的連結。確定性、支援部分重置。
+- `reset.md` Step 4/5 更新：`/dream` 現在只在想「完整重建索引」時才需要。
+- 驗證：清 conversations+knowledge → 對話/知識索引行被剪、doctrine 連結+標題+非連結行保留（ps1 6/6、sh 4/4）。
+
+---
+
 ## 2026-06-03 — Codex 第 4 輪建議：採納 3 條、延後 2 條
 
 - **#2 memory-write 壞 registry 不再重建空檔（安全 bug）**：`block-tool` 讀到**存在但壞掉**的
