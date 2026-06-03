@@ -46,10 +46,12 @@ rules accumulate in `doctrine.md`.
 
 ## Operations (Codex Agent Skills; Claude runs the twin slash-commands)
 
-On Codex these are skills under `~/.agents/skills/` (capture / ingest-sessions / dream / harvest /
-review-doctrine / status / schedule-dream / reset / help). Trigger by intent ("capture this",
-"ingest sessions", "run dream", "harvest workflows", "review doctrine", "memory status", "reset
-memory", "help"):
+On Codex you can trigger each operation **two ways** — both materialized from the same source:
+- **Slash command**: type `/` and pick `capture` / `dream` / … (installed to `~/.codex/prompts/<op>.md`,
+  so `/capture`, `/dream`, `/status`, etc. work like on Claude). *(Codex marks custom prompts as
+  deprecated in favour of skills, but they currently work.)*
+- **By intent (skill)**: just say it ("capture this", "ingest sessions", "run dream", "harvest
+  workflows", "review doctrine", "memory status", "reset memory", "help") — `~/.agents/skills/<op>/`.
 
 - **capture** — save the current conversation's signals to the correct layer (routing table above).
 - **ingest-sessions** — sediment missed signals from recent Claude/Codex session transcripts +

@@ -80,11 +80,13 @@ install_entry "$SRC/entry/AGENTS.md" "$CODEX/AGENTS.md"
 echo "[5] entry files: ~/.claude/CLAUDE.md + ~/.codex/AGENTS.md"
 
 # 6. Operations → Claude commands + Codex skills
+mkdir -p "$CODEX/prompts"
 for op in capture dream harvest review-doctrine status schedule-dream reset help ingest-sessions; do
-    cp "$SRC/operations/$op.md" "$CMDS/$op.md"
-    mkdir -p "$AGENTS_SK/$op"; cp "$SRC/operations/$op.md" "$AGENTS_SK/$op/SKILL.md"
+    cp "$SRC/operations/$op.md" "$CMDS/$op.md"                        # Claude slash-command
+    mkdir -p "$AGENTS_SK/$op"; cp "$SRC/operations/$op.md" "$AGENTS_SK/$op/SKILL.md"   # Codex skill (intent)
+    cp "$SRC/operations/$op.md" "$CODEX/prompts/$op.md"              # Codex slash-command (/capture etc.)
 done
-echo "[6] operations materialized to Claude commands + Codex ~/.agents/skills"
+echo "[6] operations materialized: Claude commands + Codex skills + Codex /slash prompts"
 
 # 6b. Deploy the official Anthropic skill-creator to BOTH platforms (all skill creation goes through it).
 SC_SRC="$(dirname "$SRC")/skills/skill-creator"

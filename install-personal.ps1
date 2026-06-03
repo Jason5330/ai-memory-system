@@ -107,16 +107,18 @@ Install-Entry (Join-Path $SRC 'entry\CLAUDE.md') (Join-Path $CLAUDE 'CLAUDE.md')
 Install-Entry (Join-Path $SRC 'entry\AGENTS.md') (Join-Path $CODEX 'AGENTS.md')
 Write-Host "[5] entry files: ~/.claude/CLAUDE.md + ~/.codex/AGENTS.md" -ForegroundColor Green
 
-# 6. Operations → Claude commands + Codex skills (single source, dual materialize)
+# 6. Operations → Claude commands + Codex skills + Codex slash-commands (single source, triple materialize)
 $ops = @('capture','dream','harvest','review-doctrine','status','schedule-dream','reset','help','ingest-sessions')
+$CODEX_PROMPTS = Join-Path $CODEX 'prompts'; New-Item -ItemType Directory -Force $CODEX_PROMPTS | Out-Null
 foreach ($op in $ops) {
     $opSrc = Join-Path $SRC "operations\$op.md"
     Copy-Item $opSrc (Join-Path $CMDS "$op.md") -Force                       # Claude slash-command
     $skDir = Join-Path $AGENTS_SK $op
     New-Item -ItemType Directory -Force $skDir | Out-Null
-    Copy-Item $opSrc (Join-Path $skDir 'SKILL.md') -Force                    # Codex skill
+    Copy-Item $opSrc (Join-Path $skDir 'SKILL.md') -Force                    # Codex skill (intent-triggered)
+    Copy-Item $opSrc (Join-Path $CODEX_PROMPTS "$op.md") -Force              # Codex slash-command (/capture etc.)
 }
-Write-Host "[6] operations materialized to Claude commands + Codex ~/.agents/skills" -ForegroundColor Green
+Write-Host "[6] operations materialized: Claude commands + Codex skills + Codex /slash prompts" -ForegroundColor Green
 
 # 6b. Deploy the official Anthropic skill-creator to BOTH platforms (all skill creation goes through it).
 $scSrc = Join-Path (Split-Path -Parent $SRC) 'skills\skill-creator'

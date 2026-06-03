@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-06-03 — Codex 也有斜線指令（/capture 等，用戶要求）
+
+查證 Codex 支援 custom prompts：`~/.codex/prompts/<name>.md` → 檔名即指令名（`capture.md`→`/capture`）。
+官方標為 deprecated、建議用 skills（框架本就用 skills），但**目前仍可用**。應用戶要求補上，讓 Codex 兩種並存：
+- 安裝器 `install-personal.{ps1,sh}`：操作改成**三物化**——Claude `commands/`、Codex `~/.agents/skills/<op>/`
+  （意圖觸發）、**Codex `~/.codex/prompts/<op>.md`（斜線 `/capture`）**。同一份 operation .md 來源。
+- 入口檔 `AGENTS.md`：Operations 段說明 Codex 可「打 `/capture` 斜線」或「講意圖」兩種觸發，並註明 prompts 屬 deprecated 但可用。
+
+驗證：隔離安裝 → `~/.codex/prompts/` 出現 9 個 op、技能並存（5/5）；部署到本機 9 個斜線指令就位。
+來源：developers.openai.com/codex/custom-prompts、/cli/slash-commands。
+
+---
+
 ## 2026-06-03 — 新手指南加「Codex / VS Code 一行安裝」小節
 
 把「自動找框架夾、一行跑 install+init、無視帳號名/專案名」的無腦安裝法寫進 `新手指南.md`，
