@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-06-03 — install-personal 對「Codex 開著鎖住 config.toml」容錯（用戶回報）
+
+朋友首次安裝時，因 Codex 正開著鎖住 `~/.codex/config.toml`，第 7b 步 `Add-Content` 拋 IOException，
+配上 `$ErrorActionPreference='Stop'` 導致**整個安裝中斷**。改成 try/catch：被鎖時**印 `[7b] DEFERRED`
+清楚說明（記憶＋技能已裝好、只差 Codex 硬擋 hook、關掉 Codex 重跑即可），安裝照常走到 complete**。
+不誤寫、不毀既有設定。驗證：模擬獨占鎖 → 仍 complete、印 DEFERRED、config.toml 原樣保留（5/5）。
+
+---
+
 ## 2026-06-03 — 更新 4 份文件跟上新功能（Saved Tools 等）
 
 確認 5 份使用者文件是否跟上最近功能；`機制與工具總覽.md` 本就最新，其餘 4 份補上：

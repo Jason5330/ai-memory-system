@@ -169,12 +169,20 @@ type = "command"
 command = 'powershell -NoProfile -ExecutionPolicy Bypass -File "$hookPs" codex'
 statusMessage = "ai-memory: checking blocked tools"
 "@
-if (Test-Path $CFG) {
-    if ((Get-Content $CFG -Raw -Encoding UTF8) -match 'block-failed-actions') { Write-Host "[7b] Codex hook already present" -ForegroundColor Gray }
-    else { Add-Content -Path $CFG -Value $codexBlock -Encoding UTF8; Write-Host "[7b] Codex PreToolUse hook appended to config.toml" -ForegroundColor Green }
-} else {
-    Set-Content -Path $CFG -Value $codexBlock.TrimStart() -Encoding UTF8
-    Write-Host "[7b] Codex config.toml created with PreToolUse hook" -ForegroundColor Green
+# Wrapped so a LOCKED config.toml (Codex is open) doesn't abort the whole install — the memory system
+# is already in place; only the Codex hard-block hook is deferred until Codex is closed and we re-run.
+try {
+    if (Test-Path $CFG) {
+        if ((Get-Content $CFG -Raw -Encoding UTF8) -match 'block-failed-actions') { Write-Host "[7b] Codex hook already present" -ForegroundColor Gray }
+        else { Add-Content -Path $CFG -Value $codexBlock -Encoding UTF8; Write-Host "[7b] Codex PreToolUse hook appended to config.toml" -ForegroundColor Green }
+    } else {
+        Set-Content -Path $CFG -Value $codexBlock.TrimStart() -Encoding UTF8
+        Write-Host "[7b] Codex config.toml created with PreToolUse hook" -ForegroundColor Green
+    }
+} catch {
+    Write-Host "[7b] DEFERRED: ~/.codex/config.toml is locked (Codex is open). Everything else is installed;" -ForegroundColor Yellow
+    Write-Host "     only the Codex hard-block hook is pending. Fix: close Codex/VS Code, then re-run this" -ForegroundColor Yellow
+    Write-Host "     installer once (idempotent). The memory system already works on Codex meanwhile." -ForegroundColor Yellow
 }
 
 Write-Host "`n=== Personal install complete ===" -ForegroundColor Cyan
