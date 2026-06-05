@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-06-05 — 修 /schedule-dream 排程每晚跑不起來（用戶回報 -196608）
+
+用戶「列出排程」看到 `ai-memory-nightly` 的 `LastTaskResult = -196608`（非成功碼）。根因：註冊任務時
+`-Argument` 用**單引號**，`$env:USERPROFILE` 沒被展開、以 literal 字串存進任務；而 `powershell.exe -File`
+**不會展開**它，所以排程每晚都找不到 `nightly.ps1`（-196608 = 腳本檔找不到）。**排程有建、會觸發，但每次跑不起來。**
+
+- `schedule-dream.md` Create：改成**先把路徑解析成 `$np`**、再用雙引號組 `-Argument`，讓任務存**真實路徑**。
+  List 段加排錯註記：看到 -196608 或 `-File` 含 literal `$env:USERPROFILE` → **重新 Create 即修復**（`-Force` 取代同名任務）。
+- 驗證：舊寫法存 literal、新寫法存真實路徑（Test-Path True）。**已建過排程的人重跑一次「schedule dream」即修好。**
+
+---
+
 ## 2026-06-03 — install-personal：Claude settings.json 被鎖也容錯（與 Codex 對稱）
 
 上次只對 Codex `config.toml` 被鎖容錯；這次把 Claude `settings.json`（第 7a 步）也包 try/catch——
