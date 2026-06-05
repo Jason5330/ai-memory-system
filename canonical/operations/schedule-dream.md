@@ -32,7 +32,7 @@ Nightly script (installed by install-personal):
    fails every night with **`-196608`** (script file not found).
    ```powershell
    $np = "$env:USERPROFILE\.ai-memory\cron\nightly.ps1"
-   $a = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$np`""
+   $a = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$np`""
    $t = New-ScheduledTaskTrigger -Daily -At <HH:MM>
    Register-ScheduledTask -TaskName 'ai-memory-nightly' -Action $a -Trigger $t -Force `
      -Description 'Nightly memory consolidation (dream + harvest scan)'
@@ -77,6 +77,18 @@ found. **Fix = just re-Create** (above) — it re-registers with the resolved re
 Report: "Nightly schedule removed; `/dream` will only run when you trigger it manually."
 
 ---
+
+## If the nightly job hangs / pops a window (Status stuck on "Running", result `267009`)
+The nightly launches a **headless `claude -p` / `codex exec` agent**. On some Windows setups that CLI
+doesn't run cleanly non-interactively — it can open a window (titled "claude") and wait, leaving the
+task **Running** forever. Mitigations are built in (the task runs `-WindowStyle Hidden`, and
+`nightly.ps1` runs the agent with **no new window + a 30-min hard cap** that kills a stuck agent). If it
+still misbehaves:
+1. Stop + (optionally) remove the schedule: `Stop-ScheduledTask -TaskName 'ai-memory-nightly'` then
+   the **Delete** command below; close any stray `claude` window.
+2. **The nightly is optional** — the system works fully without it. Just run `/dream` **manually**
+   whenever you like (or `/ingest-sessions` first). That's the reliable path; auto-nightly is a
+   convenience, not a requirement.
 
 ## Known limitation (why OS scheduler, not Claude's internal cron)
 This operation deliberately uses the **OS scheduler**, NOT Claude's internal `CronCreate/CronList/

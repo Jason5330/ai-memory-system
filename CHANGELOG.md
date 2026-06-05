@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-06-05 — nightly 卡住/跳黑窗修正（用戶回報 Status 卡 Running、267009）
+
+用戶 schedule dream 後，nightly 啟動的 **headless `claude` 視窗卡住不關**、排程一直 Running（267009）。
+根因：headless agent 在排程情境下沒乾淨地非互動執行 → 開了視窗等待、永不結束。
+
+- `nightly.ps1`：agent 改用 **`Start-Process -NoNewWindow`**（不跳視窗）＋ **`WaitForExit(30 分鐘)` 上限**
+  （卡住就 `Kill`、記 `timeout`，排程不再永遠 Running）；prompt 改用**參數傳**（不再 pipe stdin，避免 CLI 等待）。
+- `schedule-dream.md`：註冊任務的 powershell 參數加 **`-WindowStyle Hidden`**；新增〈If the nightly job
+  hangs〉段——說明可 Stop/Delete 排程、且 **nightly 是選用的，手動 `/dream` 一樣可靠**。
+- 驗證：nightly.ps1 parse 0 errors、dry-run 正常；部署後檔案含 NoNewWindow/WaitForExit/WindowStyle Hidden。
+
+**已卡住的人**：`Stop-ScheduledTask -TaskName 'ai-memory-nightly'` → 關掉 claude 視窗；更新框架後重建排程，或乾脆刪排程手動 /dream。
+
+---
+
 ## 2026-06-05 — 新手指南改通用 3 行安裝 + 加「更新版本」做法
 
 實測發現「一行超長指令」貼進 Windows PowerShell 會被**拆亂、`$d` 變空**而報錯。改成：

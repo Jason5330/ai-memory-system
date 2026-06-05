@@ -79,13 +79,25 @@ try {
 
   function Run($workdir,$scope) {
     Audit 'consolidate' $scope 'begin' $workdir
-    Push-Location $workdir
     try {
-      $out = if ($cli -eq 'claude') { $prompt | claude -p 2>&1 | Out-String } else { codex exec "$prompt" 2>&1 | Out-String }
+      # Run the agent with NO new window (so nothing pops up) and a 30-min hard cap (so a stuck
+      # headless agent can never leave the task "Running" forever — it gets killed and logged).
+      # Prompt is passed as an ARGUMENT (not piped to stdin) — piping can make the CLI wait/hang.
+      $exe = (Get-Command $cli -ErrorAction SilentlyContinue).Source
+      $cmdArgs = if ($cli -eq 'claude') { @('-p', $prompt) } else { @('exec', $prompt) }
+      $o = [System.IO.Path]::GetTempFileName(); $e = "$o.err"
+      $p = Start-Process -FilePath $exe -ArgumentList $cmdArgs -WorkingDirectory $workdir -NoNewWindow -PassThru -RedirectStandardOutput $o -RedirectStandardError $e
+      if ($p.WaitForExit(1800000)) {   # 30 minutes
+        $out = ((Get-Content $o -Raw -ErrorAction SilentlyContinue) + "`n" + (Get-Content $e -Raw -ErrorAction SilentlyContinue))
+        Audit 'consolidate' $scope 'ok' ''
+      } else {
+        try { $p.Kill() } catch {}
+        $out = "TIMEOUT: $cli agent exceeded 30 min and was killed (nothing written this scope). The headless CLI likely isn't running non-interactively — consider running /dream manually instead."
+        Audit 'consolidate' $scope 'timeout' '>30m'
+      }
+      [System.IO.File]::Delete($o); [System.IO.File]::Delete($e)
       "## $scope" | Out-File $log -Append -Encoding UTF8; $out | Out-File $log -Append -Encoding UTF8
-      Audit 'consolidate' $scope 'ok' ''
     } catch { "## $scope ERROR: $_" | Out-File $log -Append -Encoding UTF8; Audit 'consolidate' $scope 'error' "$_" }
-    finally { Pop-Location }
   }
 
   foreach ($s in (Get-Scopes)) { Run $s ($(if($s -eq $env:USERPROFILE){'personal'}else{"project:$s"})) }
