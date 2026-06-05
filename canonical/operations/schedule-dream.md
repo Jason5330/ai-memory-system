@@ -26,14 +26,19 @@ Nightly script (installed by install-personal):
 1. Ask for a time (suggest 02:00). Validate `HH:MM`.
 2. **Run** the register command yourself (it overwrites the same task name, so re-running is safe):
 
-   **Windows (Task Scheduler):**
+   **Windows (Task Scheduler):** — **resolve the path FIRST** into `$np`, then build the argument with
+   double quotes so the task stores the REAL path. ⚠️ Do NOT put a literal `$env:USERPROFILE` inside
+   `-File` (single-quoted `-Argument`): `powershell.exe -File` does **not** expand it, so the task
+   fails every night with **`-196608`** (script file not found).
    ```powershell
-   $a = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.ai-memory\cron\nightly.ps1"'
+   $np = "$env:USERPROFILE\.ai-memory\cron\nightly.ps1"
+   $a = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$np`""
    $t = New-ScheduledTaskTrigger -Daily -At <HH:MM>
    Register-ScheduledTask -TaskName 'ai-memory-nightly' -Action $a -Trigger $t -Force `
      -Description 'Nightly memory consolidation (dream + harvest scan)'
    ```
-   `-Force` REPLACES any existing `ai-memory-nightly` — that is what keeps it to one schedule.
+   `-Force` REPLACES any existing `ai-memory-nightly` — that is what keeps it to one schedule (and
+   re-running this is the fix for an old task that stored the unexpanded `$env:USERPROFILE`).
 
    **Mac/Linux (cron) — replace the single tagged line, don't append a new one:**
    ```bash
@@ -57,6 +62,10 @@ Run and show the result:
 
 If you find **more than one** ai-memory entry (e.g. from an older version that appended duplicates),
 tell the user and offer to **Delete all then Create one** — that's the fix for "排程跑很多次".
+
+**Check `LastTaskResult`.** `0` = last run OK. **`-196608`** (or the task argument shows a literal
+`$env:USERPROFILE` in `-File`) = the old bug where the path wasn't expanded, so nightly.ps1 was never
+found. **Fix = just re-Create** (above) — it re-registers with the resolved real path.
 
 ---
 
