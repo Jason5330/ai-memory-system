@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-06-05 — 新手指南改通用 3 行安裝 + 加「更新版本」做法
+
+實測發現「一行超長指令」貼進 Windows PowerShell 會被**拆亂、`$d` 變空**而報錯。改成：
+- `新手指南.md`〈最穩：通用 3 行安裝〉：①找框架路徑（印出）②install-personal ③init-project——
+  **一行一行貼**，無視帳號名/專案名/雙層巢狀；強調別一次貼整段。Codex/Claude Code 都適用。
+- 新增〈🔄 更新版本〉小節：刪舊框架夾 → 重新 Download ZIP 解壓 → 貼①②（③可略，已初始化過）→
+  重開 → 必要時「schedule dream」重建排程。並說明記憶資料 copy-if-missing 不會被洗、別用舊 ZIP 降級。
+
+---
+
 ## 2026-06-05 — 修 /schedule-dream 排程每晚跑不起來（用戶回報 -196608）
 
 用戶「列出排程」看到 `ai-memory-nightly` 的 `LastTaskResult = -196608`（非成功碼）。根因：註冊任務時
