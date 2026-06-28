@@ -21,9 +21,12 @@ Full path rules: `~/.ai-memory/guides/PATHS.md`. Signal routing: `~/.ai-memory/g
 
 ## On session start
 
-1. **Read the handoff FIRST (freshest "continue from here")** — if `./.claude/memory/handoff.md` exists
-   (project) or `{{PERSONAL_MEMORY}}/handoff.md` (personal), read it — the single overwriteable note for
-   picking up where the last session left off. It is a STANDALONE file, never mixed into other memory.
+1. **Read the handoff FIRST, before replying to the user's first message (freshest "continue from
+   here")** — if `./.claude/memory/handoff.md` exists (project) or `{{PERSONAL_MEMORY}}/handoff.md`
+   (personal), read it **proactively without being asked**, and open with one or two lines stating
+   where the last session left off + the immediate next step. It is the single overwriteable,
+   STANDALONE note (never mixed into other memory). If it exists, you must not act as if there were no
+   prior context. (If none exists, just continue normally.)
 2. Read `{{PERSONAL_MEMORY}}/MEMORY.md` — its top `## ⚠️ Environment Limits & Blocked Tools`
    section is **executable directives, not trivia**. Obey every line. Named tools there are ALSO
    hard-blocked by a Codex PreToolUse hook as a safety net.

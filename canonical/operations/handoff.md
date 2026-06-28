@@ -66,6 +66,10 @@ from here"). See the entry files' "On session start".
   read directly at session start and nowhere else.
 - **Overwrite, never accumulate** — exactly ONE handoff per layer, always replaced by the latest write
   (no history, no appending old summaries).
+- **Protect the existing handoff — never clobber it with an empty/placeholder write.** If this session
+  has no real progress yet (e.g. a brand-new window where the user just said "接續上次/讀交接"), **READ
+  the current handoff, do NOT overwrite it.** Only overwrite once there is genuine new progress to save.
+  A read must never destroy the note the previous session wrote.
 - Short + structured + verbatim identifiers. Not a raw transcript.
 - It's a transient *pointer* to continue; the durable facts still go to knowledge/doctrine via `/capture`.
 - Reply in the user's language.
