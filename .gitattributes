@@ -1,0 +1,5 @@
+# Windows batch launchers MUST keep CRLF or cmd.exe mis-parses them ('p0' is not recognized…).
+# Store byte-for-byte (no EOL conversion on commit/checkout/ZIP-archive) so the GitHub "Download ZIP"
+# path delivers CRLF intact.
+*.cmd -text
+*.bat -text

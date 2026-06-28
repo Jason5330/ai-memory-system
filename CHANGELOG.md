@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-06-28 — Windows 一鍵安裝：雙擊 `安裝.cmd`（免終端機、免貼指令）
+
+朋友實測「終端機一行一行貼」仍易出錯（paste 拆亂、ExecutionPolicy、找路徑、雙層巢狀）。針對 **Windows 用戶**
+做最大簡化——**雙擊就裝好**：
+
+- 新增 **`安裝.cmd`**（repo 根）：雙擊即跑 `install-personal.ps1`。用 `%~dp0` 自我定位（免找路徑）、
+  內帶 `-ExecutionPolicy Bypass`（免設定權限）、檢查檔案存在、回報鎖定碼並提示關掉重點兩次、跑完 `pause`。
+- 新增 **`初始化專案.cmd`**（選用）：把**專案資料夾拖到它上面放開**即初始化該專案層（`%~1` 取拖入路徑，
+  fallback cwd）。多數人不需要——個人腦裝好全域就能用。
+- **`新手指南.md`** 改版：Windows **雙擊安裝**升為主流程（3 步：解壓→雙擊 `安裝.cmd`→重開），
+  原「終端機 3 行」降為備用；換版段也改成「雙擊 `安裝.cmd`」。
+- **關鍵修正**：`.cmd` 必須 **CRLF** 行尾，否則 cmd.exe 逐行誤判（`'p0' is not recognized…`）。兩支 .cmd 存成 CRLF。
+- 驗證：隔離 profile 跑 `安裝.cmd` → `=== Personal install complete ===`，個人腦／Claude commands／
+  Codex AGENTS.md／`.agents/skills` 全部就位。
+
+---
+
 ## 2026-06-28 — `AI_MEMORY_HOME` 可搬移／多機共腦 ＋ memory-lint 開源衛生掃描
 
 續吸收 Open LeftBrain（其 `OPEN_LEFTBRAIN_HOME` 用環境變數產生跨工具共腦）。我們**本來就**是 Claude Code＋Codex
