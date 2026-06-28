@@ -93,7 +93,12 @@ New-Item -ItemType Directory -Force $PT | Out-Null
 Copy-Doc (Join-Path $SRC 'entry\project-CLAUDE.md') (Join-Path $PT 'project-CLAUDE.md')
 Copy-Doc (Join-Path $SRC 'entry\project-AGENTS.md') (Join-Path $PT 'project-AGENTS.md')
 Copy-Item (Join-Path $SRC 'templates\project\MEMORY.md') (Join-Path $PT 'MEMORY.md') -Force
-Write-Host "[4] guides + hook + cron + lint + project-templates installed" -ForegroundColor Green
+# Stage init-project into the global brain so a portable 初始化專案.cmd can run from inside ANY
+# project folder (no framework repo needed). $REPO = the framework root (parent of canonical/).
+$REPO = Split-Path -Parent $SRC
+Copy-Item (Join-Path $REPO 'init-project.ps1') (Join-Path $PERSONAL 'init-project.ps1') -Force
+if (Test-Path (Join-Path $REPO 'init-project.sh')) { Copy-Item (Join-Path $REPO 'init-project.sh') (Join-Path $PERSONAL 'init-project.sh') -Force }
+Write-Host "[4] guides + hook + cron + lint + project-templates + init-project installed" -ForegroundColor Green
 
 # 5. Entry files (render {{PERSONAL_MEMORY}}); marker-guarded append for existing files
 # Marker-delimited framework block: REPLACED on every install (so upgrades refresh the entry),

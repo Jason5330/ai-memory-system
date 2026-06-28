@@ -64,6 +64,10 @@ PT="$PERSONAL/project-templates"; mkdir -p "$PT"
 copy_doc "$SRC/entry/project-CLAUDE.md" "$PT/project-CLAUDE.md"
 copy_doc "$SRC/entry/project-AGENTS.md" "$PT/project-AGENTS.md"
 cp "$SRC/templates/project/MEMORY.md" "$PT/MEMORY.md"
+# Stage init-project into the global brain so it can run from inside any project folder.
+REPO="$(dirname "$SRC")"
+[ -f "$REPO/init-project.sh" ]  && cp "$REPO/init-project.sh"  "$PERSONAL/init-project.sh"
+[ -f "$REPO/init-project.ps1" ] && cp "$REPO/init-project.ps1" "$PERSONAL/init-project.ps1"
 echo "[4] guides + hook + cron + lint + reset + safe-writer (lib) + project-templates installed"
 
 # 5. Entry files — marker-delimited framework block REPLACED on every install (upgrades refresh the

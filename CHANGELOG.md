@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-28 — `初始化專案.cmd` 可攜化：複製進專案夾、在裡面雙擊即可
+
+用戶問「能不能把 `初始化專案.cmd` 放進專案夾、在裡面點」。原本不行——它寫死找**同層**的 init-project.ps1。改成可攜：
+
+- **安裝器**（install-personal.{ps1,sh}）：把 `init-project.ps1`（+`.sh`）複製進**全域腦 `~/.ai-memory/`**，
+  讓初始化不再需要框架 repo 在旁邊。
+- **`初始化專案.cmd`** 重寫定位邏輯：
+  - **目標專案夾** = 拖入路徑 `%~1`；沒有就用 **`.cmd` 自己所在的資料夾 `%~dp0`**（＝複製進專案夾雙擊時，就初始化該夾）。
+  - **找 init-project.ps1** = ①同層（框架夾情境）→ ②`%AI_MEMORY_HOME%` → ③`%USERPROFILE%\.ai-memory`（全域）。
+- 因此三種用法都成立：拖資料夾上去／複製進專案夾雙擊／跟 AI 說初始化。
+- **`新手指南.md`** 補上這三種方式。
+- 驗證：隔離 profile 裝全域腦後，把 `初始化專案.cmd` **單獨**複製進一個沒有 init-project.ps1 的專案夾、執行
+  → 自動用全域 init-project 初始化該夾，`CLAUDE.md`／`AGENTS.md`／`.claude/memory`／`.agents/skills` 全部生成。
+
+---
+
 ## 2026-06-28 — Windows 一鍵安裝：雙擊 `安裝.cmd`（免終端機、免貼指令）
 
 朋友實測「終端機一行一行貼」仍易出錯（paste 拆亂、ExecutionPolicy、找路徑、雙層巢狀）。針對 **Windows 用戶**
