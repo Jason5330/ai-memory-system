@@ -32,6 +32,19 @@ from a PROJECT mention without it passing the knowledge gate.
 - In-progress tasks → mark completed if resolved in a later log.
 ### 3b Contradiction detection (both layers)
 Same topic with conflicting info across logs → keep newest, mark `[updated]`. Resolved task → `[✅ completed]`.
+### 3b′ Noise pruning — retroactively apply the gate's NEVER-capture list (both layers)
+Capture/ingest sometimes over-stores. Re-run the **🚫 NEVER capture** exclusions from
+`~/.ai-memory/guides/_memory-gate.md` against what's ALREADY stored and clean it up — this is where the
+"a month from now, still true & useful?" test gets enforced after the fact:
+- **Agent bookkeeping / meta** ("已寫入 …", "已更新索引") → **delete** (it was never a fact).
+- **Transient session status / in-progress state** ("本 session 串接正常", "預測進行中", "測試中斷",
+  "下次繼續…") → if still relevant it's a **handoff** pointer (move to `handoff.md`), else **delete**.
+- **Changelog self-notes / one-off env trivia** ("新增了 X skill", "jq 已安裝", "某.xlsx 已重建") → **delete**.
+- **Cryptic fragments** too terse to action → delete or rewrite into a real decision with context.
+- **Duplicates / near-dupes** → merge into the one canonical entry, drop the rest.
+- **Mis-layered project facts** sitting in PERSONAL → move to that project's layer (never the reverse).
+Removed lines go to that layer's `conversations/archive/` (don't hard-delete the only copy of anything
+non-trivial). Report: "Pruned X noise, moved Y to handoff, merged Z dups, relayered W (per layer)".
 ### 3c Repeat-candidate roll-up (deterministic count)
 First **normalize**: ensure every recurring workflow you see across logs carries a stable
 `- 🔁 repeat:<slug> — <desc>` tag (one per occurrence; reuse the same slug across days — backfill the

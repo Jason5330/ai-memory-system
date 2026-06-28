@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-28 — 修記憶閘門過度抓取（暫態/meta/重複被當成 HIGH 寫進記憶）
+
+用戶檢視自己的 29 筆 captured entries，指出近一半是雜訊（AI 記自己動作的 meta、session 暫態、進行中狀態、
+變更日誌、一次性環境瑣事、重複項）。根因：閘門的 LOW 定義太抽象，AI 把這些誤判成 HIGH 自動寫入。
+
+- **`_memory-gate.md` 加〈🚫 NEVER capture〉硬排除清單**：明列七類永不抓（含真實反例），並給判準
+  **「一個月後還成立且有用嗎？」**——「進度／狀態／剛做了什麼」是 **handoff** 的料（暫態、可覆蓋），
+  不是 capture 的料（永久）。不確定是「永久事實」還是「當下狀態」→ 當作狀態 → 不抓。
+- **`dream.md` 加 Phase 3b′〈Noise pruning〉**：回頭把同一份排除清單套用到**已存**的記憶——刪 meta、
+  把仍相關的暫態移進 handoff、合併重複、把誤放個人層的專案事實歸位；移除的進 `conversations/archive/`
+  不硬刪唯一副本。報告「Pruned X / moved Y / merged Z / relayered W」。
+- 影響：以後 capture/ingest 會擋掉這類雜訊；既有雜訊跑一次 `/dream` 會被清理。
+- 物化驗證：guide、Claude `dream.md`、Codex `dream/SKILL.md` 都帶到新規則。
+
+---
+
 ## 2026-06-28 — handoff 開場主動讀取 + 防覆蓋保護
 
 用戶回報：重開新視窗**不會自動讀** handoff。根因：「session 開始先讀 handoff」只是入口檔的指示，

@@ -28,6 +28,24 @@ auto-write.
 > `ECONNREFUSED`, `bun install --ignore-scripts`). **Never paraphrase** ("the config file") — a
 > paraphrased identifier forces a future session to re-discover it, defeating the memory.
 
+### 🚫 NEVER capture — hard exclusions (these are LOW no matter how confident)
+Over-capturing these is the #1 way memory fills with noise. If a candidate matches ANY row, **skip it**
+(or route it elsewhere as noted) — do NOT write it as a memory/knowledge entry:
+
+| Don't store | Why | Do instead |
+|---|---|---|
+| **The agent's own bookkeeping** — "已寫入 feedback_user_style.md", "已 capture 這條", "更新了索引" | meta about your own action, never a fact about the user/world | nothing — it's already done |
+| **This-session / transient status** — "本 session 串接正常", "cheat-debug 漏建兩次", "預測進行中: …", "測試中斷" | true for minutes, useless next week; clutters recall | if it's "where to continue" → **`handoff.md`**, not knowledge |
+| **In-progress / next-step state** — "v2 下次繼續用真實 PDF 驗收", "OCR 已實作但…" | that's a handoff pointer, not durable knowledge | **`/handoff`** (one overwriteable note) |
+| **Changelog-style self-notes** — "新增了 cheat-go/cheat-debug skills", "升版了 X" | history, not a reusable rule or fact | git/changelog already has it |
+| **One-off env / task trivia** — "jq 1.8.1 已安裝", "某.xlsx 已重建", "磁碟上有多份副本" | won't change a future decision | skip (or a broken-tool entry only if a tool truly failed twice) |
+| **Cryptic fragments** — "IR 維度爭議：用戶選主 Claude 全套分" | too terse to be actionable later | skip, or rewrite as a real decision with context |
+| **Duplicates / near-dupes** of an existing entry | dilutes the canonical one | update the existing entry instead |
+
+> Rule of thumb: a memory entry must still be **true and useful a month from now**. "Progress / status /
+> what-I-just-did" is **handoff** material (transient, overwriteable), NOT capture material (durable).
+> When unsure between *durable fact* and *current state* → it's state → don't capture.
+
 ## B. Category gate — what HIGH confidence is ALLOWED to auto-write
 
 **✅ Safe categories — auto-write on HIGH confidence** (these describe the user or the world, not the
