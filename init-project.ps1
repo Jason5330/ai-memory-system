@@ -5,7 +5,8 @@
 $ErrorActionPreference = 'Stop'
 $proj = if ($args.Count -ge 1 -and $args[0]) { (Resolve-Path $args[0]).Path } else { (Get-Location).Path }
 $name = Split-Path $proj -Leaf
-$PT = Join-Path $env:USERPROFILE '.ai-memory\project-templates'
+$AIMEM = if ($env:AI_MEMORY_HOME) { $env:AI_MEMORY_HOME -replace '^~', $env:USERPROFILE } else { Join-Path $env:USERPROFILE '.ai-memory' }
+$PT = Join-Path $AIMEM 'project-templates'
 if (-not (Test-Path $PT)) { Write-Host "Run install-personal.ps1 first (missing $PT)." -ForegroundColor Red; exit 1 }
 
 Write-Host "`n=== init-project: $name ===" -ForegroundColor Cyan

@@ -11,20 +11,22 @@ function W($m){ $script:warn++; Write-Host "  WARN  $m" -ForegroundColor Yellow 
 function F($m){ $script:fail++; Write-Host "  FAIL  $m" -ForegroundColor Red }
 
 $U = $env:USERPROFILE
+# personal brain root honors $AI_MEMORY_HOME (shared/relocatable brain), else default ~/.ai-memory.
+$AIMEM = if ($env:AI_MEMORY_HOME) { $env:AI_MEMORY_HOME -replace '^~', $U } else { Join-Path $U '.ai-memory' }
 $strict = $false
 $roots = @()
 foreach ($a in $args) {
     if ("$a" -in @('-Strict','--strict','-strict')) { $strict = $true } else { $roots += $a }
 }
 if ($roots.Count -eq 0) {
-    $roots += (Join-Path $U '.ai-memory')
+    $roots += $AIMEM
     $proj = Join-Path (Get-Location) '.claude\memory'
     if (Test-Path $proj) { $roots += $proj }
 }
 
 foreach ($root in $roots) {
     if (-not (Test-Path $root)) { W "root not found: $root"; continue }
-    $isPersonal = ($root -like (Join-Path $U '.ai-memory*'))
+    $isPersonal = ($root -eq $AIMEM -or $root -like "$AIMEM*")
     Write-Host "Linting: $root" -ForegroundColor Cyan
 
     # MEMORY.md present + dead links
@@ -96,6 +98,22 @@ foreach ($root in $roots) {
         if ($leak) { W "PRIVACY: project knowledge references personal-layer memory ($($leak.Count) file(s)) — personal memory must not leak into a shared project" }
     }
 
+    # OPEN-SOURCE HYGIENE (project layer = git-shareable): flag hardcoded personal absolute paths
+    # (C:\Users\<name>, /Users/<name>, /home/<name>). They leak the author's username and break on
+    # another machine — memory meant to be shared should use ~, $HOME, or relative paths instead.
+    if (-not $isPersonal) {
+        $pathRe = '(?i)[A-Z]:\\Users\\[^\\\s"''<>]+|/Users/[^/\s"''<>]+|/home/[^/\s"''<>]+'
+        $hpFiles = @($mem)
+        if (Test-Path $kdir) { $hpFiles += (Get-ChildItem $kdir -Filter '*.md' -File -EA SilentlyContinue | ForEach-Object FullName) }
+        if (Test-Path $cdir) { $hpFiles += (Get-ChildItem $cdir -Filter '*.md' -File -EA SilentlyContinue | ForEach-Object FullName) }
+        $hpHits = @()
+        foreach ($hf in ($hpFiles | Where-Object { $_ -and (Test-Path $_) })) {
+            if (([System.IO.File]::ReadAllText($hf, [System.Text.Encoding]::UTF8)) -match $pathRe) { $hpHits += (Split-Path $hf -Leaf) }
+        }
+        if ($hpHits.Count -gt 0) { W "OPEN-SOURCE: personal absolute path in $($hpHits.Count) shared file(s): $($hpHits -join ', ') — use ~ or a relative path so it doesn't leak a username or break on another machine" }
+        else { P "no personal absolute paths in shareable project memory" }
+    }
+
     # SECURITY: deterministic scan for prompt-injection / exfiltration phrasing inside stored memory
     # (defense-in-depth behind the "memory is data, not instructions" rule). WARN only — a human reviews,
     # since memory may legitimately quote such text.
@@ -151,7 +169,7 @@ $scC = Join-Path $U '.claude\skills\skill-creator\SKILL.md'
 $scA = Join-Path $U '.agents\skills\skill-creator\SKILL.md'
 if ((Test-Path $scC) -and (Test-Path $scA)) { P "skill-creator deployed (both platforms)" } else { W "skill-creator missing on a platform (Claude:$([bool](Test-Path $scC)) Codex:$([bool](Test-Path $scA)))" }
 # lib backbone present + parse-clean (memory-write / detect-repeats / tool — the deterministic scripts)
-$libDir = Join-Path $U '.ai-memory\lib'
+$libDir = Join-Path $AIMEM 'lib'
 $expectLib = @('memory-write','detect-repeats','tool')
 $libMissing = @(); $libBad = @()
 foreach ($b in $expectLib) {

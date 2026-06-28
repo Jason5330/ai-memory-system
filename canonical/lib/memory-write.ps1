@@ -64,7 +64,10 @@ if ($Mode -eq 'append') {
 
 if ($Mode -eq 'block-tool') {
   if (-not $Tool) { Write-Host "ERROR: -Tool required for block-tool." -ForegroundColor Red; exit 4 }
-  if (-not $File) { $File = Join-Path $env:USERPROFILE '.ai-memory\blocked-actions.json' }
+  if (-not $File) {
+    $aimem = if ($env:AI_MEMORY_HOME) { $env:AI_MEMORY_HOME -replace '^~', $env:USERPROFILE } else { Join-Path $env:USERPROFILE '.ai-memory' }
+    $File = Join-Path $aimem 'blocked-actions.json'
+  }
   $lock = Acquire-Lock $File
   if (-not $lock) { Write-Host "LOCK BUSY: $File.lock held — try again." -ForegroundColor Red; exit 3 }
   try {

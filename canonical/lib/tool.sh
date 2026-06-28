@@ -12,7 +12,8 @@
 #   tool.sh path <slug>
 # Exit: 0 ok / 2 not found / 3 bad usage / 4 run error.
 set -euo pipefail
-DIR="$HOME/.ai-memory/tools"; REG="$DIR/tools.json"; mkdir -p "$DIR"
+aimem="${AI_MEMORY_HOME:-$HOME/.ai-memory}"; aimem="${aimem/#\~/$HOME}"
+DIR="$aimem/tools"; REG="$DIR/tools.json"; mkdir -p "$DIR"
 [ -f "$REG" ] || echo '{ "tools": [] }' > "$REG"
 CMD="${1:-list}"; SLUG="${2:-}"; shift || true; [ $# -gt 0 ] && shift || true
 DESC=""; TRIGGERS=""; SCRIPT=""; ARGS=()

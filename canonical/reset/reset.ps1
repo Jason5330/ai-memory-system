@@ -57,7 +57,8 @@ function Items($root, $cat, $isPersonal) {
 }
 
 $layers = @()
-if ($Layer -in @('personal','both')) { $layers += @{ root=(Join-Path $env:USERPROFILE '.ai-memory'); personal=$true;  name='personal' } }
+$aimem = if ($env:AI_MEMORY_HOME) { $env:AI_MEMORY_HOME -replace '^~', $env:USERPROFILE } else { Join-Path $env:USERPROFILE '.ai-memory' }
+if ($Layer -in @('personal','both')) { $layers += @{ root=$aimem; personal=$true;  name='personal' } }
 if ($Layer -in @('project','both'))  { $layers += @{ root=(Join-Path (Resolve-Path $ProjectPath) '.claude\memory'); personal=$false; name="project:$ProjectPath" } }
 
 # ---- build plan ----

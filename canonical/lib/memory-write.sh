@@ -63,7 +63,7 @@ fi
 
 if [ "$MODE" = "block-tool" ]; then
   [ -n "$TOOL" ] || { echo "ERROR: --tool required for block-tool." >&2; exit 4; }
-  [ -n "$FILE" ] || FILE="$HOME/.ai-memory/blocked-actions.json"
+  if [ -z "$FILE" ]; then aimem="${AI_MEMORY_HOME:-$HOME/.ai-memory}"; aimem="${aimem/#\~/$HOME}"; FILE="$aimem/blocked-actions.json"; fi
   LOCK="$(acquire_lock "$FILE")" || { echo "LOCK BUSY: $FILE.lock held — try again." >&2; exit 3; }
   trap 'release_lock "$LOCK"' EXIT
   ADDED="$(date +%Y-%m-%d)"

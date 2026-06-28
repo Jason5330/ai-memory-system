@@ -18,7 +18,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $roots = @()
-$personal = Join-Path $env:USERPROFILE '.ai-memory'
+$personal = if ($env:AI_MEMORY_HOME) { $env:AI_MEMORY_HOME -replace '^~', $env:USERPROFILE } else { Join-Path $env:USERPROFILE '.ai-memory' }
 if (Test-Path $personal) { $roots += $personal }
 $projRoot = Join-Path $ProjectPath '.claude\memory'
 if (Test-Path $projRoot) { $roots += $projRoot }

@@ -7,7 +7,12 @@ $ErrorActionPreference = 'Stop'
 $U = $env:USERPROFILE
 $SRC = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'canonical'
 
-$PERSONAL   = Join-Path $U '.ai-memory'
+# Personal brain root. Default ~/.ai-memory. Set $env:AI_MEMORY_HOME to RELOCATE the brain (e.g. a
+# OneDrive/Dropbox folder for cross-machine sharing, or a writable drive). Claude Code + Codex already
+# share this one brain; pointing both machines' AI_MEMORY_HOME at the same synced folder = shared memory.
+$PERSONAL   = if ($env:AI_MEMORY_HOME) { $env:AI_MEMORY_HOME -replace '^~', $U } else { Join-Path $U '.ai-memory' }
+$customHome = ($PERSONAL -ne (Join-Path $U '.ai-memory'))
+$PERSONAL_FWD = ($PERSONAL -replace '\\','/')   # forward-slash form for the markdown the AI reads
 $GUIDES     = Join-Path $PERSONAL 'guides'
 $HOOKS      = Join-Path $PERSONAL 'hooks'
 $CRON       = Join-Path $PERSONAL 'cron'
@@ -19,6 +24,7 @@ $AGENTS_SK  = Join-Path $U '.agents\skills'
 
 Write-Host "`n=== AI Memory System — personal install ===" -ForegroundColor Cyan
 Write-Host "Personal brain: $PERSONAL" -ForegroundColor Gray
+if ($customHome) { Write-Host "  (relocated via AI_MEMORY_HOME — set the SAME value on every machine/shell to share this brain)" -ForegroundColor Yellow }
 
 # 1. Directories
 foreach ($d in @($PERSONAL,$GUIDES,$HOOKS,$CRON,(Join-Path $PERSONAL 'knowledge'),(Join-Path $PERSONAL 'conversations'),(Join-Path $PERSONAL 'conversations\archive'),(Join-Path $PERSONAL 'knowledge\archive'),$CMDS,$CLAUDE_SK,$CODEX,$AGENTS_SK)) {
@@ -48,11 +54,20 @@ $ba = Join-Path $PERSONAL 'blocked-actions.json'
 if (-not (Test-Path $ba)) { Copy-Item (Join-Path $SRC 'templates\blocked-actions.json') $ba -Force }
 Write-Host "[3] personal templates in place (existing data preserved)" -ForegroundColor Green
 
+# Materialize a framework .md: plain copy by default; when the brain is relocated, rewrite the
+# literal ~/.ai-memory runtime references to the real root so the AI reads correct paths.
+function Copy-Doc($srcFile, $destFile) {
+    if ($customHome) {
+        $c = (Get-Content $srcFile -Raw -Encoding UTF8) -replace '~/\.ai-memory', $PERSONAL_FWD
+        [System.IO.File]::WriteAllText($destFile, $c, (New-Object System.Text.UTF8Encoding $false))
+    } else { Copy-Item $srcFile $destFile -Force }
+}
+
 # 4. Framework-owned files (always overwrite): guides, hook, cron, lint
-Copy-Item (Join-Path $SRC 'PATHS.md') (Join-Path $GUIDES 'PATHS.md') -Force
-Copy-Item (Join-Path $SRC 'operations\_routing.md') (Join-Path $GUIDES '_routing.md') -Force
-Copy-Item (Join-Path $SRC 'operations\_materialize-skill.md') (Join-Path $GUIDES '_materialize-skill.md') -Force
-Copy-Item (Join-Path $SRC 'operations\_memory-gate.md') (Join-Path $GUIDES '_memory-gate.md') -Force
+Copy-Doc (Join-Path $SRC 'PATHS.md') (Join-Path $GUIDES 'PATHS.md')
+Copy-Doc (Join-Path $SRC 'operations\_routing.md') (Join-Path $GUIDES '_routing.md')
+Copy-Doc (Join-Path $SRC 'operations\_materialize-skill.md') (Join-Path $GUIDES '_materialize-skill.md')
+Copy-Doc (Join-Path $SRC 'operations\_memory-gate.md') (Join-Path $GUIDES '_memory-gate.md')
 Copy-Item (Join-Path $SRC 'hooks\block-failed-actions.ps1') (Join-Path $HOOKS 'block-failed-actions.ps1') -Force
 Copy-Item (Join-Path $SRC 'hooks\block-failed-actions.sh')  (Join-Path $HOOKS 'block-failed-actions.sh')  -Force
 Copy-Item (Join-Path $SRC 'cron\nightly.ps1') (Join-Path $CRON 'nightly.ps1') -Force
@@ -75,8 +90,8 @@ if (-not (Test-Path (Join-Path $TOOLS 'tools.json'))) { Copy-Item (Join-Path $SR
 # stage project scaffolding so init-project works from any folder without the framework repo
 $PT = Join-Path $PERSONAL 'project-templates'
 New-Item -ItemType Directory -Force $PT | Out-Null
-Copy-Item (Join-Path $SRC 'entry\project-CLAUDE.md') (Join-Path $PT 'project-CLAUDE.md') -Force
-Copy-Item (Join-Path $SRC 'entry\project-AGENTS.md') (Join-Path $PT 'project-AGENTS.md') -Force
+Copy-Doc (Join-Path $SRC 'entry\project-CLAUDE.md') (Join-Path $PT 'project-CLAUDE.md')
+Copy-Doc (Join-Path $SRC 'entry\project-AGENTS.md') (Join-Path $PT 'project-AGENTS.md')
 Copy-Item (Join-Path $SRC 'templates\project\MEMORY.md') (Join-Path $PT 'MEMORY.md') -Force
 Write-Host "[4] guides + hook + cron + lint + project-templates installed" -ForegroundColor Green
 
@@ -85,6 +100,7 @@ Write-Host "[4] guides + hook + cron + lint + project-templates installed" -Fore
 # while any of YOUR own content outside the markers is preserved.
 function Install-Entry($srcFile, $destFile) {
     $content = (Get-Content $srcFile -Raw -Encoding UTF8) -replace '\{\{PERSONAL_MEMORY\}\}', ($PERSONAL -replace '\\','\')
+    if ($customHome) { $content = $content -replace '~/\.ai-memory', $PERSONAL_FWD }   # relocate runtime refs
     $S = '<!-- AI-MEMORY-START (auto-managed by install-personal; do not edit between markers) -->'
     $E = '<!-- AI-MEMORY-END -->'
     $block = "$S`r`n$content`r`n$E"
@@ -113,11 +129,11 @@ $ops = @('capture','handoff','recall','dream','harvest','review-doctrine','statu
 $CODEX_PROMPTS = Join-Path $CODEX 'prompts'; New-Item -ItemType Directory -Force $CODEX_PROMPTS | Out-Null
 foreach ($op in $ops) {
     $opSrc = Join-Path $SRC "operations\$op.md"
-    Copy-Item $opSrc (Join-Path $CMDS "$op.md") -Force                       # Claude slash-command
+    Copy-Doc $opSrc (Join-Path $CMDS "$op.md")                              # Claude slash-command
     $skDir = Join-Path $AGENTS_SK $op
     New-Item -ItemType Directory -Force $skDir | Out-Null
-    Copy-Item $opSrc (Join-Path $skDir 'SKILL.md') -Force                    # Codex skill (intent-triggered)
-    Copy-Item $opSrc (Join-Path $CODEX_PROMPTS "$op.md") -Force              # Codex slash-command (/capture etc.)
+    Copy-Doc $opSrc (Join-Path $skDir 'SKILL.md')                           # Codex skill (intent-triggered)
+    Copy-Doc $opSrc (Join-Path $CODEX_PROMPTS "$op.md")                     # Codex slash-command (/capture etc.)
 }
 Write-Host "[6] operations materialized: Claude commands + Codex skills + Codex /slash prompts" -ForegroundColor Green
 

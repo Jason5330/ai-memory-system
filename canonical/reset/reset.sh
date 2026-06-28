@@ -32,7 +32,8 @@ reseed(){ case "$1" in
 
 # layers
 roots=(); names=(); pers=()
-case "$LAYER" in personal|both) roots+=("$HOME/.ai-memory"); names+=("personal"); pers+=(1);; esac
+aimem="${AI_MEMORY_HOME:-$HOME/.ai-memory}"; aimem="${aimem/#\~/$HOME}"
+case "$LAYER" in personal|both) roots+=("$aimem"); names+=("personal"); pers+=(1);; esac
 case "$LAYER" in project|both) roots+=("$PROJ/.claude/memory"); names+=("project:$PROJ"); pers+=(0);; esac
 
 # build plan: arrays of root|type|src

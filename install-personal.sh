@@ -6,13 +6,18 @@
 set -euo pipefail
 
 SRC="$(cd "$(dirname "$0")" && pwd)/canonical"
-PERSONAL="$HOME/.ai-memory"
+# Personal brain root. Default ~/.ai-memory. Set $AI_MEMORY_HOME to RELOCATE the brain (e.g. a synced
+# cloud folder for cross-machine sharing). Claude Code + Codex already share one brain; pointing both
+# machines' AI_MEMORY_HOME at the same synced folder = shared memory.
+PERSONAL="${AI_MEMORY_HOME:-$HOME/.ai-memory}"; PERSONAL="${PERSONAL/#\~/$HOME}"
+CUSTOM_HOME=0; [ "$PERSONAL" != "$HOME/.ai-memory" ] && CUSTOM_HOME=1
 GUIDES="$PERSONAL/guides"; HOOKS="$PERSONAL/hooks"; CRON="$PERSONAL/cron"
 CLAUDE="$HOME/.claude"; CMDS="$CLAUDE/commands"; CLAUDE_SK="$CLAUDE/skills"
 CODEX="$HOME/.codex"; AGENTS_SK="$HOME/.agents/skills"
 
 echo ""; echo "=== AI Memory System — personal install ==="
 echo "Personal brain: $PERSONAL"
+[ "$CUSTOM_HOME" = 1 ] && echo "  (relocated via AI_MEMORY_HOME — set the SAME value on every machine/shell to share this brain)"
 
 # 1. Directories
 mkdir -p "$PERSONAL" "$GUIDES" "$HOOKS" "$CRON" "$PERSONAL/knowledge" "$PERSONAL/knowledge/archive" \
@@ -34,11 +39,17 @@ done
 [ -f "$PERSONAL/blocked-actions.json" ] || cp "$SRC/templates/blocked-actions.json" "$PERSONAL/blocked-actions.json"
 echo "[3] personal templates in place (existing data preserved)"
 
+# Materialize a framework .md: plain copy by default; when the brain is relocated, rewrite the
+# literal ~/.ai-memory runtime references to the real root so the AI reads correct paths.
+copy_doc() { # $1 src  $2 dest
+    if [ "$CUSTOM_HOME" = 1 ]; then sed "s#~/\.ai-memory#$PERSONAL#g" "$1" > "$2"; else cp "$1" "$2"; fi
+}
+
 # 4. Framework-owned files (always overwrite)
-cp "$SRC/PATHS.md" "$GUIDES/PATHS.md"
-cp "$SRC/operations/_routing.md" "$GUIDES/_routing.md"
-cp "$SRC/operations/_materialize-skill.md" "$GUIDES/_materialize-skill.md"
-cp "$SRC/operations/_memory-gate.md" "$GUIDES/_memory-gate.md"
+copy_doc "$SRC/PATHS.md" "$GUIDES/PATHS.md"
+copy_doc "$SRC/operations/_routing.md" "$GUIDES/_routing.md"
+copy_doc "$SRC/operations/_materialize-skill.md" "$GUIDES/_materialize-skill.md"
+copy_doc "$SRC/operations/_memory-gate.md" "$GUIDES/_memory-gate.md"
 cp "$SRC/hooks/block-failed-actions.ps1" "$HOOKS/"; cp "$SRC/hooks/block-failed-actions.sh" "$HOOKS/"; chmod +x "$HOOKS/block-failed-actions.sh"
 cp "$SRC/cron/nightly.ps1" "$CRON/"; cp "$SRC/cron/nightly.sh" "$CRON/"; chmod +x "$CRON/nightly.sh"
 cp "$SRC/lint/memory-lint.ps1" "$PERSONAL/"; cp "$SRC/lint/memory-lint.sh" "$PERSONAL/"; chmod +x "$PERSONAL/memory-lint.sh"
@@ -50,8 +61,8 @@ cp "$SRC/lib/recall.py" "$PERSONAL/lib/"
 mkdir -p "$PERSONAL/tools"; [ -f "$PERSONAL/tools/tools.json" ] || cp "$SRC/templates/tools.json" "$PERSONAL/tools/tools.json"
 # stage project scaffolding so init-project works from any folder without the framework repo
 PT="$PERSONAL/project-templates"; mkdir -p "$PT"
-cp "$SRC/entry/project-CLAUDE.md" "$PT/project-CLAUDE.md"
-cp "$SRC/entry/project-AGENTS.md" "$PT/project-AGENTS.md"
+copy_doc "$SRC/entry/project-CLAUDE.md" "$PT/project-CLAUDE.md"
+copy_doc "$SRC/entry/project-AGENTS.md" "$PT/project-AGENTS.md"
 cp "$SRC/templates/project/MEMORY.md" "$PT/MEMORY.md"
 echo "[4] guides + hook + cron + lint + reset + safe-writer (lib) + project-templates installed"
 
@@ -59,6 +70,7 @@ echo "[4] guides + hook + cron + lint + reset + safe-writer (lib) + project-temp
 #    entry); any of YOUR own content outside the markers is preserved.
 install_entry() { # $1 src  $2 dest
     local content; content="$(sed "s#{{PERSONAL_MEMORY}}#$PERSONAL#g" "$1")"
+    [ "$CUSTOM_HOME" = 1 ] && content="$(printf '%s' "$content" | sed "s#~/\.ai-memory#$PERSONAL#g")"
     mkdir -p "$(dirname "$2")"
     SRC_CONTENT="$content" DEST="$2" python3 - <<'PY'
 import os
@@ -83,9 +95,9 @@ echo "[5] entry files: ~/.claude/CLAUDE.md + ~/.codex/AGENTS.md"
 # 6. Operations → Claude commands + Codex skills
 mkdir -p "$CODEX/prompts"
 for op in capture handoff recall dream harvest review-doctrine status schedule-dream reset help ingest-sessions; do
-    cp "$SRC/operations/$op.md" "$CMDS/$op.md"                        # Claude slash-command
-    mkdir -p "$AGENTS_SK/$op"; cp "$SRC/operations/$op.md" "$AGENTS_SK/$op/SKILL.md"   # Codex skill (intent)
-    cp "$SRC/operations/$op.md" "$CODEX/prompts/$op.md"              # Codex slash-command (/capture etc.)
+    copy_doc "$SRC/operations/$op.md" "$CMDS/$op.md"                        # Claude slash-command
+    mkdir -p "$AGENTS_SK/$op"; copy_doc "$SRC/operations/$op.md" "$AGENTS_SK/$op/SKILL.md"   # Codex skill (intent)
+    copy_doc "$SRC/operations/$op.md" "$CODEX/prompts/$op.md"              # Codex slash-command (/capture etc.)
 done
 echo "[6] operations materialized: Claude commands + Codex skills + Codex /slash prompts"
 

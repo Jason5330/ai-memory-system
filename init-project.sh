@@ -5,7 +5,8 @@ set -euo pipefail
 
 proj="${1:-$(pwd)}"; proj="$(cd "$proj" && pwd)"
 name="$(basename "$proj")"
-PT="$HOME/.ai-memory/project-templates"
+AIMEM="${AI_MEMORY_HOME:-$HOME/.ai-memory}"; AIMEM="${AIMEM/#\~/$HOME}"
+PT="$AIMEM/project-templates"
 [ -d "$PT" ] || { echo "Run ./install-personal.sh first (missing $PT)."; exit 1; }
 
 echo ""; echo "=== init-project: $name ==="

@@ -7,7 +7,7 @@
 # Never auto-approves doctrines or auto-builds skills.
 set -u
 DRY=0; [ "${1:-}" = "--dry-run" ] && DRY=1
-personal="$HOME/.ai-memory"; cron="$personal/cron"; mkdir -p "$cron"
+personal="${AI_MEMORY_HOME:-$HOME/.ai-memory}"; personal="${personal/#\~/$HOME}"; cron="$personal/cron"; mkdir -p "$cron"
 lock="$cron/memory.lock"; audit="$cron/audit.jsonl"; log="$personal/nightly-last-run.md"
 run_id="$(date +%Y%m%d-%H%M)-$(printf '%04x' $((RANDOM)))"
 

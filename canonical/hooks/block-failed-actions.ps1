@@ -24,8 +24,9 @@ try {
 $tool = $payload.tool_name
 if ([string]::IsNullOrEmpty($tool)) { exit 0 }
 
-# 2. Read registry
-$registry = Join-Path $env:USERPROFILE '.ai-memory\blocked-actions.json'
+# 2. Read registry — personal brain root honors $AI_MEMORY_HOME (shared/relocatable brain), else default.
+$aimem = if ($env:AI_MEMORY_HOME) { $env:AI_MEMORY_HOME -replace '^~', $env:USERPROFILE } else { Join-Path $env:USERPROFILE '.ai-memory' }
+$registry = Join-Path $aimem 'blocked-actions.json'
 if (-not (Test-Path $registry)) { exit 0 }
 try {
     $data = Get-Content $registry -Raw -Encoding UTF8 | ConvertFrom-Json

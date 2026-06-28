@@ -19,7 +19,8 @@ while [ $# -gt 0 ]; do
 done
 
 ROOTS=()
-[ -d "$HOME/.ai-memory" ] && ROOTS+=("$HOME/.ai-memory")
+aimem="${AI_MEMORY_HOME:-$HOME/.ai-memory}"; aimem="${aimem/#\~/$HOME}"
+[ -d "$aimem" ] && ROOTS+=("$aimem")
 [ -d "$PROJECT_PATH/.claude/memory" ] && ROOTS+=("$PROJECT_PATH/.claude/memory")
 
 # existing skill dir-names (lowercased) across both platforms + project

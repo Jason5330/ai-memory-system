@@ -10,15 +10,17 @@ W(){ warn=$((warn+1)); echo "  WARN  $1"; }
 F(){ fail=$((fail+1)); echo "  FAIL  $1"; }
 
 U="$HOME"
+# personal brain root honors $AI_MEMORY_HOME (shared/relocatable brain), else default ~/.ai-memory.
+AIMEM="${AI_MEMORY_HOME:-$HOME/.ai-memory}"; AIMEM="${AIMEM/#\~/$HOME}"
 strict=0; roots=()
 for a in "$@"; do case "$a" in --strict|-Strict|-strict) strict=1;; *) roots+=("$a");; esac; done
 if [ "${#roots[@]}" -eq 0 ]; then
-    roots+=("$U/.ai-memory"); [ -d "./.claude/memory" ] && roots+=("./.claude/memory")
+    roots+=("$AIMEM"); [ -d "./.claude/memory" ] && roots+=("./.claude/memory")
 fi
 
 for root in "${roots[@]}"; do
     [ -d "$root" ] || { W "root not found: $root"; continue; }
-    case "$root" in "$U/.ai-memory"*) personal=1;; *) personal=0;; esac
+    case "$root" in "$AIMEM"*) personal=1;; *) personal=0;; esac
     echo "Linting: $root"
 
     if [ -f "$root/MEMORY.md" ]; then
@@ -78,6 +80,18 @@ PY
         [ "$leak" -gt 0 ] && W "PRIVACY: project knowledge references personal-layer memory ($leak file(s)) — must not leak into shared project"
     fi
 
+    # OPEN-SOURCE HYGIENE (project layer = git-shareable): flag hardcoded personal absolute paths
+    # (C:\Users\<name>, /Users/<name>, /home/<name>) — they leak a username and break on another machine.
+    if [ "$personal" = 0 ]; then
+        pathre='[A-Za-z]:\\Users\\[^\\[:space:]"'"'"'<>]+|/Users/[^/[:space:]"'"'"'<>]+|/home/[^/[:space:]"'"'"'<>]+'
+        hphits=0
+        for hf in "$root/MEMORY.md" "$root"/knowledge/*.md "$root"/conversations/*.md; do
+            [ -f "$hf" ] || continue
+            grep -qE "$pathre" "$hf" && hphits=$((hphits+1))
+        done
+        [ "$hphits" -gt 0 ] && W "OPEN-SOURCE: personal absolute path in $hphits shared file(s) — use ~ or a relative path so it doesn't leak a username or break on another machine" || P "no personal absolute paths in shareable project memory"
+    fi
+
     # SECURITY: scan stored memory for prompt-injection / exfiltration phrasing (WARN; human reviews)
     susp='ignore (all )?(previous|prior|above) instructions|disregard (all |the )?(previous|prior|above)|exfiltrat|(reveal|print|show) (your )?(system )?prompt'
     shits=0
@@ -125,7 +139,7 @@ for pair in "$U/.claude/CLAUDE.md|Claude ~/.claude/CLAUDE.md" "$U/.codex/AGENTS.
 done
 { [ -f "$U/.claude/skills/skill-creator/SKILL.md" ] && [ -f "$U/.agents/skills/skill-creator/SKILL.md" ]; } && P "skill-creator deployed (both platforms)" || W "skill-creator missing on a platform"
 # lib backbone present + .sh syntax-clean (memory-write / detect-repeats / tool — deterministic scripts)
-libdir="$U/.ai-memory/lib"; libmiss=""; libbad=""
+libdir="$AIMEM/lib"; libmiss=""; libbad=""
 for b in memory-write detect-repeats tool; do
     for ext in .ps1 .sh; do
         if [ ! -f "$libdir/$b$ext" ]; then libmiss="$libmiss $b$ext"

@@ -8,7 +8,7 @@
 # wrapper's. Never auto-approves doctrines or auto-builds skills.
 param([switch]$DryRun)
 $ErrorActionPreference = 'Continue'
-$personal = Join-Path $env:USERPROFILE '.ai-memory'
+$personal = if ($env:AI_MEMORY_HOME) { $env:AI_MEMORY_HOME -replace '^~', $env:USERPROFILE } else { Join-Path $env:USERPROFILE '.ai-memory' }
 $cron = Join-Path $personal 'cron'
 New-Item -ItemType Directory -Force $cron | Out-Null
 $lock  = Join-Path $cron 'memory.lock'

@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-06-28 — `AI_MEMORY_HOME` 可搬移／多機共腦 ＋ memory-lint 開源衛生掃描
+
+續吸收 Open LeftBrain（其 `OPEN_LEFTBRAIN_HOME` 用環境變數產生跨工具共腦）。我們**本來就**是 Claude Code＋Codex
+共用同一顆 `~/.ai-memory`（雙入口都指它），這次再補兩個缺口：
+
+- **① `AI_MEMORY_HOME`（可搬移／跨機共腦）**：個人腦根改為「env var 優先、fallback `~/.ai-memory`」。
+  - **所有確定性腳本 runtime 讀它**：hook（block-failed-actions）、lib（memory-write/tool/detect-repeats）、
+    cron（nightly）、reset、lint（memory-lint）——設了 env **不必重裝**即生效（Open LeftBrain 語意）。
+  - **安裝器**（install-personal.{ps1,sh}）讀它決定把腦建在哪、入口檔指哪；**custom home 時把物化檔案
+    （入口／操作／guides／project-templates）裡的字面 `~/.ai-memory` 改寫成真實絕對路徑**，AI 讀到的路徑才正確。
+    預設 `~/.ai-memory` 時行為**完全不變**（仍保留 `~/.ai-memory` 字面）。
+  - **init-project.{ps1,sh}** 也讀它定位 `project-templates`。
+  - 用法：兩台電腦把 `AI_MEMORY_HOME` 指到**同一個雲端同步夾**＝共用記憶；或家目錄不可寫時改指可寫位置。
+    需**每台機器、每個會開 Claude/Codex 的 shell 都設同值**。
+- **② memory-lint 開源衛生掃描**：對**專案層**（會進 git 分享的）新增「個人絕對路徑」掃描——
+  `C:\Users\<名>`／`/Users/<名>`／`/home/<名>` 會 WARN（洩漏使用者名、換機器即失效）。對應 Open LeftBrain
+  DESIGN.md §605「memory lint 檢查個人絕對路徑」。個人層不掃（自己機器自己路徑合理）。
+- **文件**：`PATHS.md`（新增 `AI_MEMORY_HOME` 解析說明）、`新手指南.md`（進階：搬移／多機共腦一節）、
+  `機制與工具總覽.md`（個人腦可搬移 ＋ lint 開源衛生）。
+- **驗證**（隔離 live 全綠）：relocated 安裝→腦建在自訂位置、入口/操作/AGENTS.md 都改寫無 `~/.ai-memory` 殘留；
+  runtime 設 env→memory-lint 14 pass/0 fail、detect-repeats 正常、memory-write 寫進自訂 registry、hook 對
+  blocked 工具 exit 2／allowed exit 0；②掃描對植入的 `C:\Users\alice\...` 正確 WARN；預設家目錄安裝**零行為變化**
+  （入口仍保留 `~/.ai-memory` 字面、腦在預設位）。所有 .ps1 parse-clean、.sh `bash -n` 乾淨。
+
+---
+
 ## 2026-06-28 — 增量吸收 Open LeftBrain：新增 /handoff（交接記憶）＋ /recall（模糊搜尋）
 
 研讀「左腦 skill 結構」（Open LeftBrain，Python+SQLite 記憶引擎）後，**只吸收概念、守住 markdown 身分**

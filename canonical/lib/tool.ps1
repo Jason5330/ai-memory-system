@@ -22,7 +22,8 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $enc  = New-Object System.Text.UTF8Encoding $false
-$dir  = Join-Path $env:USERPROFILE '.ai-memory\tools'
+$aimem = if ($env:AI_MEMORY_HOME) { $env:AI_MEMORY_HOME -replace '^~', $env:USERPROFILE } else { Join-Path $env:USERPROFILE '.ai-memory' }
+$dir  = Join-Path $aimem 'tools'
 $reg  = Join-Path $dir 'tools.json'
 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force $dir | Out-Null }
 # read with explicit UTF-8 (PS 5.1 Get-Content mis-decodes UTF-8-no-BOM JSON containing non-ASCII triggers)

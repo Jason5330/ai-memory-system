@@ -14,7 +14,9 @@
 # Uses python3 for JSON parsing (reliably present; jq is not).
 
 platform="${1:-claude}"
-registry="$HOME/.ai-memory/blocked-actions.json"
+# personal brain root honors $AI_MEMORY_HOME (shared/relocatable brain), else default.
+aimem="${AI_MEMORY_HOME:-$HOME/.ai-memory}"; aimem="${aimem/#\~/$HOME}"
+registry="$aimem/blocked-actions.json"
 [ -f "$registry" ] || exit 0
 
 payload="$(cat)"

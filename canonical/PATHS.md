@@ -12,7 +12,21 @@
 | **Project** | `<project>/.claude/memory/` | THIS project's knowledge pages, conversation logs, project index | ❌ per-project | ✅ project knowledge may be (personal layer is NOT) |
 
 The personal layer is **platform-neutral** (named `.ai-memory`, not `.claude`) so a Codex-only
-user never needs a `~/.claude/` directory.
+user never needs a `~/.claude/` directory. **Claude Code and Codex already share this ONE personal
+brain** (Claude reads it via `~/.claude/CLAUDE.md`, Codex via `~/.codex/AGENTS.md` — both point at
+the same `~/.ai-memory`).
+
+### Relocating / sharing the brain — `AI_MEMORY_HOME`
+The personal root defaults to `~/.ai-memory` but can be **relocated** by setting the environment
+variable `AI_MEMORY_HOME` (e.g. `AI_MEMORY_HOME=~/OneDrive/ai-memory`). Every installer and every
+deterministic script (hook, lib, cron, reset, lint) reads it at runtime, fallback `~/.ai-memory`:
+- **Cross-machine shared memory** — point `AI_MEMORY_HOME` at the *same synced cloud folder* on two
+  machines; both (and both platforms on each) read/write one brain.
+- **Writable relocation** — when the home dir isn't writable, move the brain to any path.
+- Set the **same value everywhere** (every machine, every shell that launches Claude/Codex) or you
+  get separate brains. When set, the installer bakes the real path into the materialized entry/ops
+  (no `~/.ai-memory` literal remains). Concurrent writes are safe (per-file append + locks); avoid an
+  unreliable network drive.
 
 ## Two platforms (one content, materialized twice)
 
