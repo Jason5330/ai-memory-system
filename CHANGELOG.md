@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-06-28 — 增量吸收 Open LeftBrain：新增 /handoff（交接記憶）＋ /recall（模糊搜尋）
+
+研讀「左腦 skill 結構」（Open LeftBrain，Python+SQLite 記憶引擎）後，**只吸收概念、守住 markdown 身分**
+（不換 SQLite／向量，保留純文字、可審計、可 git）。核心仍 PS/bash，Python 只在 `/recall` 選用、缺 Python 自動退回關鍵字搜。
+
+- **`/handoff`（新）**：每層**唯一一份、可覆蓋、獨立**的「下個 session 從這裡接續」交接記憶，寫進 `<層>/handoff.md`。
+  - 用戶硬性要求「handoff 的記憶要獨立可覆蓋，不能跟其他記憶混在一起」→ `handoff.md` **不混入** MEMORY.md／
+    conversations／knowledge／doctrine；`/capture`、`/dream`、`/ingest-sessions`、`/recall` 全部**忽略**它。
+  - 入口檔（CLAUDE.md／AGENTS.md）session-start **最先讀 handoff**（先專案層、再個人層），其餘步驟順移。
+  - `dream.md` Phase 4 明寫 **Never touch `handoff.md`**，不索引進 MEMORY.md。
+- **`/recall`（新）＋ `canonical/lib/recall.py`**：純 Python stdlib 模糊搜尋（difflib + token overlap，含中文），
+  搜兩層 `knowledge/*.md`，同義／換句話也命中。強制 UTF-8 輸出（修 Windows cp950 中文亂碼）。沒裝 Python → 退回關鍵字掃。
+- 兩支安裝器 ops 清單加 `handoff`、`recall`；`install-personal.{ps1,sh}` 多複製 `recall.py` 到 `~/.ai-memory/lib/`。
+- 文件：`help.md`、`機制與工具總覽.md`（lib 區加 recall.py + handoff/recall 機制說明）同步更新。
+- 驗證：隔離安裝測試 PASS（handoff/recall 三平台物化、recall.py 進 lib）；recall.py 實跑「container 起不來」→ 命中 docker-tips。
+
+---
+
 ## 2026-06-05 — nightly 卡住/跳黑窗修正（用戶回報 Status 卡 Running、267009）
 
 用戶 schedule dream 後，nightly 啟動的 **headless `claude` 視窗卡住不關**、排程一直 Running（267009）。

@@ -14,6 +14,8 @@ Print this guide in the user's language. For each command give three things: **�
 | 指令 | 一句話 | 何時用 |
 |------|--------|--------|
 | `/capture` | 把這次對話的重點存進記憶 | 聊到值得記的東西、或某工具壞了 |
+| `/handoff` | 寫/讀**唯一可覆蓋**的「交接給下個 session」摘要（獨立檔、不混其他記憶）| 換窗口、上下文太長、要無縫接續 |
+| `/recall` | **模糊/同義搜尋**記憶知識頁（不只關鍵字；需 Python，沒裝退回關鍵字）| 「之前有沒有記過…」、做高風險/重複任務前 |
 | `/ingest-sessions` | 回頭把最近 Claude/Codex 會話沒記到的補抓進來 | 怕漏記、或交給每晚自動 |
 | `/dream` | 大整理 + 反思 + 提煉準則候選 | 累積幾天對話後（或每晚自動） |
 | `/harvest` | 把重複的工作流封裝成 skill | 同一流程做過 ≥2 次 |

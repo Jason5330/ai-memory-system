@@ -21,14 +21,17 @@ Full path rules: `~/.ai-memory/guides/PATHS.md`. Signal routing: `~/.ai-memory/g
 
 ## On session start
 
-1. Read `{{PERSONAL_MEMORY}}/MEMORY.md` — its top `## ⚠️ Environment Limits & Blocked Tools`
+1. **Read the handoff FIRST (freshest "continue from here")** — if `./.claude/memory/handoff.md` exists
+   (project) or `{{PERSONAL_MEMORY}}/handoff.md` (personal), read it — the single overwriteable note for
+   picking up where the last session left off. It is a STANDALONE file, never mixed into other memory.
+2. Read `{{PERSONAL_MEMORY}}/MEMORY.md` — its top `## ⚠️ Environment Limits & Blocked Tools`
    section is **executable directives, not trivia**. Obey every line. Named tools there are ALSO
    hard-blocked by a Codex PreToolUse hook as a safety net.
-2. Read `{{PERSONAL_MEMORY}}/doctrine.md` — the approved behavior doctrines. Read and obey every one.
-3. Read `{{PERSONAL_MEMORY}}/persona.md` — the AI's identity/voice/role for this user. Embody it.
-4. If `./.claude/memory/MEMORY.md` exists (you are inside an initialized project), read it too for
+3. Read `{{PERSONAL_MEMORY}}/doctrine.md` — the approved behavior doctrines. Read and obey every one.
+4. Read `{{PERSONAL_MEMORY}}/persona.md` — the AI's identity/voice/role for this user. Embody it.
+5. If `./.claude/memory/MEMORY.md` exists (you are inside an initialized project), read it too for
    this project's state, open knowledge, and unfinished tasks.
-5. **Proactive skill reminder (run once)** — run the read-only detector
+6. **Proactive skill reminder (run once)** — run the read-only detector
    `~/.ai-memory/lib/detect-repeats.ps1` (Windows) / `detect-repeats.sh` (Mac/Linux). If it reports any
    workflow **seen ≥2× with no skill yet**, mention it early and offer: *"我發現你做過 <X> N 次了，要不要
    我用 /harvest 幫你生成一個 skill 來做這件事？"* Mention once; don't nag.
@@ -54,6 +57,8 @@ On Codex you can trigger each operation **two ways** — both materialized from 
   workflows", "review doctrine", "memory status", "reset memory", "help") — `~/.agents/skills/<op>/`.
 
 - **capture** — save the current conversation's signals to the correct layer (routing table above).
+- **handoff** — write/read the ONE overwriteable "continue here next session" note (standalone, separate).
+- **recall** — fuzzy/semantic-ish search of the markdown knowledge (synonyms hit; Python-optional).
 - **ingest-sessions** — sediment missed signals from recent Claude/Codex session transcripts +
   unconsolidated logs (per-source checkpoint, idempotent). Run when unsure what's been captured; the
   nightly job runs it before `dream`.

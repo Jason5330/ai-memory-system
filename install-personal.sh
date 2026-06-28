@@ -46,6 +46,7 @@ mkdir -p "$PERSONAL/reset"; cp "$SRC/reset/reset.ps1" "$PERSONAL/reset/"; cp "$S
 mkdir -p "$PERSONAL/lib"; cp "$SRC/lib/memory-write.ps1" "$PERSONAL/lib/"; cp "$SRC/lib/memory-write.sh" "$PERSONAL/lib/"; chmod +x "$PERSONAL/lib/memory-write.sh"
 cp "$SRC/lib/detect-repeats.ps1" "$PERSONAL/lib/"; cp "$SRC/lib/detect-repeats.sh" "$PERSONAL/lib/"; chmod +x "$PERSONAL/lib/detect-repeats.sh"
 cp "$SRC/lib/tool.ps1" "$PERSONAL/lib/"; cp "$SRC/lib/tool.sh" "$PERSONAL/lib/"; chmod +x "$PERSONAL/lib/tool.sh"
+cp "$SRC/lib/recall.py" "$PERSONAL/lib/"
 mkdir -p "$PERSONAL/tools"; [ -f "$PERSONAL/tools/tools.json" ] || cp "$SRC/templates/tools.json" "$PERSONAL/tools/tools.json"
 # stage project scaffolding so init-project works from any folder without the framework repo
 PT="$PERSONAL/project-templates"; mkdir -p "$PT"
@@ -81,7 +82,7 @@ echo "[5] entry files: ~/.claude/CLAUDE.md + ~/.codex/AGENTS.md"
 
 # 6. Operations → Claude commands + Codex skills
 mkdir -p "$CODEX/prompts"
-for op in capture dream harvest review-doctrine status schedule-dream reset help ingest-sessions; do
+for op in capture handoff recall dream harvest review-doctrine status schedule-dream reset help ingest-sessions; do
     cp "$SRC/operations/$op.md" "$CMDS/$op.md"                        # Claude slash-command
     mkdir -p "$AGENTS_SK/$op"; cp "$SRC/operations/$op.md" "$AGENTS_SK/$op/SKILL.md"   # Codex skill (intent)
     cp "$SRC/operations/$op.md" "$CODEX/prompts/$op.md"              # Codex slash-command (/capture etc.)

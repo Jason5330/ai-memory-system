@@ -109,6 +109,9 @@ Then **re-materialize** the updated SKILL.md to its Codex twin (`.agents/skills/
 failure in the log for `/harvest` to handle.
 
 ## Phase 4: Sync Index (per layer) — keep it a BOUNDED INDEX
+**Never touch `handoff.md`** — it is a standalone, overwriteable session-transfer note (managed only by
+`/handoff`); do NOT index it into `MEMORY.md` or fold it into knowledge/reflection. Skip it entirely.
+
 Rewrite each layer's `MEMORY.md` as a **bounded index only**: one line per item (a title/hook + link),
 **never body text** — the substance lives in the topic files, MEMORY.md just points at them. Group by
 type with **bilingual headers** (keep the form the template uses: `## User 用戶`,

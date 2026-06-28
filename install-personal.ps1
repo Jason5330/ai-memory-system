@@ -69,6 +69,7 @@ Copy-Item (Join-Path $SRC 'lib\detect-repeats.ps1') (Join-Path $LIB 'detect-repe
 Copy-Item (Join-Path $SRC 'lib\detect-repeats.sh')  (Join-Path $LIB 'detect-repeats.sh')  -Force
 Copy-Item (Join-Path $SRC 'lib\tool.ps1') (Join-Path $LIB 'tool.ps1') -Force
 Copy-Item (Join-Path $SRC 'lib\tool.sh')  (Join-Path $LIB 'tool.sh')  -Force
+Copy-Item (Join-Path $SRC 'lib\recall.py') (Join-Path $LIB 'recall.py') -Force
 $TOOLS = Join-Path $PERSONAL 'tools'; New-Item -ItemType Directory -Force $TOOLS | Out-Null
 if (-not (Test-Path (Join-Path $TOOLS 'tools.json'))) { Copy-Item (Join-Path $SRC 'templates\tools.json') (Join-Path $TOOLS 'tools.json') -Force }
 # stage project scaffolding so init-project works from any folder without the framework repo
@@ -108,7 +109,7 @@ Install-Entry (Join-Path $SRC 'entry\AGENTS.md') (Join-Path $CODEX 'AGENTS.md')
 Write-Host "[5] entry files: ~/.claude/CLAUDE.md + ~/.codex/AGENTS.md" -ForegroundColor Green
 
 # 6. Operations → Claude commands + Codex skills + Codex slash-commands (single source, triple materialize)
-$ops = @('capture','dream','harvest','review-doctrine','status','schedule-dream','reset','help','ingest-sessions')
+$ops = @('capture','handoff','recall','dream','harvest','review-doctrine','status','schedule-dream','reset','help','ingest-sessions')
 $CODEX_PROMPTS = Join-Path $CODEX 'prompts'; New-Item -ItemType Directory -Force $CODEX_PROMPTS | Out-Null
 foreach ($op in $ops) {
     $opSrc = Join-Path $SRC "operations\$op.md"
