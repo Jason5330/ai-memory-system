@@ -10,12 +10,25 @@ capture **accumulates** signals (logs/knowledge/decisions); handoff is **one sho
 "what the next session needs to pick up" note that **overwrites** the previous one. Roots:
 `PERSONAL = ~/.ai-memory`, `PROJECT = ./.claude/memory` (if present).
 
+## Decide: WRITE or READ (default = WRITE)
+`/handoff` is **almost always a WRITE** — the user wants to *save* where things are. Pick:
+- **WRITE (default)** — whenever this session has ANY real progress / decisions / next steps to hand
+  off, OR the user gave summary text, OR said 交接 / 做個交接 / 換窗口 / 先存進度. Distil it from the
+  session and overwrite `<layer>/handoff.md`, **then show what you wrote**.
+- **READ only** — *only* when there is genuinely nothing to hand off yet (a brand-new session, no work
+  done) OR the user explicitly asked to *see* it ("看交接", "show/read handoff"). Then print the
+  current handoff. (Session start already auto-reads it, so a manual READ is rare.)
+
+> ⚠️ **Never answer a mid-conversation `/handoff` with just "no handoff exists / nothing written".**
+> If there's no file yet, that means you should **WRITE the first one** from this session — not report
+> its absence. Reporting "不存在、沒寫入" is the wrong outcome when the user clearly wanted to save progress.
+
 ## Which layer
 Write to the **project** layer's `handoff.md` when inside an initialized project (it's about *this*
 project's progress); otherwise the **personal** `~/.ai-memory/handoff.md`. (You may keep both — a
 project handoff for the task, a personal one for cross-project state.)
 
-## Write (overwrite) — `/handoff "summary"` or `/handoff` after a long session
+## Write (overwrite) — the default action
 Overwrite `<layer>/handoff.md` with a concise, structured note. Populate every section that applies;
 **preserve exact identifiers verbatim** (paths, function names, error codes, commands):
 ```markdown
@@ -30,9 +43,10 @@ Overwrite `<layer>/handoff.md` with a concise, structured note. Populate every s
 Keep it SHORT (it's a pointer, not a transcript) and **always current** — overwrite, don't append.
 If the user gave the summary text, use it; otherwise distil it from this session.
 
-## Read — `/handoff` (no new content)
+## Read — only when there's nothing to save (or the user asked to *see* it)
 Print the current `<layer>/handoff.md` (and the personal one if relevant) so the user / next session
-sees exactly where to continue.
+sees exactly where to continue. If no file exists AND this session has progress, **WRITE one instead**
+(see the rule above) rather than reporting that it's missing.
 
 ## When to write it (proactive)
 - The user says they're switching windows / starting a fresh session.

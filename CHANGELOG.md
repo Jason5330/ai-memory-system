@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-06-28 — 修 `/handoff` 在 Codex 只「讀」不「寫」（回報「不存在、沒寫入」）
+
+用戶在 Codex 對話中途打 `/handoff`，期待「存進度」，結果它回「兩層 handoff.md 都不存在、我沒有寫入任何檔案」。
+根因：`handoff.md` 操作把讀／寫判定寫得**自相矛盾**——Write 段說「`/handoff` after a long session（寫）」，
+Read 段又說「`/handoff`（no new content）＝讀」。AI 挑了「讀」，發現沒檔案就收工。
+
+- **預設改為 WRITE**：新增〈Decide: WRITE or READ (default = WRITE)〉段——`/handoff` 幾乎都是「存進度」。
+  只有「全新 session、毫無進度」或使用者明說「看交接／show handoff」才走讀。
+- **直接堵掉錯誤結果**：明寫 **「對話中途的 `/handoff` 不可只回報『不存在／沒寫入』；沒檔案就寫第一份」**。
+- Read 段也補：若無檔案但本 session 有進度 → 改成寫。
+- 物化驗證：Codex `SKILL.md` 與 `~/.codex/prompts/handoff.md` 都帶到新規則。
+- ⚠️ 既有 Codex/Claude **需重開**才會載入更新後的 handoff 指示。
+
+---
+
 ## 2026-06-28 — `初始化專案.cmd` 可攜化：複製進專案夾、在裡面雙擊即可
 
 用戶問「能不能把 `初始化專案.cmd` 放進專案夾、在裡面點」。原本不行——它寫死找**同層**的 init-project.ps1。改成可攜：
